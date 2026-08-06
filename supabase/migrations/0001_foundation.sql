@@ -80,6 +80,7 @@ create table public.mine_sites (
   deleted_at timestamptz,
   deleted_by uuid references public.profiles(id),
   unique (organization_id, name),
+  unique (organization_id, id),
   check ((latitude is null and longitude is null) or (latitude between -90 and 90 and longitude between -180 and 180))
 );
 
@@ -175,6 +176,14 @@ begin
     (gen_random_uuid(), org_id, 'safety_officer', 'Safety officer', true, auth.uid(), auth.uid()),
     (gen_random_uuid(), org_id, 'viewer', 'Viewer', true, auth.uid(), auth.uid());
   insert into public.role_permissions (role_id, permission_id) select owner_role_id, id from public.permissions;
+  insert into public.role_permissions (role_id, permission_id)
+  select r.id, p.id
+  from public.roles r
+  cross join public.permissions p
+  where r.organization_id = org_id
+    and ((r.code = 'mine_manager' and p.code in ('organization.read', 'site.read', 'site.create', 'site.update', 'member.read', 'worker.read', 'worker.create', 'worker.update'))
+      or (r.code = 'site_supervisor' and p.code in ('site.read', 'worker.read', 'worker.create', 'worker.update')))
+  on conflict do nothing;
   insert into public.organization_memberships (organization_id, user_id, role_id, status, joined_at, created_by, updated_by) values (org_id, auth.uid(), owner_role_id, 'active', now(), auth.uid(), auth.uid());
   insert into public.mine_sites (organization_id, name, country_code, created_by, updated_by) values (org_id, trim(initial_site_name), upper(initial_site_country), auth.uid(), auth.uid());
   insert into public.audit_logs (organization_id, user_id, action, entity_type, entity_id, new_values) values (org_id, auth.uid(), 'created', 'organization', org_id, jsonb_build_object('name', organization_name));

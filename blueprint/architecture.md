@@ -1,5 +1,7 @@
 # Mantara OS MVP — Architecture Blueprint
 
+> Project status and the product/business journey are maintained in [the roadmap](../docs/roadmap.md). This document remains the technical design reference.
+
 ## 1. Repository assessment
 
 ### Current state

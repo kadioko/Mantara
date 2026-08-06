@@ -1,5 +1,7 @@
 # Mantara Blueprint
 
+> This is the long-term product vision. For the active MVP position, delivery sequence, and business milestones, see the [Mantara roadmap and journey](../docs/roadmap.md).
+
 MANTARA
 
 Mining Intelligence and Operations Platform

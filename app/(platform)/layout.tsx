@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
-import { currentMembership } from "@/lib/auth/context";
+import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { hasPermission } from "@/lib/auth/permissions";
 import { AppShell } from "@/components/shell/app-shell";
 
 export default async function PlatformLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { membership } = await currentMembership();
-  if (!membership) redirect("/onboarding");
-  const organization = Array.isArray(membership.organization) ? membership.organization[0] : membership.organization;
-  return <AppShell organizationName={organization?.name ?? "Mantara"}>{children}</AppShell>;
+  const workspace = await getActiveWorkspace();
+  if (!workspace.activeOrganization) redirect("/onboarding");
+  const canViewWorkers = await hasPermission(workspace.activeOrganization.id, "worker.read");
+  return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} canViewWorkers={canViewWorkers}>{children}</AppShell>;
 }

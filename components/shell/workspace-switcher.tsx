@@ -1,0 +1,9 @@
+import { setActiveOrganization, setActiveSite } from "@/features/workspace/actions";
+import type { WorkspaceOrganization, WorkspaceSite } from "@/lib/auth/workspace";
+
+export function WorkspaceSwitcher({ organizations, activeOrganization, sites, activeSite }: { organizations: WorkspaceOrganization[]; activeOrganization: WorkspaceOrganization; sites: WorkspaceSite[]; activeSite: WorkspaceSite | null }) {
+  return <div className="space-y-3 text-sm">
+    <form action={setActiveOrganization} className="space-y-1"><label className="font-medium" htmlFor="organizationId">Organization</label><div className="flex gap-2"><select className="min-w-0 flex-1 rounded-md border border-stone-300 bg-white px-2 py-2 text-stone-900" defaultValue={activeOrganization.id} id="organizationId" name="organizationId">{organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}</select><button className="rounded-md border border-stone-300 px-2 py-1 text-xs font-semibold" type="submit">Switch</button></div></form>
+    {sites.length > 0 && <form action={setActiveSite} className="space-y-1"><input name="organizationId" type="hidden" value={activeOrganization.id} /><label className="font-medium" htmlFor="siteId">Mine site</label><div className="flex gap-2"><select className="min-w-0 flex-1 rounded-md border border-stone-300 bg-white px-2 py-2 text-stone-900" defaultValue={activeSite?.id} id="siteId" name="siteId">{sites.map((site) => <option key={site.id} value={site.id}>{site.name}</option>)}</select><button className="rounded-md border border-stone-300 px-2 py-1 text-xs font-semibold" type="submit">Switch</button></div></form>}
+  </div>;
+}

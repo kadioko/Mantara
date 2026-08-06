@@ -1,6 +1,10 @@
 # Mantara
 
-Mantara OS is a secure, multi-tenant mining operations platform.
+Mantara OS is a secure, multi-tenant mining operations platform for artisanal, small-scale, and medium-sized mining companies.
+
+## Project status
+
+The foundation is implemented locally and linked to Supabase. Deploy the first migration before testing authentication or onboarding against the live project. See the [roadmap and journey](docs/roadmap.md) for current progress, product phases, and the parallel business plan.
 
 ## Local setup
 
@@ -10,4 +14,4 @@ Mantara OS is a secure, multi-tenant mining operations platform.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
 
-See [the architecture blueprint](blueprint/architecture.md) for the MVP plan and implementation sequence.
+See [the architecture blueprint](blueprint/architecture.md) for the MVP plan and implementation sequence, and the [manual QA checklist](docs/manual-qa-checklist.md) for foundation verification.
