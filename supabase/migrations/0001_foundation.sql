@@ -27,7 +27,7 @@ create table public.organizations (
 
 create table public.permissions (
   id uuid primary key default gen_random_uuid(),
-  code text not null unique check (code ~ '^[a-z_]+\\.[a-z_]+$'),
+  code text not null unique check (code ~ '^[a-z_]+\.[a-z_]+$'),
   name text not null,
   description text not null,
   created_at timestamptz not null default now()
