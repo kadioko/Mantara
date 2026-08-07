@@ -17,8 +17,10 @@ Migrations `0001`–`0013` are applied to Supabase and the production build pass
 adds invitations and notifications and is not deployed yet**, so user administration and notifications
 will not work against the live project until it is applied. A labelled demo workspace exists in Supabase.
 
-What remains before a pilot: document storage, organization settings, the remaining Kiswahili coverage,
-and release hardening — pagination, editing, and deactivation in particular.
+Stage 8 has started: the workers register, equipment register, and audit log now page and search, and
+workers and equipment can be edited and removed. What remains before a pilot: the same treatment for
+the other lists and catalogues, document storage, organization settings, and the remaining Kiswahili
+coverage.
 
 ## Delivered
 
