@@ -11,3 +11,10 @@ export const workerSchema = z.object({
   emergencyContactPhone: z.string().trim().max(40).optional(),
   notes: z.string().trim().max(2_000).optional(),
 });
+
+export const attendanceSchema = z.object({
+  workerId: z.string().uuid(),
+  attendanceDate: z.string().date(),
+  status: z.enum(["present", "absent", "late", "leave"]),
+  notes: z.string().trim().max(1_000).optional(),
+});

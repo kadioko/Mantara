@@ -1,7 +1,7 @@
 # Mantara roadmap and journey
 
 **Current position: Foundation and workspace shell**  
-**Last updated: 6 August 2026**
+**Last updated: 7 August 2026**
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
 
@@ -12,7 +12,9 @@ Mantara is being built as the digital operating system for African mining: a tru
 - A Next.js, TypeScript, Tailwind, and Supabase foundation exists.
 - Authentication, onboarding, organizations, memberships, roles, permissions, mine sites, audit-log tables, and RLS migration are implemented locally.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
-- The production database migration is **not yet applied**; therefore real login and tenant data cannot be tested until it is deployed.
+- Foundation and Workers migrations are applied to the Mantara Supabase project.
+- English and Kiswahili are supported through a cookie-based translation layer, designed for future African-language additions.
+- The platform-administrator role is isolated from organization roles and does not bypass tenant RLS.
 
 ## Product journey
 
@@ -21,7 +23,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
 | 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Code complete; awaiting migration deployment |
 | 2. Workspace | Responsive shell, active organization/site context, protected navigation | Code complete; awaiting migration deployment |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register implemented |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register, profiles, and attendance implemented |
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Planned |
 | 5. Production | Shifts, production capture, approvals, summaries | Planned |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Planned |

@@ -2,6 +2,8 @@
 
 Mantara OS is a secure, multi-tenant mining operations platform for artisanal, small-scale, and medium-sized mining companies.
 
+The currently implemented interface supports English and Kiswahili. Additional African languages can be added through the centralized translation catalog in `lib/i18n/`.
+
 ## Project status
 
 The foundation is implemented locally and linked to Supabase. Deploy the first migration before testing authentication or onboarding against the live project. See the [roadmap and journey](docs/roadmap.md) for current progress, product phases, and the parallel business plan.
