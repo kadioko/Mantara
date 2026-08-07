@@ -57,7 +57,7 @@ beforeAll(async () => {
      values ($1, $2, 'Main tank', $3, $3) returning id`,
     [acme.organizationId, acme.siteId, acme.userId],
   );
-  await db.query("select public.record_fuel_receipt($1, $2)", [store.rows?.[0]?.id ?? store[0].id, 4000]);
+  await db.query("select public.record_fuel_receipt($1, $2)", [store[0].id, 4000]);
 }, 120_000);
 
 afterAll(async () => { await db?.close(); });
