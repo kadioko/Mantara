@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Panel } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
@@ -13,19 +14,12 @@ import {
 import { budgetPeriodLabels, expenseStatusLabels } from "@/features/expenses/schemas";
 
 const statusTone: Record<string, string> = {
-  draft: "bg-stone-100 text-stone-700",
-  submitted: "bg-amber-50 text-amber-800",
-  approved: "bg-emerald-50 text-emerald-800",
-  rejected: "bg-red-50 text-red-700",
-  paid: "bg-emerald-100 text-emerald-900",
+  draft: "bg-muted text-foreground",
+  submitted: "bg-warning/15 text-warning-foreground",
+  approved: "bg-success/12 text-primary",
+  rejected: "bg-destructive/12 text-destructive",
+  paid: "bg-success/20 text-success",
 };
-
-function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-    <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{title}</h2>{description && <p className="text-sm text-stone-600">{description}</p>}</div>
-    <div className="p-5">{children}</div>
-  </section>;
-}
 
 export default async function ExpensesPage() {
   const workspace = await getActiveWorkspace();
@@ -70,15 +64,15 @@ export default async function ExpensesPage() {
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "controls")}</p>
       <h1 className="mt-2 text-3xl font-bold">{t(locale, "expenses")}</h1>
-      <p className="mt-2 text-stone-600">{t(locale, "expensesDescription", { site: site.name })}</p>
+      <p className="mt-2 text-muted-foreground">{t(locale, "expensesDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "approvedSpend")}</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{awaiting.length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "activeBudgets")}</p><p className="mt-1 text-2xl font-bold">{budgets.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "approvedSpend")}</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{awaiting.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeBudgets")}</p><p className="mt-1 text-2xl font-bold">{budgets.length}</p></div>
     </div>
 
     {canCreate && <ExpenseForm
@@ -91,22 +85,22 @@ export default async function ExpensesPage() {
 
     <Panel title={t(locale, "expenses")} description={t(locale, "mostRecentFirst")}>
       {expenses.length
-        ? <ul className="divide-y divide-stone-100">{expenses.map((expense) => {
+        ? <ul className="divide-y divide-border">{expenses.map((expense) => {
             const category = Array.isArray(expense.category) ? expense.category[0] : expense.category;
             return <li key={expense.id} className="grid gap-2 py-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-center">
-              <span className="font-semibold"><Link className="text-emerald-900 hover:underline" href={`/expenses/${expense.id}`}>{expense.description}</Link></span>
-              <span className="text-sm text-stone-600">{category?.name ?? "Uncategorised"}</span>
-              <span className="text-sm text-stone-600">{Number(expense.amount).toLocaleString()} {expense.currency_code} · {expense.incurred_on}</span>
-              <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[expense.status] ?? "bg-stone-100 text-stone-700"}`}>{expenseStatusLabels[expense.status as keyof typeof expenseStatusLabels] ?? expense.status}</span>
+              <span className="font-semibold"><Link className="text-primary hover:underline" href={`/expenses/${expense.id}`}>{expense.description}</Link></span>
+              <span className="text-sm text-muted-foreground">{category?.name ?? "Uncategorised"}</span>
+              <span className="text-sm text-muted-foreground">{Number(expense.amount).toLocaleString()} {expense.currency_code} · {expense.incurred_on}</span>
+              <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[expense.status] ?? "bg-muted text-foreground"}`}>{expenseStatusLabels[expense.status as keyof typeof expenseStatusLabels] ?? expense.status}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No expenses recorded at this site yet.</p>}
+        : <p className="text-sm text-muted-foreground">No expenses recorded at this site yet.</p>}
     </Panel>
 
     <Panel title={t(locale, "budgets")} description="Only approved and paid expenses count against a budget.">
-      {canUpdate && <div className="mb-5 border-b border-stone-100 pb-5"><BudgetForm categories={categoryOptions} currency={currency} today={today} /></div>}
+      {canUpdate && <div className="mb-5 border-b border-border pb-5"><BudgetForm categories={categoryOptions} currency={currency} today={today} /></div>}
       {budgets.length
-        ? <ul className="divide-y divide-stone-100">{budgets.map((budget) => {
+        ? <ul className="divide-y divide-border">{budgets.map((budget) => {
             const category = Array.isArray(budget.category) ? budget.category[0] : budget.category;
             const spent = consumption.get(budget.id) ?? 0;
             const limit = Number(budget.amount);
@@ -114,16 +108,16 @@ export default async function ExpensesPage() {
             const over = spent > limit;
             return <li key={budget.id} className="py-3">
               <div className="flex flex-wrap justify-between gap-2">
-                <span className="font-medium">{budget.name}<span className="ml-2 text-sm font-normal text-stone-500">{budgetPeriodLabels[budget.period as keyof typeof budgetPeriodLabels] ?? budget.period}{category?.name ? ` · ${category.name}` : ""}</span></span>
-                <span className={`text-sm ${over ? "font-semibold text-red-700" : "text-stone-600"}`}>{spent.toLocaleString()} of {limit.toLocaleString()} {budget.currency_code}{over ? " · over budget" : ""}</span>
+                <span className="font-medium">{budget.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{budgetPeriodLabels[budget.period as keyof typeof budgetPeriodLabels] ?? budget.period}{category?.name ? ` · ${category.name}` : ""}</span></span>
+                <span className={`text-sm ${over ? "font-semibold text-destructive" : "text-muted-foreground"}`}>{spent.toLocaleString()} of {limit.toLocaleString()} {budget.currency_code}{over ? " · over budget" : ""}</span>
               </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-stone-100">
-                <div className={`h-full ${over ? "bg-red-600" : "bg-emerald-700"}`} style={{ width: `${over ? 100 : share}%` }} />
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div className={`h-full ${over ? "bg-destructive" : "bg-primary"}`} style={{ width: `${over ? 100 : share}%` }} />
               </div>
-              <p className="mt-1 text-xs text-stone-500">{budget.starts_on} → {budget.ends_on}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{budget.starts_on} → {budget.ends_on}</p>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No budgets set.</p>}
+        : <p className="text-sm text-muted-foreground">No budgets set.</p>}
     </Panel>
 
     {canUpdate && <Panel title="Categories"><ExpenseCategoryForm /></Panel>}

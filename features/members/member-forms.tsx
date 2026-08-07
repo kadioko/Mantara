@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { Ban, RotateCcw, UserPlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { selectClass } from "@/components/ui/form";
+import { Ban, RotateCcw, UserPlus, X } from "lucide-react";
 import { Input, Label } from "@/components/ui/input";
 import { ActionFeedback } from "@/components/ui/feedback";
 import {
@@ -14,7 +15,6 @@ import {
   type MemberState,
 } from "./actions";
 
-const selectClass = "h-9 rounded-md border border-input bg-card px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export const roleLabels: Record<string, string> = {
   company_owner: "Company owner",

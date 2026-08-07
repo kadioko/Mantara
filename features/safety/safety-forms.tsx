@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState } from "react";
-import { Eye, Lock, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { selectClass } from "@/components/ui/form";
+import { Eye, Lock, ShieldAlert } from "lucide-react";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { ActionFeedback, Alert } from "@/components/ui/feedback";
 import {
@@ -29,7 +30,6 @@ import {
 
 export type Option = { id: string; label: string };
 
-const selectClass = "mt-1 flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 function Select({ name, label, options, placeholder, required, defaultValue }: { name: string; label: string; options: Option[]; placeholder?: string; required?: boolean; defaultValue?: string }) {
   return <div>

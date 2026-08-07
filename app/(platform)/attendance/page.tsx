@@ -44,21 +44,21 @@ export default async function AttendancePage({ searchParams }: { searchParams: P
   const canRecord = await hasPermission(workspace.activeOrganization.id, "worker.update");
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">WORKFORCE</p>
+    <p className="text-sm font-semibold tracking-wider text-accent-foreground">WORKFORCE</p>
     <h1 className="mt-2 text-3xl font-bold">Attendance</h1>
-    <p className="mt-2 text-stone-600">Daily attendance for {workspace.activeSite.name}.</p>
+    <p className="mt-2 text-muted-foreground">Daily attendance for {workspace.activeSite.name}.</p>
     <form method="get" className="mt-6 flex flex-wrap items-end gap-3">
       <label className="text-sm font-semibold">Date
-        <input name="date" type="date" defaultValue={date} className="mt-1 block rounded-lg border border-stone-300 px-3 py-2" />
+        <input name="date" type="date" defaultValue={date} className="mt-1 block rounded-lg border border-input px-3 py-2" />
       </label>
-      <button className="rounded-lg border border-stone-300 px-4 py-2 text-sm font-semibold">Load day</button>
+      <button className="rounded-lg border border-input px-4 py-2 text-sm font-semibold">Load day</button>
     </form>
     <div className="mt-6">
       {canRecord
         ? <AttendanceForm date={date} workers={rows} />
-        : <div className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-            <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">Attendance for {date}</h2><p className="text-sm text-stone-600">You can view but not record attendance.</p></div>
-            {rows.length ? <div className="divide-y divide-stone-100">{rows.map((worker) => <div key={worker.id} className="grid gap-1 p-4 md:grid-cols-[2fr_1fr]"><p className="font-semibold">{worker.fullName}</p><p className="text-sm capitalize text-stone-600">{worker.status ?? "not recorded"}</p></div>)}</div> : <p className="p-5 text-sm text-stone-600">No active workers are registered at this site yet.</p>}
+        : <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="border-b border-border px-5 py-4"><h2 className="font-bold">Attendance for {date}</h2><p className="text-sm text-muted-foreground">You can view but not record attendance.</p></div>
+            {rows.length ? <div className="divide-y divide-border">{rows.map((worker) => <div key={worker.id} className="grid gap-1 p-4 md:grid-cols-[2fr_1fr]"><p className="font-semibold">{worker.fullName}</p><p className="text-sm capitalize text-muted-foreground">{worker.status ?? "not recorded"}</p></div>)}</div> : <p className="p-5 text-sm text-muted-foreground">No active workers are registered at this site yet.</p>}
           </div>}
     </div>
   </section>;

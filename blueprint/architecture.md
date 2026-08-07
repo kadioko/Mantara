@@ -2,13 +2,18 @@
 
 > Project status and the product/business journey are maintained in [the roadmap](../docs/roadmap.md). This document remains the technical design reference.
 
-> **Implementation note — 7 August 2026:** Foundation and Workforce migrations are deployed; only Workers and Attendance UI are currently implemented. The entity map below is the target MVP schema, not a claim that every domain table exists. See the [audited project status](../docs/project-status.md).
+> **Implementation note — 7 August 2026:** This document was written before implementation began and has
+> since been updated to describe what exists. Section 1 is kept as a record of the starting point;
+> everything after it reflects the current system. Every domain in the entity map is implemented. See
+> the [audited project status](../docs/project-status.md) for delivered scope and remaining gaps.
 
 ## 1. Repository assessment
 
-### Current state
+### Starting state, for the record
 
-The linked GitHub repository is connected as `origin` and currently contains only `README.md` (initial commit `2c9b28a`). There is no existing application stack, package manifest, database integration, environment configuration, test suite, or deployment configuration to preserve.
+At the time this document was written the repository contained only `README.md` (initial commit
+`2c9b28a`), with no application stack, database integration, test suite, or deployment configuration
+to preserve. The stack below was chosen from that blank start and has not changed since.
 
 ### Recommended stack
 
@@ -119,35 +124,71 @@ Permission codes use `domain.action` format. The matrix is a default role templa
 | `safety_officer` | Organization/site | Safety incidents, inspections, corrective actions, and relevant compliance tasks. |
 | `viewer` | Assigned sites | Read-only access to explicitly granted modules and reports. |
 
-Foundation permission codes: `organization.read`, `organization.update`, `site.create`, `site.read`, `site.update`, `member.invite`, `member.read`, `member.update_role`, `role.read`, `role.manage`, `audit_log.read`.
+The permission codes now in use, by domain:
+
+- Organization and access: `organization.read`, `organization.update`, `site.create`, `site.read`, `site.update`, `member.invite`, `member.read`, `member.update_role`, `role.read`, `role.manage`, `audit_log.read`
+- Workforce: `worker.read`, `worker.create`, `worker.update`
+- Equipment: `equipment.read`, `equipment.create`, `equipment.update`
+- Production: `production.read`, `production.create`, `production.update`, `production.approve`
+- Fuel: `fuel.read`, `fuel.manage`, `fuel.receive`, `fuel.issue`, `fuel.adjust`
+- Maintenance: `maintenance.read`, `maintenance.create`, `maintenance.update`
+- Inventory: `inventory.read`, `inventory.manage`, `inventory.receive`, `inventory.issue`, `inventory.transfer`, `inventory.adjust`
+- Expenses: `expense.read`, `expense.create`, `expense.update`, `expense.approve`
+- Compliance: `compliance.read`, `compliance.create`, `compliance.update`
+- Safety: `safety.read`, `safety.create`, `safety.update`, `safety.read_sensitive`
+
+Movement-level codes for fuel and inventory exist so a storekeeper can issue stock without also being
+able to correct it. `safety.read_sensitive` is separate because incident records carry personal and
+medical information; it is not granted to any role by default except the owner.
+
+Role defaults live in the `role_permission_defaults` table rather than in application code, so a new
+organization and an existing one are granted from one source.
+
+Platform administration is deliberately **not** a permission code. It is a separate axis, held in
+`platform_admins`, that grants no access to any tenant record.
 
 ## 6. Route map
+
+Implemented, with anything still outstanding marked.
 
 | Area | Routes |
 | --- | --- |
 | Authentication | `/login`, `/register` |
 | Setup | `/onboarding` |
-| Core workspace | `/dashboard`, `/sites`, `/sites/[siteId]` |
-| Operations | `/workers`, `/workers/[workerId]`, `/attendance`, `/shifts`, `/production`, `/production/new`, `/production/[entryId]`, `/equipment`, `/equipment/[equipmentId]`, `/fuel`, `/maintenance`, `/inventory`, `/expenses`, `/compliance`, `/safety` |
-| Intelligence | `/reports`, `/notifications` |
-| Administration | `/settings`, `/settings/organization`, `/settings/users`, `/settings/roles`, `/settings/audit-logs` |
+| Core workspace | `/dashboard`; `/sites` and `/sites/[siteId]` **not built** |
+| Workforce | `/workers`, `/workers/[workerId]`, `/attendance` |
+| Operations | `/shifts`, `/production`, `/production/[entryId]`, `/equipment`, `/equipment/[equipmentId]` |
+| Controls | `/fuel`, `/maintenance`, `/maintenance/[workOrderId]`, `/inventory`, `/expenses`, `/expenses/[expenseId]` |
+| Risk | `/compliance`, `/safety`, `/safety/[incidentId]` |
+| Intelligence | `/reports`, `/reports/export`, `/notifications` |
+| Administration | `/settings/users`, `/settings/audit-logs`; `/settings/organization` and `/settings/roles` **not built** |
+| Platform | `/admin`, `/admin/organizations`, `/admin/administrators`, `/admin/audit` |
 
-`(auth)` uses a minimal public layout. `(onboarding)` requires an authenticated user with no active organization. `(platform)` requires authentication, an active organization, and per-page permission checks.
+Production capture happens on `/production` rather than a separate `/production/new`.
+
+`(auth)` uses a minimal public layout. `(onboarding)` requires an authenticated user with no active
+organization. `(platform)` requires authentication, an active organization, and per-page permission
+checks. `(admin)` is a separate group requiring platform administration and nothing else, so a
+platform administrator with no organization of their own can still reach it.
 
 ## 7. Development phases
 
-1. Foundation: Next.js setup, environment validation, Supabase clients, auth, profiles, organizations, memberships, mine sites, roles/permissions, RLS, and foundational tests.
-2. Application shell: protected layout, organization/site context, navigation, responsive patterns, and error/loading states.
-3. Workers and attendance.
-4. Equipment.
-5. Shifts and production with approval.
-6. Fuel with transactional balance logic and approval.
-7. Maintenance.
-8. Inventory with transactional balance logic and approval.
-9. Expenses and budgets with approval.
-10. Compliance and safety.
-11. Reports, notifications, and audit-log UI.
-12. Production readiness: test hardening, accessibility, performance, storage, QA checklist, and deployment setup.
+Phases 1 to 11 are implemented. Phase 12 is in progress.
+
+1. ✅ Foundation: Next.js setup, environment validation, Supabase clients, auth, profiles, organizations, memberships, mine sites, roles/permissions, RLS, and foundational tests.
+2. ✅ Application shell: protected layout, organization/site context, navigation, responsive patterns, and error/loading states.
+3. ✅ Workers and attendance, plus assignments, training, and PPE.
+4. ✅ Equipment, with monotonic meter readings and automatic status history.
+5. ✅ Shifts and production with a database-enforced approval lifecycle.
+6. ✅ Fuel with transactional balance logic.
+7. ✅ Maintenance, including service schedules that roll forward on completion.
+8. ✅ Inventory with transactional stock logic and deadlock-safe transfers.
+9. ✅ Expenses and budgets with approval.
+10. ✅ Compliance and safety, the latter with sensitive details behind a granular, audited permission.
+11. ✅ Reports, notifications, and audit-log UI, plus dashboard figures and user administration.
+12. ⏳ Production readiness: paging, search, and record editing have started. Document storage,
+    organization settings, the remaining Kiswahili coverage, accessibility, performance, and pilot QA
+    signoff remain.
 
 ## 8. Assumptions
 
@@ -157,38 +198,25 @@ Foundation permission codes: `organization.read`, `organization.update`, `site.c
 - Site-level access is an optional restriction layered over organization membership; owner and manager roles default to all organization sites.
 - Development seed data is opt-in and never bundled into production UI.
 
-## 9. Exact initial files to create or modify
+## 9. Implemented structure
 
-Foundation implementation will create or modify:
+Domain code lives under `features/<domain>/` as `schemas.ts` (Zod), `actions.ts` (server actions), and
+one or more `*-forms.tsx` client components. Pages under `app/(platform)/<domain>/` compose those with
+shared primitives from `components/ui/`.
 
-```text
-package.json
-next.config.ts
-tsconfig.json
-tailwind configuration and global styles
-.env.example
-app/(auth)/login/page.tsx
-app/(auth)/register/page.tsx
-app/(onboarding)/onboarding/page.tsx
-app/(platform)/layout.tsx
-app/(platform)/dashboard/page.tsx
-app/auth/callback/route.ts
-proxy.ts
-components/shell/*
-components/ui/*
-features/auth/*
-features/organizations/*
-features/sites/*
-features/permissions/*
-lib/env.ts
-lib/supabase/*
-lib/auth/*
-supabase/config.toml
-supabase/migrations/0001_foundation.sql
-supabase/seed.sql
-tests/unit/permissions.test.ts
-tests/unit/organization-validation.test.ts
-tests/integration/tenant-isolation.test.ts (after a Supabase test project is configured)
-docs/manual-qa-checklist.md
-README.md
-```
+Cross-cutting helpers worth knowing about before adding a module:
+
+- `lib/auth/scope.ts` — `requireScope()` resolves the active organization and site and checks a
+  permission; `rowInScope()` confirms a related row belongs to that scope before writing; `rpcMessage()`
+  maps a raised PostgreSQL error onto something an operator can act on.
+- `lib/paging.ts` — page and search parsing for list screens, including escaping search terms.
+- `components/ui/` — `Button`, `Card`/`Panel`, `Table`, `Input`, `Select`, `Field`, `Badge`,
+  `Pagination`, and the `Alert`/`EmptyState`/`StatCard`/`PageHeader` set. Design tokens are declared in
+  `app/globals.css` following shadcn/ui conventions, so components from registries such as 21st.dev
+  compose with them.
+- `lib/i18n/` — the English and Kiswahili catalog and the `t()` helper.
+
+Tests are split between `tests/unit/` for schema and helper behaviour and `tests/integration/`, which
+applies the real migration files to PostgreSQL compiled to WebAssembly and asserts what the database
+enforces.
+

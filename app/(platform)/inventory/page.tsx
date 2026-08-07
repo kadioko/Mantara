@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Panel } from "@/components/ui/card";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
@@ -14,13 +15,6 @@ import {
   SupplierForm,
   type Option,
 } from "@/features/inventory/inventory-forms";
-
-function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-    <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{title}</h2>{description && <p className="text-sm text-stone-600">{description}</p>}</div>
-    <div className="p-5">{children}</div>
-  </section>;
-}
 
 export default async function InventoryPage() {
   const workspace = await getActiveWorkspace();
@@ -82,40 +76,40 @@ export default async function InventoryPage() {
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "controls")}</p>
       <h1 className="mt-2 text-3xl font-bold">{t(locale, "inventory")}</h1>
-      <p className="mt-2 text-stone-600">{t(locale, "inventoryDescription", { site: site.name })}</p>
+      <p className="mt-2 text-muted-foreground">{t(locale, "inventoryDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Catalogue items</p><p className="mt-1 text-2xl font-bold">{items.length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Stores at this site</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">At or below reorder</p><p className="mt-1 text-2xl font-bold">{belowReorder.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Catalogue items</p><p className="mt-1 text-2xl font-bold">{items.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Stores at this site</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">At or below reorder</p><p className="mt-1 text-2xl font-bold">{belowReorder.length}</p></div>
     </div>
 
     <Panel title={t(locale, "stockOnHand")} description="Balances are maintained by the database on every movement.">
       {balances.length
-        ? <ul className="divide-y divide-stone-100">{balances.map((row) => {
+        ? <ul className="divide-y divide-border">{balances.map((row) => {
             const low = row.item?.reorder_level !== null && row.item?.reorder_level !== undefined && row.quantity <= Number(row.item.reorder_level);
             return <li key={row.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-              <span className="font-medium">{row.item?.name}<span className="ml-2 text-sm font-normal text-stone-500">{row.location?.name}</span></span>
-              <span className={`text-sm ${low ? "font-semibold text-amber-700" : "text-stone-600"}`}>{row.quantity.toLocaleString()} {row.item?.unit}{low ? " · at reorder level" : ""}</span>
+              <span className="font-medium">{row.item?.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{row.location?.name}</span></span>
+              <span className={`text-sm ${low ? "font-semibold text-accent-foreground" : "text-muted-foreground"}`}>{row.quantity.toLocaleString()} {row.item?.unit}{low ? " · at reorder level" : ""}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No stock is held at this site yet.</p>}
+        : <p className="text-sm text-muted-foreground">No stock is held at this site yet.</p>}
     </Panel>
 
     {canManage && <Panel title={t(locale, "catalogueAndStores")} description="Items, categories, and suppliers are shared across the organization; stores belong to this site.">
       <div className="space-y-6">
-        <div><h3 className="mb-3 text-sm font-semibold text-stone-500">Add an item</h3><InventoryItemForm categories={categoryOptions} /></div>
-        <div className="border-t border-stone-100 pt-6"><h3 className="mb-3 text-sm font-semibold text-stone-500">Add a category</h3><InventoryCategoryForm /></div>
-        <div className="border-t border-stone-100 pt-6"><h3 className="mb-3 text-sm font-semibold text-stone-500">Add a store</h3><InventoryLocationForm /></div>
-        <div className="border-t border-stone-100 pt-6"><h3 className="mb-3 text-sm font-semibold text-stone-500">Add a supplier</h3><SupplierForm /></div>
+        <div><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add an item</h3><InventoryItemForm categories={categoryOptions} /></div>
+        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a category</h3><InventoryCategoryForm /></div>
+        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a store</h3><InventoryLocationForm /></div>
+        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a supplier</h3><SupplierForm /></div>
       </div>
     </Panel>}
 
     {!canMove
-      ? <p className="rounded-xl border border-dashed border-stone-300 bg-white p-6 text-sm text-stone-600">Add at least one catalogue item and one active store before recording stock movements.</p>
+      ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Add at least one catalogue item and one active store before recording stock movements.</p>
       : <>
           {canReceive && <Panel title="Receive stock"><StockReceiptForm items={itemOptions} locations={locationOptions} suppliers={supplierOptions} today={today} /></Panel>}
           {canIssue && <Panel title="Issue stock" description="An issue larger than the balance is rejected.">
@@ -134,11 +128,11 @@ export default async function InventoryPage() {
 
     <Panel title={t(locale, "reorderWatch")} description="Items at or below their reorder level in this site's stores.">
       {belowReorder.length
-        ? <ul className="divide-y divide-stone-100">{belowReorder.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
-            <span className="font-medium">{row.item?.name}<span className="ml-2 text-sm font-normal text-stone-500">{row.location?.name}</span></span>
-            <span className="text-sm font-semibold text-amber-700">{row.quantity.toLocaleString()} {row.item?.unit} · reorder at {Number(row.item?.reorder_level).toLocaleString()}</span>
+        ? <ul className="divide-y divide-border">{belowReorder.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
+            <span className="font-medium">{row.item?.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{row.location?.name}</span></span>
+            <span className="text-sm font-semibold text-accent-foreground">{row.quantity.toLocaleString()} {row.item?.unit} · reorder at {Number(row.item?.reorder_level).toLocaleString()}</span>
           </li>)}</ul>
-        : <p className="text-sm text-stone-600">Nothing is at its reorder level.</p>}
+        : <p className="text-sm text-muted-foreground">Nothing is at its reorder level.</p>}
     </Panel>
   </div>;
 }

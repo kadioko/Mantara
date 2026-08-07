@@ -32,25 +32,25 @@ export default async function WorkersPage({ searchParams }: { searchParams: Prom
   const info = pageInfo(paging, count ?? 0);
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "workforce").toUpperCase()}</p>
+    <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "workforce").toUpperCase()}</p>
     <h1 className="mt-2 text-3xl font-bold">{t(locale, "workers")}</h1>
-    <p className="mt-2 text-stone-600">{t(locale, "workersDescription", { site: workspace.activeSite.name })}</p>
+    <p className="mt-2 text-muted-foreground">{t(locale, "workersDescription", { site: workspace.activeSite.name })}</p>
     {canCreate && <div className="mt-8"><WorkerForm locale={locale} /></div>}
-    <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-stone-200 px-5 py-4">
+    <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <h2 className="font-bold">{t(locale, "workerRegister")}</h2>
-          <p className="text-sm text-stone-600">{info.total} {t(locale, "activeRecords")}</p>
+          <p className="text-sm text-muted-foreground">{info.total} {t(locale, "activeRecords")}</p>
         </div>
         <SearchField basePath="/workers" search={paging.search} placeholder="Name, number, or job title" />
       </div>
       {workers?.length
-        ? <div className="divide-y divide-stone-100">{workers.map((worker) => <article key={worker.id} className="grid gap-1 p-5 md:grid-cols-[2fr_1fr_1fr]">
-            <p className="font-semibold"><Link className="text-emerald-900 hover:underline" href={`/workers/${worker.id}`}>{worker.full_name}</Link></p>
-            <p className="text-sm text-stone-600">{worker.job_title || t(locale, "noJobTitle")}</p>
-            <p className="text-sm capitalize text-stone-600">{worker.employment_type} · {worker.status}</p>
+        ? <div className="divide-y divide-border">{workers.map((worker) => <article key={worker.id} className="grid gap-1 p-5 md:grid-cols-[2fr_1fr_1fr]">
+            <p className="font-semibold"><Link className="text-primary hover:underline" href={`/workers/${worker.id}`}>{worker.full_name}</Link></p>
+            <p className="text-sm text-muted-foreground">{worker.job_title || t(locale, "noJobTitle")}</p>
+            <p className="text-sm capitalize text-muted-foreground">{worker.employment_type} · {worker.status}</p>
           </article>)}</div>
-        : <p className="p-5 text-sm text-stone-600">{paging.search ? `No workers match “${paging.search}”.` : t(locale, "noWorkers")}</p>}
+        : <p className="p-5 text-sm text-muted-foreground">{paging.search ? `No workers match “${paging.search}”.` : t(locale, "noWorkers")}</p>}
       <Pagination basePath="/workers" info={info} search={paging.search} />
     </div>
   </section>;

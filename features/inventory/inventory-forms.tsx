@@ -1,6 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
+import { Button } from "@/components/ui/button";
+import { fieldClass, selectClass } from "@/components/ui/form";
 import {
   createInventoryCategory,
   createInventoryItem,
@@ -14,20 +16,18 @@ import {
 } from "./actions";
 import { adjustmentReasons, issueReasons, reasonLabels } from "./schemas";
 
-const field = "mt-1 w-full rounded-lg border border-stone-300 px-3 py-2";
-const submitClass = "rounded-lg bg-emerald-800 px-4 py-2.5 font-semibold text-white disabled:opacity-60";
 
 export type Option = { id: string; label: string };
 
 function Feedback({ state }: { state: InventoryState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
   return null;
 }
 
 function Select({ name, label, options, placeholder, required, defaultValue }: { name: string; label: string; options: Option[]; placeholder?: string; required?: boolean; defaultValue?: string }) {
   return <label className="text-sm font-semibold">{label}{required ? " *" : ""}
-    <select required={required} name={name} defaultValue={defaultValue ?? ""} className={`${field} bg-white`}>
+    <select required={required} name={name} defaultValue={defaultValue ?? ""} className={selectClass}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
     </select>
@@ -37,21 +37,21 @@ function Select({ name, label, options, placeholder, required, defaultValue }: {
 export function InventoryItemForm({ categories }: { categories: Option[] }) {
   const [state, action, pending] = useActionState(createInventoryItem, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">Item *<input required name="name" maxLength={160} placeholder="Hydraulic hose 3/4in" className={field} /></label>
-    <label className="text-sm font-semibold">SKU<input name="sku" maxLength={80} className={field} /></label>
+    <label className="text-sm font-semibold md:col-span-2">Item *<input required name="name" maxLength={160} placeholder="Hydraulic hose 3/4in" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">SKU<input name="sku" maxLength={80} className={fieldClass} /></label>
     <Select name="categoryId" label="Category" options={categories} placeholder="Uncategorised" />
-    <label className="text-sm font-semibold">Unit *<input required name="unit" maxLength={20} defaultValue="each" className={field} /></label>
-    <label className="text-sm font-semibold">Reorder level<input name="reorderLevel" type="number" min="0" step="0.001" className={field} /></label>
+    <label className="text-sm font-semibold">Unit *<input required name="unit" maxLength={20} defaultValue="each" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Reorder level<input name="reorderLevel" type="number" min="0" step="0.001" className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Add item"}</button></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Add item"}</Button></div>
   </form>;
 }
 
 export function InventoryCategoryForm() {
   const [state, action, pending] = useActionState(createInventoryCategory, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">Category *<input required name="name" maxLength={120} placeholder="Consumables" className={field} /></label>
-    <div className="flex items-end"><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Add category"}</button></div>
+    <label className="text-sm font-semibold md:col-span-2">Category *<input required name="name" maxLength={120} placeholder="Consumables" className={fieldClass} /></label>
+    <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add category"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
@@ -59,8 +59,8 @@ export function InventoryCategoryForm() {
 export function InventoryLocationForm() {
   const [state, action, pending] = useActionState(createInventoryLocation, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">Store *<input required name="name" maxLength={120} placeholder="Main store" className={field} /></label>
-    <div className="flex items-end"><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Add store"}</button></div>
+    <label className="text-sm font-semibold md:col-span-2">Store *<input required name="name" maxLength={120} placeholder="Main store" className={fieldClass} /></label>
+    <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add store"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
@@ -68,11 +68,11 @@ export function InventoryLocationForm() {
 export function SupplierForm() {
   const [state, action, pending] = useActionState(createSupplier, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold">Supplier *<input required name="name" maxLength={160} className={field} /></label>
-    <label className="text-sm font-semibold">Contact<input name="contactName" maxLength={160} className={field} /></label>
-    <label className="text-sm font-semibold">Phone<input name="phoneNumber" inputMode="tel" maxLength={40} className={field} /></label>
-    <label className="text-sm font-semibold md:col-span-2">Email<input name="email" type="email" maxLength={200} className={field} /></label>
-    <div className="flex items-end"><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Add supplier"}</button></div>
+    <label className="text-sm font-semibold">Supplier *<input required name="name" maxLength={160} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Contact<input name="contactName" maxLength={160} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Phone<input name="phoneNumber" inputMode="tel" maxLength={40} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">Email<input name="email" type="email" maxLength={200} className={fieldClass} /></label>
+    <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add supplier"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
@@ -82,13 +82,13 @@ export function StockReceiptForm({ items, locations, suppliers, today }: { items
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <Select name="itemId" label="Item" options={items} required defaultValue={items[0]?.id} />
     <Select name="locationId" label="Store" options={locations} required defaultValue={locations[0]?.id} />
-    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={field} /></label>
+    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
     <Select name="supplierId" label="Supplier" options={suppliers} placeholder="Not recorded" />
-    <label className="text-sm font-semibold">Unit cost<input name="unitCost" type="number" min="0" step="0.0001" className={field} /></label>
-    <label className="text-sm font-semibold">Received on *<input required name="receivedOn" type="date" defaultValue={today} className={field} /></label>
-    <label className="text-sm font-semibold md:col-span-2">Reference<input name="reference" maxLength={120} placeholder="Delivery note" className={field} /></label>
+    <label className="text-sm font-semibold">Unit cost<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Received on *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">Reference<input name="reference" maxLength={120} placeholder="Delivery note" className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Receive stock"}</button></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Receive stock"}</Button></div>
   </form>;
 }
 
@@ -97,17 +97,17 @@ export function StockIssueForm({ items, locations, workOrders, equipment, worker
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <Select name="itemId" label="Item" options={items} required defaultValue={items[0]?.id} />
     <Select name="locationId" label="Store" options={locations} required defaultValue={locations[0]?.id} />
-    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={field} /></label>
+    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Reason *
-      <select required name="reason" defaultValue="consumption" className={`${field} bg-white`}>{issueReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
+      <select required name="reason" defaultValue="consumption" className={selectClass}>{issueReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
     </label>
     <Select name="workOrderId" label="Work order" options={workOrders} placeholder="Not for a work order" />
     <Select name="equipmentId" label="Equipment" options={equipment} placeholder="Not equipment specific" />
     <Select name="workerId" label="Collected by" options={workers} placeholder="Not recorded" />
-    <label className="text-sm font-semibold">Issued on *<input required name="issuedOn" type="date" defaultValue={today} className={field} /></label>
-    <label className="text-sm font-semibold">Notes<input name="notes" maxLength={500} className={field} /></label>
+    <label className="text-sm font-semibold">Issued on *<input required name="issuedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Notes<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Issue stock"}</button></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Issue stock"}</Button></div>
   </form>;
 }
 
@@ -117,11 +117,11 @@ export function StockTransferForm({ items, locations, today }: { items: Option[]
     <Select name="itemId" label="Item" options={items} required defaultValue={items[0]?.id} />
     <Select name="fromLocationId" label="From store" options={locations} required defaultValue={locations[0]?.id} />
     <Select name="toLocationId" label="To store" options={locations} required defaultValue={locations[1]?.id ?? locations[0]?.id} />
-    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={field} /></label>
-    <label className="text-sm font-semibold">Transferred on *<input required name="transferredOn" type="date" defaultValue={today} className={field} /></label>
-    <label className="text-sm font-semibold">Notes<input name="notes" maxLength={500} className={field} /></label>
+    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Transferred on *<input required name="transferredOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Notes<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Transfer stock"}</button></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Transfer stock"}</Button></div>
   </form>;
 }
 
@@ -130,13 +130,13 @@ export function StockAdjustmentForm({ items, locations, today }: { items: Option
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <Select name="itemId" label="Item" options={items} required defaultValue={items[0]?.id} />
     <Select name="locationId" label="Store" options={locations} required defaultValue={locations[0]?.id} />
-    <label className="text-sm font-semibold">Quantity (+/−) *<input required name="quantityDelta" type="number" step="0.001" placeholder="-2" className={field} /></label>
+    <label className="text-sm font-semibold">Quantity (+/−) *<input required name="quantityDelta" type="number" step="0.001" placeholder="-2" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Reason *
-      <select required name="reason" defaultValue="correction" className={`${field} bg-white`}>{adjustmentReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
+      <select required name="reason" defaultValue="correction" className={selectClass}>{adjustmentReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
     </label>
-    <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder="Stock take variance" className={field} /></label>
-    <label className="text-sm font-semibold">Adjusted on *<input required name="adjustedOn" type="date" defaultValue={today} className={field} /></label>
+    <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder="Stock take variance" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">Adjusted on *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><button disabled={pending} className={submitClass}>{pending ? "Saving…" : "Adjust stock"}</button></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Adjust stock"}</Button></div>
   </form>;
 }

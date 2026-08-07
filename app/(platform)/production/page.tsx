@@ -8,10 +8,10 @@ import { DowntimeForm, ProductionEntryForm } from "@/features/production/product
 import { productionStatusLabels } from "@/features/production/schemas";
 
 const statusTone: Record<string, string> = {
-  draft: "bg-stone-100 text-stone-700",
-  submitted: "bg-amber-50 text-amber-800",
-  approved: "bg-emerald-50 text-emerald-800",
-  rejected: "bg-red-50 text-red-700",
+  draft: "bg-muted text-foreground",
+  submitted: "bg-warning/15 text-warning-foreground",
+  approved: "bg-success/12 text-primary",
+  rejected: "bg-destructive/12 text-destructive",
 };
 
 export default async function ProductionPage() {
@@ -39,43 +39,43 @@ export default async function ProductionPage() {
   const locale = await getLocale();
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "operations")}</p>
+    <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "operations")}</p>
     <h1 className="mt-2 text-3xl font-bold">{t(locale, "production")}</h1>
-    <p className="mt-2 text-stone-600">{t(locale, "productionDescription", { site: site.name })}</p>
+    <p className="mt-2 text-muted-foreground">{t(locale, "productionDescription", { site: site.name })}</p>
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Approved quantity (last 50)</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{awaiting}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Entries shown</p><p className="mt-1 text-2xl font-bold">{entries.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity (last 50)</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{awaiting}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries shown</p><p className="mt-1 text-2xl font-bold">{entries.length}</p></div>
     </div>
 
     {canCreate && <div className="mt-8"><ProductionEntryForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
 
-    <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{t(locale, "productionEntries")}</h2><p className="text-sm text-stone-600">{t(locale, "mostRecentFirst")}</p></div>
+    <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "productionEntries")}</h2><p className="text-sm text-muted-foreground">{t(locale, "mostRecentFirst")}</p></div>
       {entries.length
-        ? <div className="divide-y divide-stone-100">{entries.map((entry) => <article key={entry.id} className="grid gap-2 p-5 md:grid-cols-[1fr_1.5fr_1fr_auto] md:items-center">
-            <p className="text-sm text-stone-600">{entry.entry_date}</p>
-            <p className="font-semibold"><Link className="text-emerald-900 hover:underline" href={`/production/${entry.id}`}>{entry.material}</Link>{entry.location ? <span className="font-normal text-stone-500"> · {entry.location}</span> : null}</p>
-            <p className="text-sm text-stone-600">{entry.quantity} {entry.unit}{entry.grade === null ? "" : ` · grade ${entry.grade}`}</p>
-            <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[entry.status] ?? "bg-stone-100 text-stone-700"}`}>{productionStatusLabels[entry.status as keyof typeof productionStatusLabels] ?? entry.status}</span>
+        ? <div className="divide-y divide-border">{entries.map((entry) => <article key={entry.id} className="grid gap-2 p-5 md:grid-cols-[1fr_1.5fr_1fr_auto] md:items-center">
+            <p className="text-sm text-muted-foreground">{entry.entry_date}</p>
+            <p className="font-semibold"><Link className="text-primary hover:underline" href={`/production/${entry.id}`}>{entry.material}</Link>{entry.location ? <span className="font-normal text-muted-foreground"> · {entry.location}</span> : null}</p>
+            <p className="text-sm text-muted-foreground">{entry.quantity} {entry.unit}{entry.grade === null ? "" : ` · grade ${entry.grade}`}</p>
+            <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[entry.status] ?? "bg-muted text-foreground"}`}>{productionStatusLabels[entry.status as keyof typeof productionStatusLabels] ?? entry.status}</span>
           </article>)}</div>
-        : <p className="p-5 text-sm text-stone-600">No production has been captured at this site yet.</p>}
+        : <p className="p-5 text-sm text-muted-foreground">No production has been captured at this site yet.</p>}
     </div>
 
-    <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{t(locale, "downtime")}</h2><p className="text-sm text-stone-600">{t(locale, "downtimeDescription")}</p></div>
+    <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "downtime")}</h2><p className="text-sm text-muted-foreground">{t(locale, "downtimeDescription")}</p></div>
       <div className="p-5">
-        {canCreate && <div className="mb-5 border-b border-stone-100 pb-5"><DowntimeForm shifts={shiftOptions} equipment={equipmentOptions} /></div>}
+        {canCreate && <div className="mb-5 border-b border-border pb-5"><DowntimeForm shifts={shiftOptions} equipment={equipmentOptions} /></div>}
         {downtimeResult.data?.length
-          ? <ul className="divide-y divide-stone-100">{downtimeResult.data.map((row) => {
+          ? <ul className="divide-y divide-border">{downtimeResult.data.map((row) => {
               const equipment = Array.isArray(row.equipment) ? row.equipment[0] : row.equipment;
               return <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
                 <span className="font-medium">{row.reason}{equipment?.name ? ` · ${equipment.name}` : ""}</span>
-                <span className="text-sm text-stone-600">{row.minutes} min</span>
+                <span className="text-sm text-muted-foreground">{row.minutes} min</span>
               </li>;
             })}</ul>
-          : <p className="text-sm text-stone-600">No downtime recorded.</p>}
+          : <p className="text-sm text-muted-foreground">No downtime recorded.</p>}
       </div>
     </div>
   </section>;

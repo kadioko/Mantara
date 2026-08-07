@@ -23,7 +23,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 - Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
 - Expenses and budgets are implemented: an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
 - Platform administration is implemented at `/admin`: organization metadata, suspension, administrator management, and an append-only platform audit log.
-- A shared UI layer now exists in `components/ui/`, using shadcn/ui conventions and design tokens so components from registries such as [21st.dev](https://21st.dev) can be dropped in unchanged.
+- A shared UI layer in `components/ui/` uses shadcn/ui conventions and design tokens, so components from registries such as [21st.dev](https://21st.dev) drop in unchanged. Every screen now draws from it: the eight duplicated panel components and twelve copies of the form control classes are gone, and colours come from tokens rather than the stock palette, so the brand changes in one file.
 - Compliance is implemented: licences with expiry tracking, organization-authored requirements, and tasks that reschedule themselves when a recurring obligation is completed.
 - Safety is implemented: incidents, inspections, and corrective actions, with personal and medical detail held separately behind a granular permission and logged on every access.
 - Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.

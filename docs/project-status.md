@@ -30,7 +30,8 @@ coverage.
 | Authentication | Register, login, logout, callback, protected requests, onboarding redirect. Supabase owns password storage. |
 | Tenancy | Organizations, memberships, mine sites, active organization/site cookies, constraints and RLS. |
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, and platform administration as a separate axis that grants no tenant access. |
-| Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher. |
+| Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, error/loading/not-found boundaries. |
+| Design system | One set of primitives in `components/ui/` and one token palette. No screen hardcodes a colour outside the brand sidebar, and no module redefines its own panel or form control. |
 | Localization | English and Kiswahili for navigation, authentication, onboarding, dashboard, and every module landing screen. |
 | Workforce | Worker register and profile, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail, meter readings that cannot move backwards, status history, operator assignments. |
@@ -94,7 +95,9 @@ real concurrency, which needs a multi-connection server. Those remain in the man
   expenses, safety incidents, maintenance work orders, and the inventory balances still cap silently.
 - Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
   compliance requirements, and expense categories are still create-only.
-- Rate limiting on sensitive actions, accessibility review, performance testing.
+- Rate limiting on sensitive actions, a full accessibility audit, and performance testing. Forms use
+  enclosing labels and the primitives carry focus-visible rings, but no assistive-technology pass has
+  been done.
 - PWA/offline capture, monitoring, backup and recovery, pilot manual-QA signoff.
 
 ## Recommended next task

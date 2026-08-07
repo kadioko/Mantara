@@ -14,5 +14,5 @@ export default async function OnboardingPage() {
   const { data: accepted } = await supabase.rpc("accept_pending_invitations");
   if (typeof accepted === "number" && accepted > 0) redirect("/dashboard");
   const locale = await getLocale();
-  return <main className="mx-auto flex min-h-screen max-w-md items-center px-5 py-10"><section className="w-full rounded-2xl bg-white p-7 shadow-sm"><div className="flex items-center justify-between gap-3"><MantaraLogo /><LanguageSwitcher locale={locale} returnTo="/onboarding" /></div><h1 className="mt-6 text-3xl font-bold">{t(locale, "setupWorkspace")}</h1><p className="mt-2 text-stone-600">{t(locale, "setupDescription")}</p><OnboardingForm locale={locale} /></section></main>;
+  return <main className="mx-auto flex min-h-screen max-w-md items-center px-5 py-10"><section className="w-full rounded-2xl bg-card p-7 shadow-sm"><div className="flex items-center justify-between gap-3"><MantaraLogo /><LanguageSwitcher locale={locale} returnTo="/onboarding" /></div><h1 className="mt-6 text-3xl font-bold">{t(locale, "setupWorkspace")}</h1><p className="mt-2 text-muted-foreground">{t(locale, "setupDescription")}</p><OnboardingForm locale={locale} /></section></main>;
 }

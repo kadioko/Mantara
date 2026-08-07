@@ -1,8 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { selectClass } from "@/components/ui/form";
+import { Pencil, Trash2 } from "lucide-react";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { ActionFeedback, Alert } from "@/components/ui/feedback";
 import { removeWorker, updateWorker, type WorkerState } from "./actions";
@@ -20,7 +21,6 @@ export type WorkerDetails = {
   notes: string | null;
 };
 
-const selectClass = "mt-1 flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function EditWorkerForm({ worker }: { worker: WorkerDetails }) {
   const [state, action, pending] = useActionState(updateWorker, {} as WorkerState);

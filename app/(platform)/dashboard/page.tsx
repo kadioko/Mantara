@@ -138,14 +138,14 @@ export default async function DashboardPage() {
 
   return <section className="space-y-8">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">MANTARA OS</p>
+      <p className="text-sm font-semibold tracking-wider text-accent-foreground">MANTARA OS</p>
       <h1 className="mt-2 text-3xl font-bold">{organization.name}</h1>
-      <p className="mt-2 text-stone-600">{t(locale, "overviewDescription", { site: site.name })}</p>
+      <p className="mt-2 text-muted-foreground">{t(locale, "overviewDescription", { site: site.name })}</p>
     </div>
 
     {populated.length ? populated.map((group) => (
       <div key={group.heading}>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-stone-500">{group.heading}</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{group.heading}</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {group.tiles.map((tile) => (
             <Link key={`${group.heading}-${tile.label}`} href={tile.href} className="rounded-xl transition hover:opacity-80">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Panel } from "@/components/ui/card";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
@@ -9,13 +10,6 @@ import {
 } from "@/features/equipment/equipment-forms";
 import { categoryLabels, statusLabels } from "@/features/equipment/schemas";
 import { EditEquipmentForm, RemoveEquipmentForm } from "@/features/equipment/equipment-edit-forms";
-
-function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-    <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{title}</h2>{description && <p className="text-sm text-stone-600">{description}</p>}</div>
-    <div className="p-5">{children}</div>
-  </section>;
-}
 
 export default async function EquipmentDetailPage({ params }: { params: Promise<{ equipmentId: string }> }) {
   const { equipmentId } = await params;
@@ -59,47 +53,47 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
 
   return <div className="space-y-6">
     <div>
-      <Link href="/equipment" className="text-sm font-semibold text-emerald-800 hover:underline">← Back to equipment</Link>
+      <Link href="/equipment" className="text-sm font-semibold text-primary hover:underline">← Back to equipment</Link>
       <h1 className="mt-2 text-3xl font-bold">{item.name}</h1>
-      <p className="mt-1 text-stone-600">{statusLabels[item.status as keyof typeof statusLabels] ?? item.status} · {site.name}</p>
+      <p className="mt-1 text-muted-foreground">{statusLabels[item.status as keyof typeof statusLabels] ?? item.status} · {site.name}</p>
     </div>
 
     <Panel title="Details">
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {details.map(([label, value]) => <div key={label}><dt className="text-sm text-stone-500">{label}</dt><dd className="font-medium">{value}</dd></div>)}
+        {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium">{value}</dd></div>)}
       </dl>
-      {item.notes && <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{item.notes}</p>}
-      {canManage && <div className="mt-5 space-y-5 border-t border-stone-100 pt-5">
+      {item.notes && <p className="mt-4 rounded-lg bg-muted p-3 text-sm text-foreground">{item.notes}</p>}
+      {canManage && <div className="mt-5 space-y-5 border-t border-border pt-5">
         <EditEquipmentForm equipment={item} />
-        <div className="border-t border-stone-100 pt-5"><RemoveEquipmentForm equipmentId={item.id} equipmentName={item.name} /></div>
+        <div className="border-t border-border pt-5"><RemoveEquipmentForm equipmentId={item.id} equipmentName={item.name} /></div>
       </div>}
     </Panel>
 
     <Panel title="Meter readings" description="Readings can only move forward; the database rejects a lower value.">
-      {canManage && <div className="mb-5 border-b border-stone-100 pb-5"><MeterReadingForm equipmentId={item.id} meterType={item.meter_type} currentMeter={item.current_meter} today={today} /></div>}
+      {canManage && <div className="mb-5 border-b border-border pb-5"><MeterReadingForm equipmentId={item.id} meterType={item.meter_type} currentMeter={item.current_meter} today={today} /></div>}
       {readings.data?.length
-        ? <ul className="divide-y divide-stone-100">{readings.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.reading_value} {item.meter_type}</span><span className="text-sm text-stone-600">{new Date(row.reading_at).toISOString().slice(0, 10)}{row.notes ? ` · ${row.notes}` : ""}</span></li>)}</ul>
-        : <p className="text-sm text-stone-600">No meter readings recorded.</p>}
+        ? <ul className="divide-y divide-border">{readings.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.reading_value} {item.meter_type}</span><span className="text-sm text-muted-foreground">{new Date(row.reading_at).toISOString().slice(0, 10)}{row.notes ? ` · ${row.notes}` : ""}</span></li>)}</ul>
+        : <p className="text-sm text-muted-foreground">No meter readings recorded.</p>}
     </Panel>
 
     <Panel title="Status" description="Every status change is recorded automatically.">
-      {canManage && <div className="mb-5 border-b border-stone-100 pb-5"><EquipmentStatusForm equipmentId={item.id} status={item.status} /></div>}
+      {canManage && <div className="mb-5 border-b border-border pb-5"><EquipmentStatusForm equipmentId={item.id} status={item.status} /></div>}
       {history.data?.length
-        ? <ul className="divide-y divide-stone-100">{history.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.previous_status ? `${statusLabels[row.previous_status as keyof typeof statusLabels] ?? row.previous_status} → ` : ""}{statusLabels[row.new_status as keyof typeof statusLabels] ?? row.new_status}</span><span className="text-sm text-stone-600">{new Date(row.changed_at).toISOString().slice(0, 10)}{row.reason ? ` · ${row.reason}` : ""}</span></li>)}</ul>
-        : <p className="text-sm text-stone-600">No status changes recorded.</p>}
+        ? <ul className="divide-y divide-border">{history.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.previous_status ? `${statusLabels[row.previous_status as keyof typeof statusLabels] ?? row.previous_status} → ` : ""}{statusLabels[row.new_status as keyof typeof statusLabels] ?? row.new_status}</span><span className="text-sm text-muted-foreground">{new Date(row.changed_at).toISOString().slice(0, 10)}{row.reason ? ` · ${row.reason}` : ""}</span></li>)}</ul>
+        : <p className="text-sm text-muted-foreground">No status changes recorded.</p>}
     </Panel>
 
     <Panel title="Assignments" description="Where and to whom this asset is deployed.">
-      {canManage && <div className="mb-5 border-b border-stone-100 pb-5"><EquipmentAssignmentForm equipmentId={item.id} workers={operators} today={today} /></div>}
+      {canManage && <div className="mb-5 border-b border-border pb-5"><EquipmentAssignmentForm equipmentId={item.id} workers={operators} today={today} /></div>}
       {assignments.data?.length
-        ? <ul className="divide-y divide-stone-100">{assignments.data.map((row) => {
+        ? <ul className="divide-y divide-border">{assignments.data.map((row) => {
             const worker = Array.isArray(row.worker) ? row.worker[0] : row.worker;
             return <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
               <span className="font-medium">{row.assignment_name || "Assignment"}{worker?.full_name ? ` · ${worker.full_name}` : ""}</span>
-              <span className="text-sm text-stone-600">{row.starts_on} → {row.ends_on || "ongoing"}</span>
+              <span className="text-sm text-muted-foreground">{row.starts_on} → {row.ends_on || "ongoing"}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No assignments recorded.</p>}
+        : <p className="text-sm text-muted-foreground">No assignments recorded.</p>}
     </Panel>
   </div>;
 }

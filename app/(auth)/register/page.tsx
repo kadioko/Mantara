@@ -6,5 +6,5 @@ import { t } from "@/lib/i18n/messages";
 
 export default async function RegisterPage() {
   const locale = await getLocale();
-  return <section className="w-full rounded-2xl bg-white p-7 shadow-sm"><div className="flex items-center justify-between gap-3"><MantaraLogo /><LanguageSwitcher locale={locale} returnTo="/register" /></div><h1 className="mt-6 text-3xl font-bold">{t(locale, "createAccountTitle")}</h1><p className="mt-2 text-stone-600">{t(locale, "createAccountDescription")}</p><AuthForm locale={locale} mode="register" /></section>;
+  return <section className="w-full rounded-2xl bg-card p-7 shadow-sm"><div className="flex items-center justify-between gap-3"><MantaraLogo /><LanguageSwitcher locale={locale} returnTo="/register" /></div><h1 className="mt-6 text-3xl font-bold">{t(locale, "createAccountTitle")}</h1><p className="mt-2 text-muted-foreground">{t(locale, "createAccountDescription")}</p><AuthForm locale={locale} mode="register" /></section>;
 }

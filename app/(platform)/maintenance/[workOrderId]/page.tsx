@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Panel } from "@/components/ui/card";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
@@ -14,13 +15,6 @@ import {
   priorityLabels,
   workOrderStatusLabels,
 } from "@/features/maintenance/schemas";
-
-function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-    <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{title}</h2>{description && <p className="text-sm text-stone-600">{description}</p>}</div>
-    <div className="p-5">{children}</div>
-  </section>;
-}
 
 export default async function WorkOrderPage({ params }: { params: Promise<{ workOrderId: string }> }) {
   const { workOrderId } = await params;
@@ -63,18 +57,18 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
 
   return <div className="space-y-6">
     <div>
-      <Link href="/maintenance" className="text-sm font-semibold text-emerald-800 hover:underline">← Back to maintenance</Link>
+      <Link href="/maintenance" className="text-sm font-semibold text-primary hover:underline">← Back to maintenance</Link>
       <h1 className="mt-2 text-3xl font-bold">{order.title}</h1>
-      <p className="mt-1 text-stone-600">{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status} · {site.name}</p>
+      <p className="mt-1 text-muted-foreground">{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status} · {site.name}</p>
     </div>
 
     <Panel title="Work order">
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {details.map(([label, value]) => <div key={label}><dt className="text-sm text-stone-500">{label}</dt><dd className="font-medium">{value}</dd></div>)}
+        {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium">{value}</dd></div>)}
       </dl>
-      {order.description && <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{order.description}</p>}
-      {order.notes && <p className="mt-3 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{order.notes}</p>}
-      {canUpdate && transitions.length > 0 && <div className="mt-5 border-t border-stone-100 pt-5"><WorkOrderStatusForm workOrderId={order.id} allowed={transitions} /></div>}
+      {order.description && <p className="mt-4 rounded-lg bg-muted p-3 text-sm text-foreground">{order.description}</p>}
+      {order.notes && <p className="mt-3 rounded-lg bg-muted p-3 text-sm text-foreground">{order.notes}</p>}
+      {canUpdate && transitions.length > 0 && <div className="mt-5 border-t border-border pt-5"><WorkOrderStatusForm workOrderId={order.id} allowed={transitions} /></div>}
     </Panel>
 
     {canUpdate && order.status === "in_progress" && <Panel title="Complete" description="Records the service meter and rolls any active schedule for this equipment forward.">
@@ -82,23 +76,23 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
     </Panel>}
 
     <Panel title="Parts">
-      {canUpdate && <div className="mb-5 border-b border-stone-100 pb-5"><MaintenancePartForm workOrderId={order.id} /></div>}
+      {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenancePartForm workOrderId={order.id} /></div>}
       {parts.data?.length
-        ? <ul className="divide-y divide-stone-100">{parts.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
+        ? <ul className="divide-y divide-border">{parts.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
             <span className="font-medium">{row.part_name} × {row.quantity}</span>
-            <span className="text-sm text-stone-600">{row.unit_cost === null ? "No unit cost" : `${row.unit_cost} each`}</span>
+            <span className="text-sm text-muted-foreground">{row.unit_cost === null ? "No unit cost" : `${row.unit_cost} each`}</span>
           </li>)}</ul>
-        : <p className="text-sm text-stone-600">No parts recorded.</p>}
+        : <p className="text-sm text-muted-foreground">No parts recorded.</p>}
     </Panel>
 
     <Panel title="Costs" description={`Total recorded: ${totalCost.toLocaleString()}`}>
-      {canUpdate && <div className="mb-5 border-b border-stone-100 pb-5"><MaintenanceCostForm workOrderId={order.id} today={today} /></div>}
+      {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenanceCostForm workOrderId={order.id} today={today} /></div>}
       {costs.data?.length
-        ? <ul className="divide-y divide-stone-100">{costs.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
+        ? <ul className="divide-y divide-border">{costs.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
             <span className="font-medium">{costTypeLabels[row.cost_type as keyof typeof costTypeLabels] ?? row.cost_type}{row.description ? ` · ${row.description}` : ""}</span>
-            <span className="text-sm text-stone-600">{Number(row.amount).toLocaleString()} · {row.incurred_on}</span>
+            <span className="text-sm text-muted-foreground">{Number(row.amount).toLocaleString()} · {row.incurred_on}</span>
           </li>)}</ul>
-        : <p className="text-sm text-stone-600">No costs recorded.</p>}
+        : <p className="text-sm text-muted-foreground">No costs recorded.</p>}
     </Panel>
   </div>;
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Panel } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
@@ -13,26 +14,19 @@ import {
 import { priorityLabels, requestStatusLabels, workOrderStatusLabels } from "@/features/maintenance/schemas";
 
 const statusTone: Record<string, string> = {
-  planned: "bg-stone-100 text-stone-700",
-  in_progress: "bg-amber-50 text-amber-800",
+  planned: "bg-muted text-foreground",
+  in_progress: "bg-warning/15 text-warning-foreground",
   on_hold: "bg-orange-50 text-orange-800",
-  completed: "bg-emerald-50 text-emerald-800",
-  cancelled: "bg-stone-100 text-stone-500",
+  completed: "bg-success/12 text-primary",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 const priorityTone: Record<string, string> = {
-  low: "text-stone-500",
-  medium: "text-stone-700",
-  high: "text-amber-700",
-  critical: "text-red-700",
+  low: "text-muted-foreground",
+  medium: "text-foreground",
+  high: "text-accent-foreground",
+  critical: "text-destructive",
 };
-
-function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
-  return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
-    <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{title}</h2>{description && <p className="text-sm text-stone-600">{description}</p>}</div>
-    <div className="p-5">{children}</div>
-  </section>;
-}
 
 export default async function MaintenancePage() {
   const workspace = await getActiveWorkspace();
@@ -70,15 +64,15 @@ export default async function MaintenancePage() {
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "controls")}</p>
       <h1 className="mt-2 text-3xl font-bold">{t(locale, "maintenance")}</h1>
-      <p className="mt-2 text-stone-600">{t(locale, "maintenanceDescription", { site: site.name })}</p>
+      <p className="mt-2 text-muted-foreground">{t(locale, "maintenanceDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "openWorkOrders")}</p><p className="mt-1 text-2xl font-bold">{openOrders}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "openRequests")}</p><p className="mt-1 text-2xl font-bold">{requests.filter((request) => request.status === "open").length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "servicesOverdue")}</p><p className="mt-1 text-2xl font-bold">{overdue}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openWorkOrders")}</p><p className="mt-1 text-2xl font-bold">{openOrders}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openRequests")}</p><p className="mt-1 text-2xl font-bold">{requests.filter((request) => request.status === "open").length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "servicesOverdue")}</p><p className="mt-1 text-2xl font-bold">{overdue}</p></div>
     </div>
 
     {canCreate && <MaintenanceRequestForm equipment={equipmentOptions} workers={workerOptions} today={today} />}
@@ -86,48 +80,48 @@ export default async function MaintenancePage() {
 
     <Panel title={t(locale, "workOrders")} description={t(locale, "mostRecentFirst")}>
       {orders.length
-        ? <ul className="divide-y divide-stone-100">{orders.map((order) => {
+        ? <ul className="divide-y divide-border">{orders.map((order) => {
             const equipment = Array.isArray(order.equipment) ? order.equipment[0] : order.equipment;
             return <li key={order.id} className="grid gap-2 py-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-center">
-              <span className="font-semibold"><Link className="text-emerald-900 hover:underline" href={`/maintenance/${order.id}`}>{order.title}</Link></span>
-              <span className="text-sm text-stone-600">{equipment?.name ?? "No equipment"}</span>
-              <span className={`text-sm font-medium ${priorityTone[order.priority] ?? "text-stone-700"}`}>{priorityLabels[order.priority as keyof typeof priorityLabels] ?? order.priority}</span>
-              <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[order.status] ?? "bg-stone-100 text-stone-700"}`}>{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status}</span>
+              <span className="font-semibold"><Link className="text-primary hover:underline" href={`/maintenance/${order.id}`}>{order.title}</Link></span>
+              <span className="text-sm text-muted-foreground">{equipment?.name ?? "No equipment"}</span>
+              <span className={`text-sm font-medium ${priorityTone[order.priority] ?? "text-foreground"}`}>{priorityLabels[order.priority as keyof typeof priorityLabels] ?? order.priority}</span>
+              <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[order.status] ?? "bg-muted text-foreground"}`}>{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No work orders have been created at this site yet.</p>}
+        : <p className="text-sm text-muted-foreground">No work orders have been created at this site yet.</p>}
     </Panel>
 
     <Panel title={t(locale, "requests")}>
       {requests.length
-        ? <ul className="divide-y divide-stone-100">{requests.map((request) => {
+        ? <ul className="divide-y divide-border">{requests.map((request) => {
             const equipment = Array.isArray(request.equipment) ? request.equipment[0] : request.equipment;
             return <li key={request.id} className="grid gap-2 py-3 md:grid-cols-[2fr_1fr_1fr_auto] md:items-center">
               <span className="font-medium">{request.title}</span>
-              <span className="text-sm text-stone-600">{equipment?.name ?? "No equipment"}</span>
-              <span className={`text-sm font-medium ${priorityTone[request.priority] ?? "text-stone-700"}`}>{priorityLabels[request.priority as keyof typeof priorityLabels] ?? request.priority}</span>
-              <span className="justify-self-start text-sm text-stone-600">{requestStatusLabels[request.status as keyof typeof requestStatusLabels] ?? request.status} · {request.reported_on}</span>
+              <span className="text-sm text-muted-foreground">{equipment?.name ?? "No equipment"}</span>
+              <span className={`text-sm font-medium ${priorityTone[request.priority] ?? "text-foreground"}`}>{priorityLabels[request.priority as keyof typeof priorityLabels] ?? request.priority}</span>
+              <span className="justify-self-start text-sm text-muted-foreground">{requestStatusLabels[request.status as keyof typeof requestStatusLabels] ?? request.status} · {request.reported_on}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No maintenance requests raised.</p>}
+        : <p className="text-sm text-muted-foreground">No maintenance requests raised.</p>}
     </Panel>
 
     <Panel title="Service schedules" description="Completing a work order rolls the matching schedule forward.">
-      {canUpdate && <div className="mb-5 border-b border-stone-100 pb-5"><MaintenanceScheduleForm equipment={equipmentOptions} /></div>}
+      {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenanceScheduleForm equipment={equipmentOptions} /></div>}
       {schedulesResult.data?.length
-        ? <ul className="divide-y divide-stone-100">{schedulesResult.data.map((schedule) => {
+        ? <ul className="divide-y divide-border">{schedulesResult.data.map((schedule) => {
             const equipment = Array.isArray(schedule.equipment) ? schedule.equipment[0] : schedule.equipment;
             const isOverdue = Boolean(schedule.next_due_on && schedule.next_due_on < today);
             return <li key={schedule.id} className="flex flex-wrap justify-between gap-2 py-3">
-              <span className="font-medium">{schedule.name}<span className="ml-2 text-sm font-normal text-stone-500">{equipment?.name ?? ""}</span></span>
-              <span className={`text-sm ${isOverdue ? "font-semibold text-red-700" : "text-stone-600"}`}>
+              <span className="font-medium">{schedule.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{equipment?.name ?? ""}</span></span>
+              <span className={`text-sm ${isOverdue ? "font-semibold text-destructive" : "text-muted-foreground"}`}>
                 {schedule.next_due_on ? `Due ${schedule.next_due_on}` : "No date set"}
                 {schedule.next_due_meter === null ? "" : ` · at ${schedule.next_due_meter}`}
                 {isOverdue ? " · overdue" : ""}
               </span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-stone-600">No active service schedules.</p>}
+        : <p className="text-sm text-muted-foreground">No active service schedules.</p>}
     </Panel>
   </div>;
 }

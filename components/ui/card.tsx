@@ -23,3 +23,34 @@ export function CardContent({ className, ...props }: React.HTMLAttributes<HTMLDi
 export function CardFooter({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("flex items-center border-t px-5 py-4", className)} {...props} />;
 }
+
+/**
+ * A titled section of a page. Eight module screens each declared their own identical version of this,
+ * which is how they drifted apart on padding and heading weight.
+ */
+export function Panel({
+  title,
+  description,
+  actions,
+  className,
+  children,
+}: {
+  title: React.ReactNode;
+  description?: React.ReactNode;
+  actions?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Card className={cn("overflow-hidden", className)}>
+      <CardHeader className={actions ? "flex-row items-start justify-between gap-3 space-y-0" : undefined}>
+        <div className="space-y-1">
+          <CardTitle>{title}</CardTitle>
+          {description && <CardDescription>{description}</CardDescription>}
+        </div>
+        {actions}
+      </CardHeader>
+      <CardContent>{children}</CardContent>
+    </Card>
+  );
+}

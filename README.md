@@ -52,6 +52,13 @@ helper in `lib/utils.ts`, `class-variance-authority` for variants, and design to
 `app/globals.css`. Components from registries such as [21st.dev](https://21st.dev) ship as
 shadcn-format source, so they compose with these tokens and can be added directly.
 
+Screens are built from these primitives rather than hand-written Tailwind: `Panel` for a titled
+section, `Table` for lists, `Field`/`Input`/`Select` for forms, `Pagination` and `SearchField` for list
+controls, and `Alert`/`EmptyState`/`StatCard`/`PageHeader` for page furniture. **Colours come from the
+tokens, not the stock palette** — `bg-card`, `text-muted-foreground`, `border-border` and so on — so the
+brand can change in one file and dark mode works everywhere. The only deliberate exception is the
+workspace sidebar, which carries the Mantara brand colour directly.
+
 ## Tests
 
 ```bash
