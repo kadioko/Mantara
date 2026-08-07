@@ -16,7 +16,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
   }
   const organizationId = workspace.activeOrganization.id;
   const locale = await getLocale();
-  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses, canViewCompliance, canViewSafety, canViewAuditLog, canViewMembers] = await Promise.all([
+  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses, canViewCompliance, canViewSafety, canViewAuditLog, canViewMembers, canViewSites, canViewOrganization] = await Promise.all([
     hasPermission(organizationId, "worker.read"),
     hasPermission(organizationId, "equipment.read"),
     hasPermission(organizationId, "production.read"),
@@ -28,6 +28,8 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     hasPermission(organizationId, "safety.read"),
     hasPermission(organizationId, "audit_log.read"),
     hasPermission(organizationId, "member.read"),
+    hasPermission(organizationId, "site.read"),
+    hasPermission(organizationId, "organization.read"),
   ]);
 
   const [{ count: unreadCount }, canRunAnyReport] = await Promise.all([
@@ -49,7 +51,9 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     ...(canViewSafety ? [{ href: "/safety", label: t(locale, "safety") }] : []),
     ...(canRunAnyReport ? [{ href: "/reports", label: t(locale, "reports") }] : []),
     { href: "/notifications", label: unread > 0 ? `${t(locale, "notifications")} (${unread})` : t(locale, "notifications") },
+    ...(canViewSites ? [{ href: "/sites", label: t(locale, "mineSites") }] : []),
     ...(canViewMembers ? [{ href: "/settings/users", label: t(locale, "people") }] : []),
+    ...(canViewOrganization ? [{ href: "/settings/organization", label: t(locale, "organization") }] : []),
     ...(canViewAuditLog ? [{ href: "/settings/audit-logs", label: t(locale, "auditLog") }] : []),
     ...(platformAdmin ? [{ href: "/admin", label: t(locale, "platformAdmin") }] : []),
   ];

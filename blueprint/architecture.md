@@ -155,13 +155,13 @@ Implemented, with anything still outstanding marked.
 | --- | --- |
 | Authentication | `/login`, `/register` |
 | Setup | `/onboarding` |
-| Core workspace | `/dashboard`; `/sites` and `/sites/[siteId]` **not built** |
+| Core workspace | `/dashboard`, `/sites`. Site detail lives on the list rather than its own route. |
 | Workforce | `/workers`, `/workers/[workerId]`, `/attendance` |
 | Operations | `/shifts`, `/production`, `/production/[entryId]`, `/equipment`, `/equipment/[equipmentId]` |
 | Controls | `/fuel`, `/maintenance`, `/maintenance/[workOrderId]`, `/inventory`, `/expenses`, `/expenses/[expenseId]` |
 | Risk | `/compliance`, `/safety`, `/safety/[incidentId]` |
 | Intelligence | `/reports`, `/reports/export`, `/notifications` |
-| Administration | `/settings/users`, `/settings/audit-logs`; `/settings/organization` and `/settings/roles` **not built** |
+| Administration | `/settings/organization`, `/settings/users`, `/settings/audit-logs`; `/settings/roles` **not built** |
 | Platform | `/admin`, `/admin/organizations`, `/admin/administrators`, `/admin/audit` |
 
 Production capture happens on `/production` rather than a separate `/production/new`.

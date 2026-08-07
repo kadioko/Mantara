@@ -33,7 +33,7 @@ coverage.
 | --- | --- |
 | Foundation | Next.js 16, strict TypeScript, Tailwind v4, Supabase SSR clients, environment validation, Vercel deployment. |
 | Authentication | Register, login, logout, callback, protected requests, onboarding redirect. Supabase owns password storage. |
-| Tenancy | Organizations, memberships, mine sites, active organization/site cookies, constraints and RLS. |
+| Tenancy | Organizations, memberships, mine sites with add/edit/retire, organization settings, active organization/site cookies, constraints and RLS. |
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, and platform administration as a separate axis that grants no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette. No screen hardcodes a colour outside the brand sidebar, and no module redefines its own panel or form control. |
@@ -79,8 +79,9 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ### Administration
 
-- Organization settings and custom role management. `role.manage` still has no screen behind it.
-- Mine-site management UI beyond onboarding, and site-level access restrictions.
+- Custom role management. `role.manage` still has no screen behind it, so every organization uses the
+  standard role set.
+- Site-level access restrictions: a member with a permission holds it at every site in the organization.
 - Invitations are claimed on sign-in; no email is actually sent, so the invitee has to be told
   out of band that they have been invited.
 

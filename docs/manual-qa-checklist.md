@@ -24,6 +24,20 @@ Before beginning this checklist, apply the foundation migration to the linked Su
 - [ ] Switching organization or site persists after a refresh.
 - [ ] **Navigation shows the same modules on every load.** Reload the dashboard several times; items must not appear and disappear.
 
+## Mine sites and organization
+
+Apply `supabase/migrations/0019_sites_and_organization_settings.sql` before running these checks.
+
+- [ ] A user with `site.create` can add a second mine site, and it appears in the site switcher immediately.
+- [ ] A duplicate site name in the same organization is rejected; the same name in another organization is fine.
+- [ ] Entering only a latitude or only a longitude is rejected.
+- [ ] A site can be taken out of service while another remains active, and brought back later.
+- [ ] **The last active site cannot be retired or deleted**, and the message says why.
+- [ ] Editing the last active site's other details still works.
+- [ ] A user with `site.read` but not `site.create` sees the list without the add button.
+- [ ] The organization name can be changed by someone with `organization.update`, and the new name shows across the workspace.
+- [ ] A user without `organization.update` sees the details read-only.
+
 ## Workforce — workers and attendance
 
 Apply `supabase/migrations/0002_workers.sql` before running these checks.
