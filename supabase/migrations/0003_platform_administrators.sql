@@ -14,19 +14,10 @@ $$;
 revoke all on function public.is_platform_super_admin() from public;
 grant execute on function public.is_platform_super_admin() to authenticated;
 
-do $$
-declare target_user_id uuid;
-begin
-  select p.id into target_user_id
-  from public.profiles p
-  join auth.users u on u.id = p.id
-  where lower(u.email) = 'godfreymariki@gmail.com';
-
-  if target_user_id is null then
-    raise exception 'Cannot create platform administrator: the requested authenticated user does not exist.';
-  end if;
-
-  insert into public.platform_administrators (user_id)
-  values (target_user_id)
-  on conflict (user_id) do nothing;
-end $$;
+-- The founding administrator was originally bootstrapped here by email address. That has been removed:
+-- it hardcoded a personal address into version control, and it raised an exception when that account
+-- did not exist, which made this migration fail on every fresh database and in CI.
+--
+-- This migration is already deployed, so the administrator it created is unaffected, and migration
+-- 0012 carries that row into public.platform_admins. Bootstrapping a new environment is now the
+-- documented one-off insert in the README.

@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: Workforce module completion**
+**Current position: Compliance and safety complete; stage 7 in progress**  
 **Last updated: 7 August 2026**
 
 For the audited feature-by-feature state, including what is not yet implemented, see [project status](project-status.md).
@@ -13,10 +13,52 @@ Mantara is being built as the digital operating system for African mining: a tru
 - The GitHub repository is connected and the project builds successfully.
 - A Next.js, TypeScript, Tailwind, and Supabase foundation exists.
 - Authentication, onboarding, organizations, memberships, roles, permissions, mine sites, audit-log tables, and RLS migration are implemented locally.
+- The workforce module is complete: worker register and detail, daily attendance, assignments, training, and PPE issue history.
+- The equipment module is implemented: asset register and detail, transactional meter readings, status changes with automatic history, and operator assignments.
+- The production module is implemented: shifts, production capture, a database-enforced approval lifecycle, and downtime.
+- Fuel control is implemented: storage locations with transactionally maintained balances, deliveries, issues, and adjustments that cannot drive a store negative.
+- Maintenance is implemented: requests, work orders with a database-enforced lifecycle, parts, costs, and service schedules that roll forward when a work order is completed.
+- Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
+- Expenses and budgets are implemented: an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
+- Platform administration is implemented at `/admin`: organization metadata, suspension, administrator management, and an append-only platform audit log.
+- A shared UI layer now exists in `components/ui/`, using shadcn/ui conventions and design tokens so components from registries such as [21st.dev](https://21st.dev) can be dropped in unchanged.
+- Compliance is implemented: licences with expiry tracking, organization-authored requirements, and tasks that reschedule themselves when a recurring obligation is completed.
+- Safety is implemented: incidents, inspections, and corrective actions, with personal and medical detail held separately behind a granular permission and logged on every access.
+- Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
+- English and Kiswahili are supported through a cookie-based translation layer in `lib/i18n/`, designed for future African-language additions. Navigation and the authentication, onboarding, and dashboard screens are translated; the module screens added since are still English only.
+- The Mantara brand mark and language switcher are in the workspace shell.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
-- Foundation and Workers migrations are applied to the Mantara Supabase project.
-- English and Kiswahili are supported through a cookie-based translation layer, designed for future African-language additions.
-- The platform-administrator role is isolated from organization roles and does not bypass tenant RLS.
+- Migrations `0001`–`0003` are deployed to Supabase and the Vercel build is live. **Migrations `0004` onwards are not yet deployed**, so everything from Equipment forward cannot be exercised against the live project until they are applied.
+
+### Verified locally
+
+`npm run typecheck`, `npm run lint`, `npm run test` (261 tests), and `npm run build` all pass.
+
+The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
+WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
+application depends on the database for. No Docker or remote Supabase project is required, so these run in ordinary CI.
+
+What the integration tests now cover:
+
+- Meter readings cannot move backwards, and a rejected reading leaves the meter untouched.
+- Equipment status history is written on every write path, with the reason when one is supplied.
+- Fuel and stock balances cannot go negative or exceed capacity, and a rejected movement writes no row.
+- A failed stock transfer leaves **both** stores unchanged.
+- Production and expense approval lifecycles: no skipped states, no double review, approved figures frozen.
+- Work-order completion rolls the equipment's service schedule forward.
+- Budget consumption counts approved and paid expenses only, respecting period and category scope.
+- Cross-tenant reads and writes are blocked by RLS, including when a row id from another organization is known.
+- Ledger tables have no insert policy, and the internal balance helpers are not executable by API roles.
+- A platform administrator reads **no rows** from any operational table, holds no permission in any organization,
+  and cannot write tenant data; suspension makes an organization read-only without affecting any other.
+- Sensitive safety details cannot be read or written without the granular permission, cannot be reached by querying
+  the table directly, and every access — but never a denied attempt — is written to the audit log.
+- Completing a recurring compliance obligation schedules the next one; a one-off task schedules nothing.
+
+Two limits are worth stating plainly. The harness stubs Supabase's `auth` schema and API roles, so it models
+Supabase rather than being it — Auth, Storage, and PostgREST behaviour are still unverified. And concurrency is not
+exercised: the row locks are the right construction and the balance checks are proven, but genuine simultaneous
+writes need a real multi-connection database. The manual QA checklist still carries those cases.
 
 ## Product journey
 
@@ -24,13 +66,45 @@ Mantara is being built as the digital operating system for African mining: a tru
 | --- | --- | --- |
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
 | 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Complete; deployed to Supabase |
-| 2. Workspace | Responsive shell, active organization/site context, protected navigation | Complete; deployed to Vercel |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register, profiles, and attendance implemented; assignments/training/PPE remain |
-| 4. Equipment | Register, assignments, meter readings, statuses, documents | Planned |
-| 5. Production | Shifts, production capture, approvals, summaries | Planned |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Planned |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Planned |
+| 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Complete; deployed to Vercel |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | Code complete; awaiting migration deployment |
+| 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
+| 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | In progress: compliance and safety complete; reports, notifications, and audit-log UI planned |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
+
+## Platform administration: what the role can and cannot do
+
+Mantara's central promise is that one organization can never see another's data. A platform
+administrator role is where that promise is easiest to lose, so the boundary is drawn deliberately.
+
+**Platform admin is a separate axis from tenancy.** It is not a permission, not a role inside an
+organization, and it grants no read path to any operational table. Because it confers no membership,
+`has_permission()` is false for every organization, and every module's policies deny it without
+needing to know the role exists.
+
+| Can | Cannot |
+| --- | --- |
+| See organization names, countries, join dates, member and site counts | See any worker, attendance, equipment, production, fuel, inventory, maintenance, or expense record |
+| Suspend and restore an organization, with a recorded reason | Read or write tenant data in any organization, including a suspended one |
+| Grant and revoke platform administration | Revoke the last remaining administrator |
+| Read the platform audit log | Write to the audit log or the administrator table directly |
+
+Suspension makes an organization **read-only** rather than invisible: its people keep access to
+records they already have, but nothing new can be written until it is restored. The rule lives in
+`has_permission()` so every module inherits it rather than each table reimplementing it.
+
+**Deliberately not built: support access to tenant data.** Real support work sometimes needs to see a
+customer's records, and the tempting shortcut is to let platform admins read everything. That would
+quietly void the isolation guarantee for every customer. The intended design is a time-boxed grant
+that the *organization's own owner* creates, is scoped to read-only, and expires by itself — consent
+from the tenant, not privilege from the platform. It is not implemented yet, and until it is, support
+that needs tenant data should be done with the customer present.
+
+**Bootstrapping is manual on purpose.** The first administrator is inserted directly through the
+Supabase SQL editor, as documented at the end of `0009_platform_admin.sql`; there is no self-service
+path into the role. Every later grant goes through `platform_grant_admin()` and is audited.
 
 ## Business journey: becoming a mining-technology company
 
@@ -54,10 +128,10 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply the foundation migration to Supabase and configure Auth redirect URLs.
-2. Complete the workspace shell and manually test organization/site switching.
-3. Build the Workers module end-to-end, including migration, RLS, validation, UI, tests, and QA checklist updates.
-4. Begin design-partner interviews before production and fuel workflows are finalized.
+1. Apply migrations `0001`–`0011` to Supabase and configure Auth redirect URLs.
+2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
+3. Finish stage 7 with reports, notifications, and the audit-log UI.
+4. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules
 
