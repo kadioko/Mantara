@@ -1,7 +1,7 @@
 # Mantara roadmap and journey
 
-**Current position: Foundation and workspace shell**  
-**Last updated: 6 August 2026**
+**Current position: Workforce, equipment, production, and fuel implemented**  
+**Last updated: 7 August 2026**
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
 
@@ -11,8 +11,20 @@ Mantara is being built as the digital operating system for African mining: a tru
 - The GitHub repository is connected and the project builds successfully.
 - A Next.js, TypeScript, Tailwind, and Supabase foundation exists.
 - Authentication, onboarding, organizations, memberships, roles, permissions, mine sites, audit-log tables, and RLS migration are implemented locally.
+- The workforce module is complete: worker register and detail, daily attendance, assignments, training, and PPE issue history.
+- The equipment module is implemented: asset register and detail, transactional meter readings, status changes with automatic history, and operator assignments.
+- The production module is implemented: shifts, production capture, a database-enforced approval lifecycle, and downtime.
+- Fuel control is implemented: storage locations with transactionally maintained balances, deliveries, issues, and adjustments that cannot drive a store negative.
+- Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
-- The production database migration is **not yet applied**; therefore real login and tenant data cannot be tested until it is deployed.
+- The production database migrations are **not yet applied**; therefore real login and tenant data cannot be tested until they are deployed.
+
+### Verified locally
+
+`npm run typecheck`, `npm run lint`, `npm run test` (80 unit tests), and `npm run build` all pass. Migration SQL is
+syntax-checked with the PostgreSQL parser, but **no migration has been executed against a database yet**. Everything the
+database enforces — RLS policies, the meter-reading and fuel-balance functions, the production approval lifecycle, and
+the status triggers — remains unverified until the migrations are deployed and the QA checklist is worked through.
 
 ## Product journey
 
@@ -21,10 +33,10 @@ Mantara is being built as the digital operating system for African mining: a tru
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
 | 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Code complete; awaiting migration deployment |
 | 2. Workspace | Responsive shell, active organization/site context, protected navigation | Code complete; awaiting migration deployment |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register implemented |
-| 4. Equipment | Register, assignments, meter readings, statuses, documents | Planned |
-| 5. Production | Shifts, production capture, approvals, summaries | Planned |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Planned |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | Code complete; awaiting migration deployment |
+| 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
+| 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | In progress: fuel control complete; maintenance, inventory, and expenses planned |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Planned |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
 
@@ -50,10 +62,10 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply the foundation migration to Supabase and configure Auth redirect URLs.
-2. Complete the workspace shell and manually test organization/site switching.
-3. Build the Workers module end-to-end, including migration, RLS, validation, UI, tests, and QA checklist updates.
-4. Begin design-partner interviews before production and fuel workflows are finalized.
+1. Apply migrations `0001`–`0005` to Supabase and configure Auth redirect URLs.
+2. Work the manual QA checklist, especially the RLS, meter-monotonicity, approval-lifecycle, and fuel-balance checks that only a live database can confirm.
+3. Continue stage 6 with maintenance, inventory, and expenses.
+4. Begin design-partner interviews now that production and fuel capture exist to demonstrate.
 
 ## Decision rules
 
