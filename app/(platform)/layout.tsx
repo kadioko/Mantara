@@ -1,11 +1,23 @@
 import { redirect } from "next/navigation";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { hasPermission } from "@/lib/auth/permissions";
-import { AppShell } from "@/components/shell/app-shell";
+import { AppShell, type NavItem } from "@/components/shell/app-shell";
 
 export default async function PlatformLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const workspace = await getActiveWorkspace();
   if (!workspace.activeOrganization) redirect("/onboarding");
-  const canViewWorkers = await hasPermission(workspace.activeOrganization.id, "worker.read");
-  return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} canViewWorkers={canViewWorkers}>{children}</AppShell>;
+  const organizationId = workspace.activeOrganization.id;
+  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel] = await Promise.all([
+    hasPermission(organizationId, "worker.read"),
+    hasPermission(organizationId, "equipment.read"),
+    hasPermission(organizationId, "production.read"),
+    hasPermission(organizationId, "fuel.read"),
+  ]);
+  const navItems: NavItem[] = [
+    ...(canViewWorkers ? [{ href: "/workers", label: "Workers" }, { href: "/attendance", label: "Attendance" }] : []),
+    ...(canViewEquipment ? [{ href: "/equipment", label: "Equipment" }] : []),
+    ...(canViewProduction ? [{ href: "/shifts", label: "Shifts" }, { href: "/production", label: "Production" }] : []),
+    ...(canViewFuel ? [{ href: "/fuel", label: "Fuel" }] : []),
+  ];
+  return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems}>{children}</AppShell>;
 }
