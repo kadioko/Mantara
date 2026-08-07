@@ -46,6 +46,19 @@ export const supplierSchema = z.object({
   notes: z.string().trim().max(500).optional(),
 });
 
+const withId = <T extends z.ZodRawShape>(schema: z.ZodObject<T>) => schema.extend({ id: z.string().uuid() });
+
+export const inventoryItemEditSchema = withId(inventoryItemSchema);
+export const inventoryCategoryEditSchema = withId(inventoryCategorySchema);
+export const inventoryLocationEditSchema = withId(inventoryLocationSchema);
+export const supplierEditSchema = withId(supplierSchema);
+
+/** Retiring and restoring share one shape; the action decides which way it goes. */
+export const catalogueStatusSchema = z.object({
+  id: z.string().uuid(),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+
 export const stockReceiptSchema = z.object({
   itemId: z.string().uuid(),
   locationId: z.string().uuid(),

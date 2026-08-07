@@ -101,8 +101,8 @@ its English copy is written rather than waiting on a translator, and a missing k
 text instead of a blank. `npm run i18n:report` reports both kinds of gap.
 
 - The catalogue itself is complete: 216 keys, 100% Swahili.
-- The real gap is elsewhere. 571 phrases are written directly into components and so cannot be
-  translated at all. The report ranks them by file; the module form files are the worst by far
+- The real gap is elsewhere. 595 phrases are written directly into components and so cannot be
+  translated at all. The catalogue editors added 24 more. The report ranks them by file; the module form files are the worst by far
   (`production-forms.tsx`, `inventory-forms.tsx`, `safety-forms.tsx`). Lifting them into the
   catalogue is mechanical; writing the Swahili for mining terminology needs a speaker, not a
   machine translation, and is not something to fake.
@@ -112,10 +112,24 @@ text instead of a blank. `npm run i18n:report` reports both kinds of gap.
 ### Release readiness
 
 - Pagination is on the workers and equipment registers, the audit log, production, expenses, safety
-  incidents, and maintenance work orders. Search is on workers and equipment only. Inventory balances
-  are assembled in the application rather than paged in the database, so they are still unbounded.
-- Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
-  compliance requirements, and expense categories are still create-only.
+  incidents, maintenance work orders, and inventory stock. Search is on workers, equipment, and
+  inventory stock.
+- **Inventory stock is no longer assembled in the application.** It previously read every balance in
+  the organization and narrowed it to the site in JavaScript, which meant that past PostgREST's
+  1000-row response cap the screen quietly showed a subset of the stock as though it were all of it.
+  Wrong figures that look right are worse than a slow page. `0023_stock_overview.sql` adds a
+  `security_invoker` view so the join, filter, ordering and paging all happen in the database.
+  `security_invoker` is the whole safety story there: without it the view would run as its owner and
+  read straight past every RLS policy underneath. Removing that one clause makes five tests fail.
+- **Every create-only catalogue can now be corrected.** Inventory items, categories, stores,
+  suppliers, fuel tanks, and expense categories all have editing and retire/restore. The database
+  already permitted these updates; only the actions and screens were missing.
+- `0024_catalogue_integrity.sql` refuses to retire a store or item that still holds stock, or a fuel
+  tank with litres in it, and names the quantity in the way. Retiring removes something from every
+  movement form, so anything left in it becomes invisible and unmovable — the figures an operator
+  reads stop matching what is on the ground, with no screen that would show why. Corrections and
+  restorations are deliberately unaffected; the guard is about retirement only.
+- Compliance requirements are still create-only.
 - **Rate limiting** is in place (`0022_rate_limiting.sql`, `lib/auth/rate-limit.ts`) on invitations,
   role changes, sensitive safety reads, and report exports. The subject is always `auth.uid()` and
   never an argument, so a caller cannot exhaust someone else's allowance and lock them out. It fails
@@ -149,5 +163,6 @@ Deploy migrations `0019`–`0022`, then run the manual QA checklist against the 
 below that line is verified only as far as PGlite and a static analyser can reach: Storage, real
 concurrency, Supabase Auth, and PostgREST behaviour are not covered by any test here.
 
-After that, the largest remaining piece of product work is lifting the 571 uncatalogued UI phrases
-into `lib/i18n/messages.ts` and finding a Kiswahili speaker for the mining vocabulary.
+After that, the largest remaining pieces of product work are lifting the uncatalogued UI phrases
+into `lib/i18n/messages.ts` (with a Kiswahili speaker for the mining vocabulary), and giving
+compliance requirements the same editing every other catalogue now has.

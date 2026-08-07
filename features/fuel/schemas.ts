@@ -22,6 +22,13 @@ export const fuelLocationSchema = z.object({
   notes: z.string().trim().max(2_000).optional(),
 });
 
+export const fuelLocationEditSchema = fuelLocationSchema.extend({ id: z.string().uuid() });
+
+export const fuelLocationStatusSchema = z.object({
+  id: z.string().uuid(),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+
 export const fuelReceiptSchema = z.object({
   locationId: z.string().uuid(),
   litres: z.coerce.number().positive("Enter a delivery greater than zero litres.").max(9_999_999),

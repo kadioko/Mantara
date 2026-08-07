@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { Panel } from "@/components/ui/card";
+import { CatalogueList } from "@/components/ui/catalogue";
+import { TankRow, type CatalogueTank } from "@/features/fuel/catalogue-forms";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
@@ -11,7 +13,6 @@ import {
   FuelReceiptForm,
   type Option,
 } from "@/features/fuel/fuel-forms";
-import { fuelTypeLabels } from "@/features/fuel/schemas";
 
 export const metadata = { title: "Fuel" };
 
@@ -30,7 +31,7 @@ export default async function FuelPage() {
 
   const { data: locations, error } = await workspace.supabase
     .from("fuel_storage_locations")
-    .select("id, name, fuel_type, capacity_litres, current_balance_litres, is_active")
+    .select("id, name, fuel_type, capacity_litres, current_balance_litres, notes, is_active")
     .eq("organization_id", organization.id)
     .eq("mine_site_id", site.id)
     .order("name");
@@ -73,15 +74,12 @@ export default async function FuelPage() {
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeStores")}</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
     </div>
 
-    <Panel title={t(locale, "fuelStores")} description="Balances are maintained by the database on every movement.">
-      {canManage && <div className="mb-5 border-b border-border pb-5"><FuelLocationForm /></div>}
+    <CatalogueList title={t(locale, "fuelStores")} description="Balances are maintained by the database on every movement. A tank must be empty before it can be taken out of service.">
+      {canManage && <div className="px-5 py-4"><FuelLocationForm /></div>}
       {locations?.length
-        ? <ul className="divide-y divide-border">{locations.map((location) => <li key={location.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-            <span className="font-medium">{location.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{fuelTypeLabels[location.fuel_type as keyof typeof fuelTypeLabels] ?? location.fuel_type}{location.is_active ? "" : " · inactive"}</span></span>
-            <span className="text-sm text-muted-foreground">{Number(location.current_balance_litres).toLocaleString()} L{location.capacity_litres ? ` of ${Number(location.capacity_litres).toLocaleString()} L` : ""}</span>
-          </li>)}</ul>
-        : <p className="text-sm text-muted-foreground">{t(locale, "noFuelStores")}</p>}
-    </Panel>
+        ? (locations as CatalogueTank[]).map((tank) => <TankRow key={tank.id} tank={tank} canManage={canManage} />)
+        : <p className="px-5 py-6 text-sm text-muted-foreground">{t(locale, "noFuelStores")}</p>}
+    </CatalogueList>
 
     {locationOptions.length === 0
       ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Create an active fuel store before recording deliveries or issues.</p>

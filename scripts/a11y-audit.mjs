@@ -36,14 +36,14 @@ for (const file of files) {
   const labelled = new Set([...source.matchAll(/htmlFor=\{?["'`]?([a-zA-Z0-9_$.-]+)/g)].map((m) => m[1]));
 
   // A control wrapped in <label>…</label> is labelled implicitly, which is valid and is the pattern
-  // most of these forms use. Track how deep we are inside a label so those are not flagged.
+  // most of these forms use. <Field label=…> is the shared primitive that renders exactly that
+  // wrapping label, so it counts the same way. Both can span lines, so track the nesting depth
+  // rather than looking for an opening tag on the control's own line.
   let labelDepth = 0;
   const labelDepthAt = lines.map((raw) => {
     const before = labelDepth;
-    // A self-closing <Field label=…> renders its own wrapping label around its children, but its
-    // children sit on the same line here, so treat the whole line as inside a label.
-    const opens = (raw.match(/<label\b/g) ?? []).length;
-    const closes = (raw.match(/<\/label>/g) ?? []).length;
+    const opens = (raw.match(/<(label|Field)\b/g) ?? []).length;
+    const closes = (raw.match(/<\/(label|Field)>/g) ?? []).length;
     labelDepth += opens - closes;
     return Math.max(before, labelDepth, opens > 0 ? 1 : 0);
   });

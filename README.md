@@ -101,3 +101,11 @@ Three static checks, each of which exists because something got past a review on
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
+
+## A note on the stock overview
+
+`inventory_stock_overview` is declared `with (security_invoker = true)`. That is not decoration. A
+PostgreSQL view runs with its *owner's* privileges by default, which on Supabase means it would read
+past every row-level policy on the tables underneath and hand one mining company another's stock
+levels. Deleting those five words is a tenant-isolation breach, not a style change, and
+`tests/integration/stock-overview.test.ts` fails five ways if anyone does.

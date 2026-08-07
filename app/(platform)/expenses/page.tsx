@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Panel } from "@/components/ui/card";
+import { CatalogueList } from "@/components/ui/catalogue";
+import { ExpenseCategoryRow, type CatalogueExpenseCategory } from "@/features/expenses/catalogue-forms";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
@@ -39,7 +41,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
   const paging = readPaging(await searchParams);
   const [expensesResult, categoriesResult, suppliersResult, workOrdersResult, budgetsResult] = await Promise.all([
     workspace.supabase.from("expenses").select("id, description, amount, currency_code, incurred_on, status, category:expense_categories!expenses_category_id_fkey(name)", { count: "exact" }).eq("organization_id", organization.id).eq("mine_site_id", site.id).order("incurred_on", { ascending: false }).range(paging.from, paging.to),
-    workspace.supabase.from("expense_categories").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name"),
+    workspace.supabase.from("expense_categories").select("id, name, is_active").eq("organization_id", organization.id).order("name"),
     canCreate
       ? workspace.supabase.from("suppliers").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name")
       : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
@@ -53,7 +55,10 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
   const expenses = expensesResult.data ?? [];
   const expensesInfo = pageInfo(paging, expensesResult.count ?? 0);
   const budgets = budgetsResult.data ?? [];
-  const categoryOptions: Option[] = (categoriesResult.data ?? []).map((row) => ({ id: row.id, label: row.name }));
+  // The full list feeds the catalogue panel; only what is in service is offered on a new expense,
+  // otherwise retiring a category would have no effect on the form that matters.
+  const categories = (categoriesResult.data ?? []) as CatalogueExpenseCategory[];
+  const categoryOptions: Option[] = categories.filter((row) => row.is_active).map((row) => ({ id: row.id, label: row.name }));
   const today = new Date().toISOString().slice(0, 10);
   const currency = expenses[0]?.currency_code ?? "TZS";
 
@@ -127,6 +132,9 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
         : <p className="text-sm text-muted-foreground">No budgets set.</p>}
     </Panel>
 
-    {canUpdate && <Panel title="Categories"><ExpenseCategoryForm /></Panel>}
+    {canUpdate && <CatalogueList title="Categories" description="Retiring a category leaves past expenses reporting correctly; it simply stops being offered on new ones.">
+      <div className="px-5 py-4"><ExpenseCategoryForm /></div>
+      {categories.map((category) => <ExpenseCategoryRow key={category.id} category={category} canManage={canUpdate} />)}
+    </CatalogueList>}
   </div>;
 }

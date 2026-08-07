@@ -37,6 +37,13 @@ export const expenseCategorySchema = z.object({
   name: z.string().trim().min(2, "Name the category.").max(120),
 });
 
+export const expenseCategoryEditSchema = expenseCategorySchema.extend({ id: z.string().uuid() });
+
+export const expenseCategoryStatusSchema = z.object({
+  id: z.string().uuid(),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
+});
+
 export const expenseSchema = z.object({
   categoryId: z.string().uuid().optional().or(z.literal("")),
   supplierId: z.string().uuid().optional().or(z.literal("")),
