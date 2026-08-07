@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: Workforce, equipment, production, and fuel implemented**  
+**Current position: Stage 6 controls complete except expenses**  
 **Last updated: 7 August 2026**
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
@@ -15,16 +15,19 @@ Mantara is being built as the digital operating system for African mining: a tru
 - The equipment module is implemented: asset register and detail, transactional meter readings, status changes with automatic history, and operator assignments.
 - The production module is implemented: shifts, production capture, a database-enforced approval lifecycle, and downtime.
 - Fuel control is implemented: storage locations with transactionally maintained balances, deliveries, issues, and adjustments that cannot drive a store negative.
+- Maintenance is implemented: requests, work orders with a database-enforced lifecycle, parts, costs, and service schedules that roll forward when a work order is completed.
+- Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
 - Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
 - The production database migrations are **not yet applied**; therefore real login and tenant data cannot be tested until they are deployed.
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (80 unit tests), and `npm run build` all pass. Migration SQL is
+`npm run typecheck`, `npm run lint`, `npm run test` (123 unit tests), and `npm run build` all pass. Migration SQL is
 syntax-checked with the PostgreSQL parser, but **no migration has been executed against a database yet**. Everything the
-database enforces — RLS policies, the meter-reading and fuel-balance functions, the production approval lifecycle, and
-the status triggers — remains unverified until the migrations are deployed and the QA checklist is worked through.
+database enforces — RLS policies, the meter-reading, fuel-balance, and stock-balance functions, the production approval
+and work-order lifecycles, and the status triggers — remains unverified until the migrations are deployed and the QA
+checklist is worked through.
 
 ## Product journey
 
@@ -36,7 +39,7 @@ the status triggers — remains unverified until the migrations are deployed and
 | 3. Workforce | Workers, assignments, attendance, training, PPE | Code complete; awaiting migration deployment |
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
 | 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | In progress: fuel control complete; maintenance, inventory, and expenses planned |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | In progress: fuel, maintenance, and inventory complete; expenses and budgets planned |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Planned |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
 
@@ -62,9 +65,9 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0001`–`0005` to Supabase and configure Auth redirect URLs.
-2. Work the manual QA checklist, especially the RLS, meter-monotonicity, approval-lifecycle, and fuel-balance checks that only a live database can confirm.
-3. Continue stage 6 with maintenance, inventory, and expenses.
+1. Apply migrations `0001`–`0007` to Supabase and configure Auth redirect URLs.
+2. Work the manual QA checklist, especially the RLS, meter-monotonicity, approval-lifecycle, fuel-balance, and stock-balance checks that only a live database can confirm.
+3. Finish stage 6 with expenses and budgets.
 4. Begin design-partner interviews now that production and fuel capture exist to demonstrate.
 
 ## Decision rules

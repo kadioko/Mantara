@@ -81,9 +81,45 @@ Apply `supabase/migrations/0005_fuel.sql` before running these checks.
 - [ ] Permissions separate correctly: `fuel.issue` alone allows issuing but not deliveries or adjustments.
 - [ ] Balances and movements from another organization are never visible.
 
+## Maintenance
+
+Apply `supabase/migrations/0006_maintenance.sql` before running these checks.
+
+- [ ] A request can be raised against equipment, and a work order can be created from an open request.
+- [ ] A new work order starts as **planned**.
+- [ ] Moving a work order to in progress stamps `started_at` automatically.
+- [ ] **An invalid transition is rejected** — for example planned straight to completed, or reopening a completed order.
+- [ ] The status dropdown never offers a move the database would reject, and never offers "completed" directly.
+- [ ] Completing a work order stamps `completed_at` and records the service meter.
+- [ ] **Completing a work order rolls its equipment's active service schedules forward** — `last_service_on`, and `next_due_on`/`next_due_meter` recalculated from the intervals.
+- [ ] Completing a work order that is not in progress is rejected.
+- [ ] A service schedule with neither a meter interval nor a day interval is rejected.
+- [ ] Parts and costs can only be attached to a work order at the active mine site.
+- [ ] A user with `maintenance.create` but not `maintenance.update` cannot complete a work order or add costs.
+
+## Inventory
+
+Apply `supabase/migrations/0007_inventory.sql` before running these checks.
+
+- [ ] Items, categories, and suppliers are shared across the organization; stores belong to one mine site.
+- [ ] Receiving stock creates the balance row on first movement and increases it thereafter.
+- [ ] Issuing stock decreases the balance and can be linked to a work order, equipment, or worker.
+- [ ] **An issue larger than the balance is rejected**, naming the quantity remaining.
+- [ ] **Two concurrent issues cannot together take a balance below zero** (the balance row lock serializes them).
+- [ ] A transfer moves stock between two stores and is rejected when both are the same store.
+- [ ] **Two opposing transfers of the same item running at once do not deadlock** — both stores are locked lowest-id first.
+- [ ] A transfer larger than the source balance is rejected and leaves **both** stores unchanged.
+- [ ] A negative adjustment larger than the balance is rejected; a zero adjustment is rejected.
+- [ ] Balances, receipts, issues, transfers, and adjustments **cannot be written directly** by a client.
+- [ ] `apply_stock_movement` is not executable by an ordinary authenticated user.
+- [ ] An item and a store from different organizations cannot be combined in one movement.
+- [ ] Permissions separate correctly: `inventory.issue` alone allows issuing but not receiving, transferring, or adjusting.
+- [ ] Items at or below their reorder level appear on the reorder watch.
+
 ## Role permission defaults
 
 - [ ] A newly created organization's mine manager, site supervisor, storekeeper, and maintenance officer receive the
-      permissions listed in `role_permission_defaults` — verify at least one role per module.
+      permissions listed in `role_permission_defaults` — verify at least one role per module, including maintenance
+      and inventory.
 - [ ] An organization created **before** these migrations has the same permissions after the backfill ran.
 - [ ] A company owner holds every permission, including ones added by later migrations.
