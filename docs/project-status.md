@@ -5,6 +5,8 @@
 
 ## Executive status
 
+**Current deployment update (7 August 2026):** migrations `0016_summary_respects_module_permissions.sql` and `0017_my_permissions.sql` are applied to Supabase. Summary figures now respect each module's own read permission, and the application resolves a member's permissions in one safe request instead of issuing many concurrent checks.
+
 **Latest deployment update (7 August 2026):** migrations `0014_members_and_notifications.sql` and `0015_operational_summary.sql` are now applied to Supabase. `0015` provides a permission-checked summary RPC for future dashboards and reports. `supabase/seed-demo-operational.sql` has also been applied to the developer demo company, adding labelled showcase records for every operational module.
 
 Mantara has a multi-tenant foundation with tenant isolation enforced in the database, and working

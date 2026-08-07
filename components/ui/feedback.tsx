@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const alertVariants = cva("rounded-lg border px-4 py-3 text-sm", {
@@ -40,10 +41,12 @@ export function EmptyState({ title, description, icon }: { title: string; descri
 export function StatCard({ label, value, hint, tone = "default" }: { label: string; value: React.ReactNode; hint?: string; tone?: "default" | "warning" | "destructive" }) {
   const toneClass = tone === "destructive" ? "text-destructive" : tone === "warning" ? "text-warning-foreground" : "text-foreground";
   return (
-    <div className="rounded-xl border bg-card p-5 shadow-sm">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className={cn("mt-1 text-2xl font-bold tabular-nums", toneClass)}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+    <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/35 group-hover:shadow-lg">
+      <div aria-hidden className="absolute -right-8 -top-8 size-20 rounded-full bg-primary/5 transition-transform duration-300 group-hover:scale-125" />
+      <ArrowUpRight aria-hidden className="absolute right-4 top-4 size-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+      <p className="relative text-sm text-muted-foreground">{label}</p>
+      <p className={cn("relative mt-1 text-2xl font-bold tabular-nums", toneClass)}>{value}</p>
+      {hint && <p className="relative mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
