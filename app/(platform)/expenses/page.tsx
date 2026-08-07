@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
+import { Pagination } from "@/components/ui/pagination";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import {
@@ -23,7 +25,7 @@ const statusTone: Record<string, string> = {
   paid: "bg-success/20 text-success",
 };
 
-export default async function ExpensesPage() {
+export default async function ExpensesPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
@@ -34,8 +36,9 @@ export default async function ExpensesPage() {
     hasPermission(organization.id, "expense.update"),
   ]);
 
+  const paging = readPaging(await searchParams);
   const [expensesResult, categoriesResult, suppliersResult, workOrdersResult, budgetsResult] = await Promise.all([
-    workspace.supabase.from("expenses").select("id, description, amount, currency_code, incurred_on, status, category:expense_categories!expenses_category_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("incurred_on", { ascending: false }).limit(50),
+    workspace.supabase.from("expenses").select("id, description, amount, currency_code, incurred_on, status, category:expense_categories!expenses_category_id_fkey(name)", { count: "exact" }).eq("organization_id", organization.id).eq("mine_site_id", site.id).order("incurred_on", { ascending: false }).range(paging.from, paging.to),
     workspace.supabase.from("expense_categories").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name"),
     canCreate
       ? workspace.supabase.from("suppliers").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name")
@@ -48,6 +51,7 @@ export default async function ExpensesPage() {
   if (expensesResult.error) throw new Error("Unable to load expenses.");
 
   const expenses = expensesResult.data ?? [];
+  const expensesInfo = pageInfo(paging, expensesResult.count ?? 0);
   const budgets = budgetsResult.data ?? [];
   const categoryOptions: Option[] = (categoriesResult.data ?? []).map((row) => ({ id: row.id, label: row.name }));
   const today = new Date().toISOString().slice(0, 10);
@@ -97,6 +101,7 @@ export default async function ExpensesPage() {
             </li>;
           })}</ul>
         : <p className="text-sm text-muted-foreground">No expenses recorded at this site yet.</p>}
+      <Pagination basePath="/expenses" info={expensesInfo} search="" />
     </Panel>
 
     <Panel title={t(locale, "budgets")} description="Only approved and paid expenses count against a budget.">

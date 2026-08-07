@@ -258,6 +258,25 @@ Apply `supabase/migrations/0009_platform_admin.sql`, then bootstrap the first ad
 - [ ] **A maintenance officer sees equipment figures but zero for production and fuel**, which they hold no read permission for. One `site.read` must not stand in for every module.
 - [ ] An owner sees every figure populated.
 
+## Roles
+
+Apply `supabase/migrations/0021_role_permissions_management.sql` before running these checks.
+
+- [ ] `/settings/roles` lists every role with its permissions and member count.
+- [ ] Saving a role replaces its grant with exactly the boxes ticked; unticking removes a permission.
+- [ ] A member holding that role gains or loses access on their **next request**, without signing in again.
+- [ ] **The owner role cannot be narrowed**, and the screen explains why rather than offering the control.
+- [ ] A user with `role.read` but not `role.manage` sees the roles without an edit control.
+- [ ] Every change appears in the audit log as `role.permissions_changed`.
+
+## Documents (switched off)
+
+- [ ] With `DOCUMENTS_ENABLED` unset, no document panel or upload control appears anywhere.
+- [ ] After applying `0020_document_storage.sql` and setting `DOCUMENTS_ENABLED=true`: an upload succeeds and the file is listed.
+- [ ] A download link works and expires shortly afterwards.
+- [ ] **A signed URL cannot be obtained for a path in another organization.**
+- [ ] A user without the module's update permission cannot upload; without its read permission cannot download.
+
 ## Role permission defaults
 
 - [ ] A newly created organization's mine manager, site supervisor, storekeeper, and maintenance officer receive the

@@ -161,7 +161,7 @@ Implemented, with anything still outstanding marked.
 | Controls | `/fuel`, `/maintenance`, `/maintenance/[workOrderId]`, `/inventory`, `/expenses`, `/expenses/[expenseId]` |
 | Risk | `/compliance`, `/safety`, `/safety/[incidentId]` |
 | Intelligence | `/reports`, `/reports/export`, `/notifications` |
-| Administration | `/settings/organization`, `/settings/users`, `/settings/audit-logs`; `/settings/roles` **not built** |
+| Administration | `/settings/organization`, `/settings/users`, `/settings/audit-logs`, `/settings/roles` |
 | Platform | `/admin`, `/admin/organizations`, `/admin/administrators`, `/admin/audit` |
 
 Production capture happens on `/production` rather than a separate `/production/new`.

@@ -51,7 +51,7 @@ and the remaining Kiswahili coverage.
 | Insight | Dashboard with permission-gated operational figures, organization audit log, reports with CSV export, and notifications. |
 | User administration | Invitations by email, role changes, and suspension, with the database refusing to leave an organization without an owner. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 346 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 362 tests pass. |
 
 ## Test coverage
 
@@ -80,17 +80,19 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ### Administration
 
-- Custom role management. `role.manage` still has no screen behind it, so every organization uses the
-  standard role set.
+- Role editing applies to the whole organization. Per-site restrictions are still not possible: a
+  member holding a permission holds it at every site.
 - Site-level access restrictions: a member with a permission holds it at every site in the organization.
 - Invitations are claimed on sign-in; no email is actually sent, so the invitee has to be told
   out of band that they have been invited.
 
-### Documents
+### Documents — built, switched off
 
-- Private Supabase Storage buckets, upload UI, file validation, and signed-URL access.
-  `equipment_documents`, `compliance_documents`, and training certificates all store a path today with
-  no way to put a file at it.
+The bucket, its policies, signed upload and download, and the document panel are all in place, but
+`DOCUMENTS_ENABLED` defaults to off and the surface stays hidden. Storage cannot be exercised by the
+migration harness or the test suite, so none of the upload path has been run against a real bucket.
+Apply `0020_document_storage.sql`, set `DOCUMENTS_ENABLED=true`, and confirm an upload and a download
+end to end before relying on it.
 
 ### Localization
 
@@ -98,8 +100,9 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ### Release readiness
 
-- Pagination and search are on the workers register, equipment register, and audit log. Production,
-  expenses, safety incidents, maintenance work orders, and the inventory balances still cap silently.
+- Pagination is on the workers and equipment registers, the audit log, production, expenses, safety
+  incidents, and maintenance work orders. Search is on workers and equipment only. Inventory balances
+  are assembled in the application rather than paged in the database, so they are still unbounded.
 - Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
   compliance requirements, and expense categories are still create-only.
 - Rate limiting on sensitive actions, a full accessibility audit, and performance testing. Forms use

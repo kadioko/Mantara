@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
+import { Pagination } from "@/components/ui/pagination";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import {
@@ -30,7 +32,7 @@ const priorityTone: Record<string, string> = {
   critical: "text-destructive",
 };
 
-export default async function MaintenancePage() {
+export default async function MaintenancePage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
@@ -41,8 +43,9 @@ export default async function MaintenancePage() {
     hasPermission(organization.id, "maintenance.update"),
   ]);
 
+  const paging = readPaging(await searchParams);
   const [ordersResult, requestsResult, schedulesResult, equipmentResult, workersResult] = await Promise.all([
-    workspace.supabase.from("maintenance_work_orders").select("id, title, status, priority, scheduled_for, equipment:equipment!maintenance_work_orders_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).limit(50),
+    workspace.supabase.from("maintenance_work_orders").select("id, title, status, priority, scheduled_for, equipment:equipment!maintenance_work_orders_equipment_id_fkey(name)", { count: "exact" }).eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).range(paging.from, paging.to),
     workspace.supabase.from("maintenance_requests").select("id, title, status, priority, reported_on, equipment:equipment!maintenance_requests_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("reported_on", { ascending: false }).limit(50),
     workspace.supabase.from("maintenance_schedules").select("id, name, next_due_on, next_due_meter, interval_meter, interval_days, equipment:equipment!maintenance_schedules_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("is_active", true).order("next_due_on", { nullsFirst: false }),
     canCreate || canUpdate
@@ -55,6 +58,7 @@ export default async function MaintenancePage() {
   if (ordersResult.error) throw new Error("Unable to load work orders.");
 
   const orders = ordersResult.data ?? [];
+  const ordersInfo = pageInfo(paging, ordersResult.count ?? 0);
   const requests = requestsResult.data ?? [];
   const equipmentOptions: Option[] = (equipmentResult.data ?? []).map((item) => ({ id: item.id, label: item.name }));
   const workerOptions: Option[] = (workersResult.data ?? []).map((worker) => ({ id: worker.id, label: worker.full_name }));
@@ -92,6 +96,7 @@ export default async function MaintenancePage() {
             </li>;
           })}</ul>
         : <p className="text-sm text-muted-foreground">No work orders have been created at this site yet.</p>}
+      <Pagination basePath="/maintenance" info={ordersInfo} search="" />
     </Panel>
 
     <Panel title={t(locale, "requests")}>

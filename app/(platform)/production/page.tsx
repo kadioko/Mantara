@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
+import { Pagination } from "@/components/ui/pagination";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import { DowntimeForm, OreDispatchForm, OreLotForm, ProductionEntryForm } from "@/features/production/production-forms";
@@ -16,7 +18,7 @@ const statusTone: Record<string, string> = {
   rejected: "bg-destructive/12 text-destructive",
 };
 
-export default async function ProductionPage() {
+export default async function ProductionPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
@@ -26,8 +28,9 @@ export default async function ProductionPage() {
     hasPermission(organization.id, "production.create"),
     hasPermission(organization.id, "production.update"),
   ]);
+  const paging = readPaging(await searchParams);
   const [entriesResult, shiftsResult, downtimeResult, equipmentResult, oreLotsResult, dispatchesResult] = await Promise.all([
-    workspace.supabase.from("production_entries").select("id, entry_date, material, quantity, unit, grade, status, location").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("entry_date", { ascending: false }).limit(50),
+    workspace.supabase.from("production_entries").select("id, entry_date, material, quantity, unit, grade, status, location", { count: "exact" }).eq("organization_id", organization.id).eq("mine_site_id", site.id).order("entry_date", { ascending: false }).range(paging.from, paging.to),
     workspace.supabase.from("shifts").select("id, name, shift_date").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("shift_date", { ascending: false }).limit(30),
     workspace.supabase.from("downtime_records").select("id, reason, minutes, created_at, equipment:equipment!downtime_records_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).limit(15),
     canCreate
@@ -39,10 +42,18 @@ export default async function ProductionPage() {
   if (entriesResult.error || oreLotsResult.error || dispatchesResult.error) throw new Error("Unable to load production records.");
 
   const entries = entriesResult.data ?? [];
+  const entriesInfo = pageInfo(paging, entriesResult.count ?? 0);
   const shiftOptions = (shiftsResult.data ?? []).map((shift) => ({ id: shift.id, label: `${shift.shift_date} · ${shift.name}` }));
   const equipmentOptions = (equipmentResult.data ?? []).map((item) => ({ id: item.id, label: item.name }));
-  const approvedTotal = entries.filter((entry) => entry.status === "approved").reduce((sum, entry) => sum + Number(entry.quantity), 0);
-  const awaiting = entries.filter((entry) => entry.status === "submitted").length;
+  // Counted across every entry, not just the page on screen.
+  const [{ count: awaitingCount }, { data: approvedRows }] = await Promise.all([
+    workspace.supabase.from("production_entries").select("id", { count: "exact", head: true })
+      .eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "submitted"),
+    workspace.supabase.from("production_entries").select("quantity")
+      .eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "approved"),
+  ]);
+  const approvedTotal = (approvedRows ?? []).reduce((sum, row) => sum + Number(row.quantity), 0);
+  const awaiting = awaitingCount ?? 0;
   const oreLots = oreLotsResult.data ?? [];
   const dispatches = dispatchesResult.data ?? [];
   const oreReadyTonnes = oreLots.filter((lot) => lot.status !== "dispatched").reduce((sum, lot) => sum + Number(lot.ore_tonnes), 0);
@@ -57,9 +68,9 @@ export default async function ProductionPage() {
     <p className="mt-2 text-muted-foreground">{t(locale, "productionDescription", { site: site.name })}</p>
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity (last 50)</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{awaiting}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries shown</p><p className="mt-1 text-2xl font-bold">{entries.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries recorded</p><p className="mt-1 text-2xl font-bold">{entriesInfo.total}</p></div>
     </div>
 
     {canCreate && <div className="mt-8"><ProductionEntryForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
@@ -103,6 +114,7 @@ export default async function ProductionPage() {
             <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[entry.status] ?? "bg-muted text-foreground"}`}>{productionStatusLabels[entry.status as keyof typeof productionStatusLabels] ?? entry.status}</span>
           </article>)}</div>
         : <p className="p-5 text-sm text-muted-foreground">No production has been captured at this site yet.</p>}
+      <Pagination basePath="/production" info={entriesInfo} search="" />
     </div>
 
     <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">

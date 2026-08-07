@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { HardHat } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
+import { Pagination } from "@/components/ui/pagination";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import { Badge } from "@/components/ui/badge";
@@ -27,7 +29,7 @@ const severityTone: Record<string, "secondary" | "warning" | "destructive"> = {
   critical: "destructive",
 };
 
-export default async function SafetyPage() {
+export default async function SafetyPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
@@ -38,8 +40,9 @@ export default async function SafetyPage() {
     hasPermission(organization.id, "safety.update"),
   ]);
 
+  const paging = readPaging(await searchParams);
   const [incidentsResult, inspectionsResult, actionsResult, workersResult, equipmentResult] = await Promise.all([
-    workspace.supabase.from("safety_incidents").select("id, title, category, severity, status, occurred_at, location").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("occurred_at", { ascending: false }).limit(50),
+    workspace.supabase.from("safety_incidents").select("id, title, category, severity, status, occurred_at, location", { count: "exact" }).eq("organization_id", organization.id).eq("mine_site_id", site.id).order("occurred_at", { ascending: false }).range(paging.from, paging.to),
     workspace.supabase.from("safety_inspections").select("id, title, area, inspected_on, is_satisfactory").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("inspected_on", { ascending: false }).limit(25),
     workspace.supabase.from("corrective_actions").select("id, description, due_on, status, assignee:workers(full_name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("due_on", { nullsFirst: false }).limit(50),
     canCreate
@@ -52,6 +55,7 @@ export default async function SafetyPage() {
   if (incidentsResult.error) throw new Error("Unable to load safety incidents.");
 
   const incidents = incidentsResult.data ?? [];
+  const incidentsInfo = pageInfo(paging, incidentsResult.count ?? 0);
   const inspections = inspectionsResult.data ?? [];
   const actions = actionsResult.data ?? [];
   const today = new Date().toISOString().slice(0, 10);
@@ -114,6 +118,7 @@ export default async function SafetyPage() {
         ) : (
           <CardContent><EmptyState icon={<HardHat className="size-6" aria-hidden />} title="No incidents recorded" description="Reporting near misses as well as injuries gives the clearest picture of site risk." /></CardContent>
         )}
+        <Pagination basePath="/safety" info={incidentsInfo} search="" />
         {canCreate && <CardContent className="border-t"><IncidentForm workers={workerOptions} equipment={equipmentOptions} today={today} /></CardContent>}
       </Card>
 
