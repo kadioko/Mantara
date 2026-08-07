@@ -5,6 +5,8 @@
 
 ## Executive status
 
+**Latest deployment update (7 August 2026):** migrations `0014_members_and_notifications.sql` and `0015_operational_summary.sql` are now applied to Supabase. `0015` provides a permission-checked summary RPC for future dashboards and reports. `supabase/seed-demo-operational.sql` has also been applied to the developer demo company, adding labelled showcase records for every operational module.
+
 Mantara has a multi-tenant foundation with tenant isolation enforced in the database, and working
 operational workflows for Workforce, Equipment, Production, Fuel, Maintenance, Inventory, Expenses,
 Compliance, and Safety, plus a platform administration console.
