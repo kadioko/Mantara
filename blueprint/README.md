@@ -2,6 +2,8 @@
 
 > This is the long-term product vision. For the active MVP position, delivery sequence, and business milestones, see the [Mantara roadmap and journey](../docs/roadmap.md).
 
+> **Current build scope:** multi-tenant foundation, organizations/sites, Workforce register, attendance, English/Kiswahili UI, and branding. The [project-status audit](../docs/project-status.md) identifies every remaining MVP module.
+
 MANTARA
 
 Mining Intelligence and Operations Platform

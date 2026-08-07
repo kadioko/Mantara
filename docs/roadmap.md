@@ -1,7 +1,9 @@
 # Mantara roadmap and journey
 
-**Current position: Foundation and workspace shell**  
+**Current position: Workforce module completion**
 **Last updated: 7 August 2026**
+
+For the audited feature-by-feature state, including what is not yet implemented, see [project status](project-status.md).
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
 
@@ -21,9 +23,9 @@ Mantara is being built as the digital operating system for African mining: a tru
 | Stage | Outcome | Status |
 | --- | --- | --- |
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
-| 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Code complete; awaiting migration deployment |
-| 2. Workspace | Responsive shell, active organization/site context, protected navigation | Code complete; awaiting migration deployment |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register, profiles, and attendance implemented |
+| 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Complete; deployed to Supabase |
+| 2. Workspace | Responsive shell, active organization/site context, protected navigation | Complete; deployed to Vercel |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | In progress: worker register, profiles, and attendance implemented; assignments/training/PPE remain |
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Planned |
 | 5. Production | Shifts, production capture, approvals, summaries | Planned |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Planned |

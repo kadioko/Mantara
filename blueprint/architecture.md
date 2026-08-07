@@ -2,6 +2,8 @@
 
 > Project status and the product/business journey are maintained in [the roadmap](../docs/roadmap.md). This document remains the technical design reference.
 
+> **Implementation note — 7 August 2026:** Foundation and Workforce migrations are deployed; only Workers and Attendance UI are currently implemented. The entity map below is the target MVP schema, not a claim that every domain table exists. See the [audited project status](../docs/project-status.md).
+
 ## 1. Repository assessment
 
 ### Current state
