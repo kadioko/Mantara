@@ -8,6 +8,7 @@ import {
   MeterReadingForm,
 } from "@/features/equipment/equipment-forms";
 import { categoryLabels, statusLabels } from "@/features/equipment/schemas";
+import { EditEquipmentForm, RemoveEquipmentForm } from "@/features/equipment/equipment-edit-forms";
 
 function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
@@ -68,6 +69,10 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
         {details.map(([label, value]) => <div key={label}><dt className="text-sm text-stone-500">{label}</dt><dd className="font-medium">{value}</dd></div>)}
       </dl>
       {item.notes && <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{item.notes}</p>}
+      {canManage && <div className="mt-5 space-y-5 border-t border-stone-100 pt-5">
+        <EditEquipmentForm equipment={item} />
+        <div className="border-t border-stone-100 pt-5"><RemoveEquipmentForm equipmentId={item.id} equipmentName={item.name} /></div>
+      </div>}
     </Panel>
 
     <Panel title="Meter readings" description="Readings can only move forward; the database rejects a lower value.">

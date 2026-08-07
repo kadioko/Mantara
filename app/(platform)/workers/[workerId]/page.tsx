@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { AssignmentForm, PpeForm, TrainingForm, WorkerStatusForm } from "@/features/workers/worker-detail-forms";
+import { EditWorkerForm, RemoveWorkerForm } from "@/features/workers/worker-edit-forms";
 
 function Panel({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return <section className="overflow-hidden rounded-xl border border-stone-200 bg-white">
@@ -62,7 +63,11 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ w
         {details.map(([label, value]) => <div key={label}><dt className="text-sm text-stone-500">{label}</dt><dd className="font-medium capitalize">{value}</dd></div>)}
       </dl>
       {worker.notes && <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-700">{worker.notes}</p>}
-      {canManage && <div className="mt-5 border-t border-stone-100 pt-5"><WorkerStatusForm workerId={worker.id} status={worker.status} /></div>}
+      {canManage && <div className="mt-5 space-y-5 border-t border-stone-100 pt-5">
+        <WorkerStatusForm workerId={worker.id} status={worker.status} />
+        <div className="border-t border-stone-100 pt-5"><EditWorkerForm worker={worker} /></div>
+        <div className="border-t border-stone-100 pt-5"><RemoveWorkerForm workerId={worker.id} workerName={worker.full_name} /></div>
+      </div>}
     </Panel>
 
     <Panel title="Assignments" description="Where this worker is deployed.">

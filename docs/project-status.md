@@ -42,7 +42,7 @@ and release hardening — pagination, editing, and deactivation in particular.
 | Insight | Dashboard with permission-gated operational figures, organization audit log, reports with CSV export, and notifications. |
 | User administration | Invitations by email, role changes, and suspension, with the database refusing to leave an organization without an owner. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 287 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 310 tests pass. |
 
 ## Test coverage
 
@@ -88,12 +88,15 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ### Release readiness
 
-- Pagination and filtering on every list; several screens currently cap at 50 rows with no way to page.
-- Editing and deactivation for most records; the modules are create-and-read heavy.
+- Pagination and search are on the workers register, equipment register, and audit log. Production,
+  expenses, safety incidents, maintenance work orders, and the inventory balances still cap silently.
+- Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
+  compliance requirements, and expense categories are still create-only.
 - Rate limiting on sensitive actions, accessibility review, performance testing.
 - PWA/offline capture, monitoring, backup and recovery, pilot manual-QA signoff.
 
 ## Recommended next task
 
-Stage 8 release readiness. The largest practical gaps are pagination on every list, editing and
-deactivation of records, and document storage, which several tables already have columns for.
+Continue stage 8. Extend the paging and editing patterns now established in `lib/paging.ts` and the
+worker/equipment screens to the remaining lists and catalogues, then document storage, which several
+tables already have columns for.

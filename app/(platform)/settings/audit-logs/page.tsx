@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Alert, EmptyState, PageHeader } from "@/components/ui/feedback";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
+import { Pagination } from "@/components/ui/pagination";
 
 /**
  * Several actions are recorded but were previously unreadable — most importantly, every time someone
@@ -16,20 +18,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
  */
 const sensitiveActions = new Set(["safety_incident_details.viewed", "safety_incident_details.recorded"]);
 
-export default async function AuditLogsPage() {
+export default async function AuditLogsPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const [workspace, locale] = await Promise.all([getActiveWorkspace(), getLocale()]);
   const organization = workspace.activeOrganization;
   if (!organization || !await hasPermission(organization.id, "audit_log.read")) redirect("/dashboard");
 
-  const { data: entries, error } = await workspace.supabase
+  // The audit log only ever grows, so this is the list that most needs paging.
+  const paging = readPaging(await searchParams, 50);
+  const { data: entries, count, error } = await workspace.supabase
     .from("audit_logs")
-    .select("id, action, entity_type, entity_id, new_values, created_at, actor:profiles(full_name)")
+    .select("id, action, entity_type, entity_id, new_values, created_at, actor:profiles(full_name)", { count: "exact" })
     .eq("organization_id", organization.id)
     .order("created_at", { ascending: false })
-    .limit(200);
+    .range(paging.from, paging.to);
   if (error) throw new Error("Unable to load the audit log.");
 
   const rows = entries ?? [];
+  const info = pageInfo(paging, count ?? 0);
   const sensitiveCount = rows.filter((row) => sensitiveActions.has(row.action)).length;
 
   return (
@@ -87,6 +92,7 @@ export default async function AuditLogsPage() {
             <EmptyState icon={<ScrollText className="size-6" aria-hidden />} title={t(locale, "noAuditEntries")} />
           </div>
         )}
+        <Pagination basePath="/settings/audit-logs" info={info} search="" />
       </Card>
     </div>
   );

@@ -1,12 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireScope, rowInScope, type ActiveScope } from "@/lib/auth/scope";
 import {
   assignmentSchema,
   attendanceRosterSchema,
   ppeIssueSchema,
   trainingSchema,
+  workerEditSchema,
+  workerRemovalSchema,
   workerSchema,
   workerStatusUpdateSchema,
 } from "./schemas";
@@ -153,4 +156,67 @@ export async function issuePpe(_: WorkerState, formData: FormData): Promise<Work
   if (error) return { error: "Unable to record the PPE issue. Please try again." };
   revalidatePath(`/workers/${parsed.data.workerId}`);
   return { success: "PPE issue recorded." };
+}
+
+export async function updateWorker(_: WorkerState, formData: FormData): Promise<WorkerState> {
+  const parsed = workerEditSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the worker details." };
+  const scope = await requireScope("worker.update", "You do not have permission to edit workers.");
+  if ("error" in scope) return scope;
+  if (!await workerInScope(scope, parsed.data.workerId)) return { error: "That worker is not registered at the active mine site." };
+  const { error } = await scope.workspace.supabase
+    .from("workers")
+    .update({
+      full_name: parsed.data.fullName,
+      employee_number: parsed.data.employeeNumber || null,
+      phone_number: parsed.data.phoneNumber || null,
+      job_title: parsed.data.jobTitle || null,
+      employment_type: parsed.data.employmentType,
+      start_date: parsed.data.startDate || null,
+      emergency_contact_name: parsed.data.emergencyContactName || null,
+      emergency_contact_phone: parsed.data.emergencyContactPhone || null,
+      notes: parsed.data.notes || null,
+      updated_by: scope.workspace.user.id,
+    })
+    .eq("id", parsed.data.workerId)
+    .eq("organization_id", scope.organizationId)
+    .eq("mine_site_id", scope.siteId)
+    .is("deleted_at", null);
+  if (error) return { error: error.code === "23505" ? "That employee number already exists in this organization." : "Unable to save the changes. Please try again." };
+  revalidatePath(`/workers/${parsed.data.workerId}`);
+  revalidatePath("/workers");
+  return { success: "Worker updated." };
+}
+
+/**
+ * Soft delete. The row stays so attendance, assignments, training, and PPE history remain meaningful;
+ * the read policy hides anything with deleted_at set, so the register no longer lists them.
+ */
+export async function removeWorker(_: WorkerState, formData: FormData): Promise<WorkerState> {
+  const parsed = workerRemovalSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Confirm the removal." };
+  const scope = await requireScope("worker.update", "You do not have permission to remove workers.");
+  if ("error" in scope) return scope;
+
+  const { data: worker } = await scope.workspace.supabase
+    .from("workers").select("id, full_name")
+    .eq("id", parsed.data.workerId)
+    .eq("organization_id", scope.organizationId)
+    .eq("mine_site_id", scope.siteId)
+    .is("deleted_at", null)
+    .maybeSingle();
+  if (!worker) return { error: "That worker is not registered at the active mine site." };
+  if (worker.full_name.trim().toLowerCase() !== parsed.data.confirmName.toLowerCase()) {
+    return { error: "The name you typed does not match this worker." };
+  }
+
+  const { error } = await scope.workspace.supabase
+    .from("workers")
+    .update({ deleted_at: new Date().toISOString(), deleted_by: scope.workspace.user.id, updated_by: scope.workspace.user.id })
+    .eq("id", parsed.data.workerId)
+    .eq("organization_id", scope.organizationId)
+    .eq("mine_site_id", scope.siteId);
+  if (error) return { error: "Unable to remove the worker. Please try again." };
+  revalidatePath("/workers");
+  redirect("/workers");
 }

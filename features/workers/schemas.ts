@@ -12,6 +12,15 @@ export const workerSchema = z.object({
   notes: z.string().trim().max(2_000).optional(),
 });
 
+/** Editing reuses the create shape, with the record being edited identified alongside it. */
+export const workerEditSchema = workerSchema.extend({ workerId: z.string().uuid() });
+
+export const workerRemovalSchema = z.object({
+  workerId: z.string().uuid(),
+  // Typing the name back is the confirmation step; a removal is easy to do by accident otherwise.
+  confirmName: z.string().trim().min(1, "Type the worker's name to confirm."),
+});
+
 export const attendanceStatuses = ["present", "absent", "late", "leave"] as const;
 
 export const attendanceStatusSchema = z.enum(attendanceStatuses);

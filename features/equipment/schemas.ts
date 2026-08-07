@@ -83,3 +83,12 @@ export const equipmentAssignmentSchema = z
     message: "The assignment cannot end before it starts.",
     path: ["endsOn"],
   });
+
+/** Editing reuses the create shape, with the asset being edited identified alongside it. */
+export const equipmentEditSchema = equipmentSchema.extend({ equipmentId: z.string().uuid() });
+
+export const equipmentRemovalSchema = z.object({
+  equipmentId: z.string().uuid(),
+  // Typing the asset name back is the confirmation; a removal is easy to trigger by accident.
+  confirmName: z.string().trim().min(1, "Type the equipment name to confirm."),
+});

@@ -34,7 +34,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (287 tests), and `npm run build` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (310 tests), and `npm run build` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -74,7 +74,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Code complete |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, and record editing started |
 
 ## Platform administration: what the role can and cannot do
 
