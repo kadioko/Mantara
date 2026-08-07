@@ -15,7 +15,8 @@ export function AppShell({ organizations, activeOrganization, sites, activeSite,
     <aside className="hidden bg-emerald-950 p-6 text-white md:block">
       <MantaraLogo tone="dark" />
       <p className="mt-3 text-sm text-emerald-200">{t(locale, "miningOps")}</p>
-      <div className="mt-8 rounded-xl bg-emerald-900 p-3 text-emerald-950 shadow-inner">{switcher}</div>
+      {/* Light text by default: anything inheriting the old near-black green here was unreadable. */}
+      <div className="mt-8 rounded-xl bg-emerald-900 p-3 text-emerald-50 shadow-inner">{switcher}</div>
       <nav aria-label="Main navigation" className="mt-8 space-y-1">
         <Link className="block rounded-lg bg-emerald-900 px-3 py-3 font-semibold shadow-sm" href="/dashboard">{t(locale, "dashboard")}</Link>
         {navItems.map((item) => (
@@ -36,7 +37,9 @@ export function AppShell({ organizations, activeOrganization, sites, activeSite,
       </header>
       <details className="border-b border-stone-200 bg-white p-4 md:hidden">
         <summary className="cursor-pointer font-semibold">{t(locale, "switchWorkspace")}</summary>
-        <div className="mt-4">{switcher}</div>
+        {/* Same dark panel as the sidebar: the switcher states its colours for that background, so
+            dropping it onto white here would make its labels unreadable instead. */}
+        <div className="mt-4 rounded-xl bg-emerald-900 p-3 text-emerald-50 shadow-inner">{switcher}</div>
         <nav aria-label="Main navigation" className="mt-4 grid grid-cols-2 gap-2">
           <Link className="rounded-lg border border-stone-300 px-3 py-3 text-center font-semibold" href="/dashboard">{t(locale, "dashboard")}</Link>
           {navItems.map((item) => (

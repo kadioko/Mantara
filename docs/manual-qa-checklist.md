@@ -16,6 +16,14 @@ Before beginning this checklist, apply the foundation migration to the linked Su
 - [ ] Attempted cross-tenant reads and writes are denied by RLS.
 - [ ] **(Supabase only)** Publishable key only is present in the browser; no service-role key is exposed.
 
+## Workspace shell
+
+- [ ] The organization and mine-site labels and both "Switch" buttons are clearly readable against the dark sidebar.
+- [ ] The same switcher is readable in the mobile menu, which uses the same dark panel.
+- [ ] A long organization or site name is not cut off in the closed select; hovering shows the full name.
+- [ ] Switching organization or site persists after a refresh.
+- [ ] **Navigation shows the same modules on every load.** Reload the dashboard several times; items must not appear and disappear.
+
 ## Workforce — workers and attendance
 
 Apply `supabase/migrations/0002_workers.sql` before running these checks.

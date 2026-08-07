@@ -1,7 +1,7 @@
 # Mantara OS — project status audit
 
 **Audited: 7 August 2026**
-**Database state: migrations `0001`–`0015` applied to Supabase; `0016` awaiting deployment**
+**Database state: migrations `0001`–`0015` applied to Supabase; `0016` and `0017` awaiting deployment**
 
 ## Executive status
 
@@ -99,8 +99,8 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 - Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
   compliance requirements, and expense categories are still create-only.
 - Rate limiting on sensitive actions, a full accessibility audit, and performance testing. Forms use
-  enclosing labels and the primitives carry focus-visible rings, but no assistive-technology pass has
-  been done.
+  enclosing labels and the primitives carry focus-visible rings, and the workspace switcher's contrast
+  was measured and corrected, but no assistive-technology pass has been done.
 - PWA/offline capture, monitoring, backup and recovery, pilot manual-QA signoff.
 
 ## Recommended next task
