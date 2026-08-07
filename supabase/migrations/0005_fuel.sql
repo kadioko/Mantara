@@ -220,7 +220,11 @@ create policy "fuel issues read permitted" on public.fuel_issues for select usin
 create policy "fuel adjustments read permitted" on public.fuel_adjustments for select using (public.has_permission(organization_id, 'fuel.read'));
 
 -- apply_fuel_movement is an internal helper: the three recording functions call it, clients never do.
+-- It must be revoked from the API roles by name as well as from PUBLIC. Supabase grants EXECUTE on new
+-- functions to anon/authenticated explicitly, and revoking from PUBLIC does not remove a named grant.
+-- Left callable, it would move a balance with no movement row, and its permission code is an argument.
 revoke all on function public.apply_fuel_movement(uuid, numeric, text) from public;
+revoke all on function public.apply_fuel_movement(uuid, numeric, text) from anon, authenticated;
 revoke all on function public.record_fuel_receipt(uuid, numeric, text, text, numeric, date, text) from public;
 grant execute on function public.record_fuel_receipt(uuid, numeric, text, text, numeric, date, text) to authenticated;
 revoke all on function public.record_fuel_issue(uuid, numeric, uuid, uuid, numeric, date, text) from public;

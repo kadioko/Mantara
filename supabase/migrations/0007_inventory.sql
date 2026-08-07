@@ -366,7 +366,10 @@ create policy "stock issues read permitted" on public.stock_issues for select us
 create policy "stock transfers read permitted" on public.stock_transfers for select using (public.has_permission(organization_id, 'inventory.read'));
 create policy "stock adjustments read permitted" on public.stock_adjustments for select using (public.has_permission(organization_id, 'inventory.read'));
 
+-- Internal helper, as with apply_fuel_movement: revoked from the API roles by name as well as from
+-- PUBLIC, because Supabase grants EXECUTE on new functions to anon/authenticated explicitly.
 revoke all on function public.apply_stock_movement(uuid, uuid, numeric, text) from public;
+revoke all on function public.apply_stock_movement(uuid, uuid, numeric, text) from anon, authenticated;
 revoke all on function public.record_stock_receipt(uuid, uuid, numeric, uuid, numeric, text, date, text) from public;
 grant execute on function public.record_stock_receipt(uuid, uuid, numeric, uuid, numeric, text, date, text) to authenticated;
 revoke all on function public.record_stock_issue(uuid, uuid, numeric, uuid, uuid, uuid, public.stock_movement_reason, date, text) from public;

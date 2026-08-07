@@ -279,6 +279,8 @@ create policy "production approvals read permitted" on public.production_approva
 
 revoke all on function public.review_production_entry(uuid, public.approval_decision, text) from public;
 grant execute on function public.review_production_entry(uuid, public.approval_decision, text) to authenticated;
+-- Migration-time utility only: it grants role permissions, so no client may call it.
 revoke all on function public.sync_role_permission_defaults() from public;
+revoke all on function public.sync_role_permission_defaults() from anon, authenticated;
 revoke all on function public.create_organization_with_owner(text, text, char) from public;
 grant execute on function public.create_organization_with_owner(text, text, char) to authenticated;
