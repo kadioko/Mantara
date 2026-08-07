@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
+import { figure, productionTotals } from "@/lib/totals";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination } from "@/components/ui/pagination";
@@ -45,20 +46,12 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
   const entriesInfo = pageInfo(paging, entriesResult.count ?? 0);
   const shiftOptions = (shiftsResult.data ?? []).map((shift) => ({ id: shift.id, label: `${shift.shift_date} · ${shift.name}` }));
   const equipmentOptions = (equipmentResult.data ?? []).map((item) => ({ id: item.id, label: item.name }));
-  // Counted across every entry, not just the page on screen.
-  const [{ count: awaitingCount }, { data: approvedRows }] = await Promise.all([
-    workspace.supabase.from("production_entries").select("id", { count: "exact", head: true })
-      .eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "submitted"),
-    workspace.supabase.from("production_entries").select("quantity")
-      .eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "approved"),
-  ]);
-  const approvedTotal = (approvedRows ?? []).reduce((sum, row) => sum + Number(row.quantity), 0);
-  const awaiting = awaitingCount ?? 0;
+  // Every figure below is computed in the database. The approved total used to fetch each approved
+  // row and sum in JavaScript, which stopped silently at 1000 rows; the ore figures were derived
+  // from the last 50 lots and presented as the whole site.
+  const totals = await productionTotals(workspace.supabase, site.id);
   const oreLots = oreLotsResult.data ?? [];
   const dispatches = dispatchesResult.data ?? [];
-  const oreReadyTonnes = oreLots.filter((lot) => lot.status !== "dispatched").reduce((sum, lot) => sum + Number(lot.ore_tonnes), 0);
-  const totalOreTonnes = oreLots.reduce((sum, lot) => sum + Number(lot.ore_tonnes), 0);
-  const weightedGradePpm = totalOreTonnes > 0 ? oreLots.reduce((sum, lot) => sum + Number(lot.ore_tonnes) * Number(lot.grade_ppm), 0) / totalOreTonnes : 0;
   const dispatchableLotOptions = oreLots.filter((lot) => lot.status !== "dispatched").map((lot) => ({ id: lot.id, label: `${lot.lot_number} · ${Number(lot.ore_tonnes).toLocaleString()} t · ${Number(lot.grade_ppm).toLocaleString()} PPM · ${lot.bag_count} bags` }));
   const locale = await getLocale();
 
@@ -68,8 +61,8 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
     <p className="mt-2 text-muted-foreground">{t(locale, "productionDescription", { site: site.name })}</p>
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{awaiting}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity</p><p className="mt-1 text-2xl font-bold">{figure(totals?.approvedQuantity)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{figure(totals?.submittedCount)}</p></div>
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries recorded</p><p className="mt-1 text-2xl font-bold">{entriesInfo.total}</p></div>
     </div>
 
@@ -78,8 +71,8 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
     <section className="mt-8 rounded-xl border border-border bg-card p-5">
       <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-lg font-bold">Ore, bagging & processing</h2><p className="mt-1 text-sm text-muted-foreground">Follow ore from mined tonnes and assay grade through bagging and dispatch to the processing plant.</p></div><p className="rounded-full bg-accent/15 px-3 py-1 text-sm font-semibold text-accent-foreground">1 PPM ≈ 1 g/t for gold</p></div>
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Ready / in transit</p><p className="mt-1 text-2xl font-bold">{oreReadyTonnes.toLocaleString()} t</p></div>
-        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Weighted grade</p><p className="mt-1 text-2xl font-bold">{weightedGradePpm.toLocaleString(undefined, { maximumFractionDigits: 4 })} PPM</p></div>
+        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Ready / in transit</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreReadyTonnes)} t</p></div>
+        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Weighted grade</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreWeightedGradePpm, { maximumFractionDigits: 4 })} PPM</p></div>
         <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Lots recorded</p><p className="mt-1 text-2xl font-bold">{oreLots.length}</p></div>
       </div>
       {canCreate && <div className="mt-5"><OreLotForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}

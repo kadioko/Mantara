@@ -131,7 +131,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0019`–`0024` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply migrations `0019`–`0025` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.

@@ -4,6 +4,7 @@ import { CatalogueList } from "@/components/ui/catalogue";
 import { ExpenseCategoryRow, type CatalogueExpenseCategory } from "@/features/expenses/catalogue-forms";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
+import { expenseTotals, figure } from "@/lib/totals";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination } from "@/components/ui/pagination";
@@ -69,8 +70,8 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
     consumption.set(budget.id, Number(data ?? 0));
   }));
 
-  const awaiting = expenses.filter((expense) => expense.status === "submitted");
-  const approvedTotal = expenses.filter((expense) => expense.status === "approved" || expense.status === "paid").reduce((sum, expense) => sum + Number(expense.amount), 0);
+  // These were summed from the page on screen, so "approved spend" was the spend of 25 rows.
+  const totals = await expenseTotals(workspace.supabase, site.id);
   const locale = await getLocale();
 
   return <div className="space-y-6">
@@ -81,9 +82,9 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "approvedSpend")}</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{awaiting.length}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeBudgets")}</p><p className="mt-1 text-2xl font-bold">{budgets.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "approvedSpend")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.approvedAmount)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.submittedCount)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeBudgets")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.activeBudgets)}</p></div>
     </div>
 
     {canCreate && <ExpenseForm

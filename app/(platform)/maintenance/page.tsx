@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Panel } from "@/components/ui/card";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
+import { figure, maintenanceTotals } from "@/lib/totals";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination } from "@/components/ui/pagination";
@@ -64,8 +65,9 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
   const workerOptions: Option[] = (workersResult.data ?? []).map((worker) => ({ id: worker.id, label: worker.full_name }));
   const openRequestOptions: Option[] = requests.filter((request) => request.status === "open").map((request) => ({ id: request.id, label: request.title }));
   const today = new Date().toISOString().slice(0, 10);
-  const openOrders = orders.filter((order) => order.status === "planned" || order.status === "in_progress" || order.status === "on_hold").length;
-  const overdue = (schedulesResult.data ?? []).filter((schedule) => schedule.next_due_on && schedule.next_due_on < today).length;
+  // Counted across the whole site by the database. Counting the page on screen made these change
+  // every time the reader turned it, and understated them the rest of the time.
+  const totals = await maintenanceTotals(workspace.supabase, site.id);
   const locale = await getLocale();
 
   return <div className="space-y-6">
@@ -76,9 +78,9 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openWorkOrders")}</p><p className="mt-1 text-2xl font-bold">{openOrders}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openRequests")}</p><p className="mt-1 text-2xl font-bold">{requests.filter((request) => request.status === "open").length}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "servicesOverdue")}</p><p className="mt-1 text-2xl font-bold">{overdue}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openWorkOrders")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.openWorkOrders)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "openRequests")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.openRequests)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "servicesOverdue")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.overdueSchedules)}</p></div>
     </div>
 
     {canCreate && <MaintenanceRequestForm equipment={equipmentOptions} workers={workerOptions} today={today} />}

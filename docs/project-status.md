@@ -130,6 +130,27 @@ text instead of a blank. `npm run i18n:report` reports both kinds of gap.
   reads stop matching what is on the ground, with no screen that would show why. Corrections and
   restorations are deliberately unaffected; the guard is about retirement only.
 - Compliance requirements are still create-only.
+- **Headline figures are now computed in the database** (`0025_module_totals.sql`). Every stat card on
+  production, maintenance, expenses and fuel was previously worked out in JavaScript from whatever
+  rows the page had fetched — a page of 25 work orders, the last 50 ore lots, the first 1000 approved
+  expenses. Each was a site-wide claim built from a page-sized sample. The visible symptom was that
+  "Open work orders" changed when the reader turned the page; the quieter and worse one was a tonnage
+  or a spend figure that was simply short with nothing on screen to say so. The weighted ore grade
+  was wrong in a more interesting way: averaging the lots rather than weighting by tonnage turned
+  3.27 PPM into 16.5 PPM, a number someone would act on.
+- Each totals function is gated on the same read permission as the records it counts, so a headline
+  number cannot disclose a module the caller may not open — the leak `0016` fixed in
+  `operational_summary`. A failure returns a dash rather than a zero: zero is a claim, and it is the
+  wrong one to make when the truth is that we could not find out.
+- **Report exports no longer truncate silently.** `runReport` had no limit, so PostgREST stopped it
+  at 1000 rows and said nothing. A year of production downloaded for a royalty return would have come
+  back short and looked complete. Reports now page through to a 50,000-row ceiling and say plainly
+  when they reach it — in the CSV file as well as on screen, because the file outlives the page.
+- The stock report was short twice over for a multi-site company: capped organization-wide, then
+  filtered down to the site in JavaScript. The site filter is now an inner join in the query.
+- CSV cells beginning `=`, `+`, `-` or `@` are neutralised, because operator-supplied text opened in
+  Excel is otherwise executed as a formula. Negative *numbers* are deliberately exempt: guarding them
+  would turn every loss and write-off into text, and a column of text does not sum.
 - **Rate limiting** is in place (`0022_rate_limiting.sql`, `lib/auth/rate-limit.ts`) on invitations,
   role changes, sensitive safety reads, and report exports. The subject is always `auth.uid()` and
   never an argument, so a caller cannot exhaust someone else's allowance and lock them out. It fails

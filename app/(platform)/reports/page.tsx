@@ -105,9 +105,18 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               />
             </CardContent>
           )}
-          {result.rows.length > 200 && (
+          {result.rows.length > 200 && !result.truncated && (
             <CardContent className="border-t text-sm text-muted-foreground">
               Showing the first 200 rows. The CSV download contains all {result.rows.length}.
+            </CardContent>
+          )}
+          {/* Said plainly, because a report that is short without saying so is worse than no report. */}
+          {result.truncated && (
+            <CardContent className="border-t">
+              <Alert variant="warning">
+                This report reached the {result.rows.length.toLocaleString()}-row limit, so it is not
+                the whole period. Narrow the date range and run it again before relying on the totals.
+              </Alert>
             </CardContent>
           )}
         </Card>

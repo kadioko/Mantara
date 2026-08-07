@@ -3,6 +3,7 @@ import { Panel } from "@/components/ui/card";
 import { CatalogueList } from "@/components/ui/catalogue";
 import { TankRow, type CatalogueTank } from "@/features/fuel/catalogue-forms";
 import { hasPermission } from "@/lib/auth/permissions";
+import { figure, fuelTotals } from "@/lib/totals";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
@@ -59,7 +60,7 @@ export default async function FuelPage() {
   const today = new Date().toISOString().slice(0, 10);
   const equipmentOptions: Option[] = (equipment.data ?? []).map((item) => ({ id: item.id, label: item.name }));
   const workerOptions: Option[] = (workers.data ?? []).map((worker) => ({ id: worker.id, label: worker.full_name }));
-  const totalLitres = activeLocations.reduce((sum, location) => sum + Number(location.current_balance_litres), 0);
+  const totals = await fuelTotals(workspace.supabase, site.id);
   const locale = await getLocale();
 
   return <div className="space-y-6">
@@ -70,8 +71,8 @@ export default async function FuelPage() {
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "fuelOnHand")}</p><p className="mt-1 text-2xl font-bold">{totalLitres.toLocaleString()} L</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeStores")}</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "fuelOnHand")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.litresOnHand)} L</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeStores")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.activeStores)}</p></div>
     </div>
 
     <CatalogueList title={t(locale, "fuelStores")} description="Balances are maintained by the database on every movement. A tank must be empty before it can be taken out of service.">
