@@ -138,6 +138,27 @@ Apply `supabase/migrations/0008_expenses.sql` before running these checks.
 - [ ] A budget whose end date precedes its start date is rejected.
 - [ ] An over-budget figure is shown clearly rather than being capped silently.
 
+## Platform administration
+
+Apply `supabase/migrations/0009_platform_admin.sql`, then bootstrap the first administrator with the
+`insert into public.platform_admins` statement documented at the end of that file.
+
+- [ ] **(Supabase only)** The bootstrap insert makes exactly one administrator, and `/admin` opens for them.
+- [ ] A user who is not a platform administrator is redirected away from `/admin` and every page beneath it.
+- [ ] An organization owner is **not** a platform administrator by virtue of owning an organization.
+- [ ] A platform administrator with no organization lands on `/admin` rather than onboarding.
+- [ ] A platform administrator who is also a member of an organization sees a "Platform admin" link in the workspace.
+- [ ] **The organizations list shows names, counts, and dates only — no worker, production, fuel, stock, or expense records are reachable anywhere under `/admin`.**
+- [ ] Suspending an organization requires a reason and shows it in the list.
+- [ ] A suspended organization's members can still read their records but cannot create or edit anything.
+- [ ] Suspension affects only the chosen organization.
+- [ ] Restoring an organization returns write access immediately.
+- [ ] Granting platform access by email works, and an unknown email is rejected with a clear message.
+- [ ] The last remaining administrator cannot be revoked.
+- [ ] Every suspension, restoration, grant, and revocation appears in the audit log with the actor's name.
+- [ ] A tenant user cannot read `platform_audit_logs` or `platform_admins`.
+- [ ] Neither table can be written directly, even by a platform administrator.
+
 ## Role permission defaults
 
 - [ ] A newly created organization's mine manager, site supervisor, storekeeper, and maintenance officer receive the

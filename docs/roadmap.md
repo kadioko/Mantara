@@ -18,13 +18,15 @@ Mantara is being built as the digital operating system for African mining: a tru
 - Maintenance is implemented: requests, work orders with a database-enforced lifecycle, parts, costs, and service schedules that roll forward when a work order is completed.
 - Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
 - Expenses and budgets are implemented: an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
+- Platform administration is implemented at `/admin`: organization metadata, suspension, administrator management, and an append-only platform audit log.
+- A shared UI layer now exists in `components/ui/`, using shadcn/ui conventions and design tokens so components from registries such as [21st.dev](https://21st.dev) can be dropped in unchanged.
 - Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
 - The production database migrations are **not yet applied**; therefore real login and tenant data cannot be tested until they are deployed.
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (210 tests), and `npm run build` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (241 tests), and `npm run build` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -41,6 +43,8 @@ What the integration tests now cover:
 - Budget consumption counts approved and paid expenses only, respecting period and category scope.
 - Cross-tenant reads and writes are blocked by RLS, including when a row id from another organization is known.
 - Ledger tables have no insert policy, and the internal balance helpers are not executable by API roles.
+- A platform administrator reads **no rows** from any operational table, holds no permission in any organization,
+  and cannot write tenant data; suspension makes an organization read-only without affecting any other.
 
 Two limits are worth stating plainly. The harness stubs Supabase's `auth` schema and API roles, so it models
 Supabase rather than being it — Auth, Storage, and PostgREST behaviour are still unverified. And concurrency is not
@@ -60,6 +64,38 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Planned |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
+
+## Platform administration: what the role can and cannot do
+
+Mantara's central promise is that one organization can never see another's data. A platform
+administrator role is where that promise is easiest to lose, so the boundary is drawn deliberately.
+
+**Platform admin is a separate axis from tenancy.** It is not a permission, not a role inside an
+organization, and it grants no read path to any operational table. Because it confers no membership,
+`has_permission()` is false for every organization, and every module's policies deny it without
+needing to know the role exists.
+
+| Can | Cannot |
+| --- | --- |
+| See organization names, countries, join dates, member and site counts | See any worker, attendance, equipment, production, fuel, inventory, maintenance, or expense record |
+| Suspend and restore an organization, with a recorded reason | Read or write tenant data in any organization, including a suspended one |
+| Grant and revoke platform administration | Revoke the last remaining administrator |
+| Read the platform audit log | Write to the audit log or the administrator table directly |
+
+Suspension makes an organization **read-only** rather than invisible: its people keep access to
+records they already have, but nothing new can be written until it is restored. The rule lives in
+`has_permission()` so every module inherits it rather than each table reimplementing it.
+
+**Deliberately not built: support access to tenant data.** Real support work sometimes needs to see a
+customer's records, and the tempting shortcut is to let platform admins read everything. That would
+quietly void the isolation guarantee for every customer. The intended design is a time-boxed grant
+that the *organization's own owner* creates, is scoped to read-only, and expires by itself — consent
+from the tenant, not privilege from the platform. It is not implemented yet, and until it is, support
+that needs tenant data should be done with the customer present.
+
+**Bootstrapping is manual on purpose.** The first administrator is inserted directly through the
+Supabase SQL editor, as documented at the end of `0009_platform_admin.sql`; there is no self-service
+path into the role. Every later grant goes through `platform_grant_admin()` and is audited.
 
 ## Business journey: becoming a mining-technology company
 

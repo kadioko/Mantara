@@ -9,12 +9,34 @@ The foundation is implemented locally and linked to Supabase. Deploy the first m
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
-2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0008_expenses.sql`) using the Supabase CLI or SQL editor.
+2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0009_platform_admin.sql`) using the Supabase CLI or SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
 
 See [the architecture blueprint](blueprint/architecture.md) for the MVP plan and implementation sequence, and the [manual QA checklist](docs/manual-qa-checklist.md) for foundation verification.
+
+## Platform administration
+
+`/admin` is the support and operations area for the team running Mantara itself. It shows organization
+metadata and grants **no access to any tenant's operational records** — see
+[the roadmap](docs/roadmap.md#platform-administration-what-the-role-can-and-cannot-do) for where that
+boundary sits and why.
+
+There is no self-service route into the role. Create the first administrator once, in the Supabase SQL
+editor:
+
+```sql
+insert into public.platform_admins (user_id, note)
+select id, 'Founding administrator' from auth.users where email = 'you@example.com';
+```
+
+## User interface
+
+Shared components live in `components/ui/` and follow shadcn/ui conventions on Tailwind v4: a `cn`
+helper in `lib/utils.ts`, `class-variance-authority` for variants, and design tokens declared in
+`app/globals.css`. Components from registries such as [21st.dev](https://21st.dev) ship as
+shadcn-format source, so they compose with these tokens and can be added directly.
 
 ## Tests
 
