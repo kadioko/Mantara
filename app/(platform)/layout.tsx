@@ -16,7 +16,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
   }
   const organizationId = workspace.activeOrganization.id;
   const locale = await getLocale();
-  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses, canViewCompliance, canViewSafety] = await Promise.all([
+  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses, canViewCompliance, canViewSafety, canViewAuditLog] = await Promise.all([
     hasPermission(organizationId, "worker.read"),
     hasPermission(organizationId, "equipment.read"),
     hasPermission(organizationId, "production.read"),
@@ -26,6 +26,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     hasPermission(organizationId, "expense.read"),
     hasPermission(organizationId, "compliance.read"),
     hasPermission(organizationId, "safety.read"),
+    hasPermission(organizationId, "audit_log.read"),
   ]);
   const navItems: NavItem[] = [
     ...(canViewWorkers ? [{ href: "/workers", label: t(locale, "workers") }, { href: "/attendance", label: t(locale, "attendance") }] : []),
@@ -37,6 +38,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     ...(canViewExpenses ? [{ href: "/expenses", label: t(locale, "expenses") }] : []),
     ...(canViewCompliance ? [{ href: "/compliance", label: t(locale, "compliance") }] : []),
     ...(canViewSafety ? [{ href: "/safety", label: t(locale, "safety") }] : []),
+    ...(canViewAuditLog ? [{ href: "/settings/audit-logs", label: t(locale, "auditLog") }] : []),
     ...(platformAdmin ? [{ href: "/admin", label: t(locale, "platformAdmin") }] : []),
   ];
   return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems} locale={locale}>{children}</AppShell>;

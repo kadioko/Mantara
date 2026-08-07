@@ -73,7 +73,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
 | 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | In progress: compliance and safety complete; reports, notifications, and audit-log UI planned |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | In progress: compliance, safety, dashboard figures, and audit-log UI complete; reports and notifications remain |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
 
 ## Platform administration: what the role can and cannot do
@@ -132,7 +132,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 1. Apply migrations `0001`–`0011` to Supabase and configure Auth redirect URLs.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
-3. Finish stage 7 with reports, notifications, and the audit-log UI.
+3. Finish stage 7 with reports and exports, then notifications.
 4. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules

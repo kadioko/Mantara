@@ -1,83 +1,93 @@
 # Mantara OS — project status audit
 
-**Audited: 7 August 2026**  
-**Repository state: clean `main` at `623479a`**  
-**Database state: migrations `0001`–`0003` applied to Supabase**
+**Audited: 7 August 2026**
+**Database state: migrations `0001`–`0013` applied to Supabase**
 
 ## Executive status
 
-**Current deployment update (7 August 2026):** Supabase migrations `0001` through `0013` are applied. The ordered operational sequence is Equipment (`0004`), Production (`0005`), Fuel (`0006`), Maintenance (`0007`), Inventory (`0008`), Expenses (`0009`), Platform Administration (`0010`), Compliance (`0011`), Safety (`0012`), and platform-admin consolidation (`0013`). The current repository state is no longer the earlier foundation-only audit below.
+Mantara has a multi-tenant foundation with tenant isolation enforced in the database, and working
+operational workflows for Workforce, Equipment, Production, Fuel, Maintenance, Inventory, Expenses,
+Compliance, and Safety, plus a platform administration console.
 
-The application now includes the operational workflows for these modules. English and Kiswahili headings, summaries, and primary module sections are available on the new landing screens; client-side forms and detail views are the next localization pass.
+The whole migration chain is applied to Supabase and the production build passes. A labelled demo
+workspace exists in Supabase.
 
-Mantara has a sound multi-tenant foundation and working operational workflows for Workforce, Equipment, Production, Fuel, Maintenance, Inventory, Expenses, Compliance, Safety, and platform administration. Reports, notifications, storage-backed documents, and release readiness remain.
+What remains before a pilot: reports and exports, notifications, document storage, organization
+settings and user administration, the remaining Kiswahili coverage, and release hardening.
 
-The deployed application has production Supabase public configuration and the production build has passed. The first demo company-owner workspace is present in Supabase and clearly labelled as demo data.
+## Delivered
 
-## Completed
-
-| Area | Delivered and verified |
+| Area | State |
 | --- | --- |
-| Project foundation | Next.js 16, strict TypeScript, Tailwind, Supabase SSR clients, environment validation, Vercel deployment configuration. |
-| Authentication | Register, login, logout, callback handling, protected requests, onboarding redirect. Supabase owns password storage. |
-| Tenancy | Organizations, memberships, mine sites, active organization/site cookies, database constraints and RLS policies. |
-| Authorization | Organization roles, stable permission codes, permission helper, owner access, and an isolated `platform_administrators` role that does not bypass tenant RLS. |
-| Workspace UI | Responsive application shell, authenticated navigation, mobile workspace controls, brand mark. |
-| Localization | English and Kiswahili current UI strings, persisted language selection, central catalog ready for future languages. |
-| Workforce | Worker registration, worker profile, tenant/site-scoped worker list, daily attendance create/update workflow, RLS policies. |
-| Demo setup | Explicit idempotent `supabase/seed-demo.sql` creates a labelled demo organization, site, workers, and attendance. |
-| Quality checks | `npm run typecheck`, `npm test` (9 unit tests), and `npm run build` pass locally. |
+| Foundation | Next.js 16, strict TypeScript, Tailwind v4, Supabase SSR clients, environment validation, Vercel deployment. |
+| Authentication | Register, login, logout, callback, protected requests, onboarding redirect. Supabase owns password storage. |
+| Tenancy | Organizations, memberships, mine sites, active organization/site cookies, constraints and RLS. |
+| Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, and platform administration as a separate axis that grants no tenant access. |
+| Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher. |
+| Localization | English and Kiswahili for navigation, authentication, onboarding, dashboard, and every module landing screen. |
+| Workforce | Worker register and profile, assignments, training, PPE issues, daily attendance roster. |
+| Equipment | Register and detail, meter readings that cannot move backwards, status history, operator assignments. |
+| Production | Shifts, production capture, database-enforced approval lifecycle, downtime. |
+| Fuel | Stores with transactional balances, deliveries, issues, adjustments; balances cannot go negative. |
+| Maintenance | Requests, work orders with an enforced lifecycle, parts, costs, service schedules that roll forward. |
+| Inventory | Catalogue, stores, suppliers, stock ledger with non-negative balances and deadlock-safe transfers. |
+| Expenses | Categories, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
+| Compliance | Licences with expiry tracking, organization-authored requirements, recurring tasks. |
+| Safety | Incidents, inspections, corrective actions; personal and medical detail behind a granular permission and logged on every access. |
+| Insight | Dashboard with permission-gated operational figures, and an organization audit-log screen. |
+| Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 263 tests pass. |
 
-## Implemented schema
+## Test coverage
 
-### Applied migrations
+Unit tests cover schema and form validation. Integration tests in `tests/integration/` apply the real
+migration files to PostgreSQL compiled to WebAssembly and assert what the database itself enforces:
 
-1. `0001_foundation.sql`: profiles, organizations, memberships, sites, roles, permissions, audit logs, notifications, RLS helpers/policies, and onboarding RPC.
-2. `0002_workers.sql`: workers, assignments, attendance, training, PPE tables, RLS, worker permission codes.
-3. `0003_platform_administrators.sql`: isolated platform-super-admin membership and helper.
+- Meter monotonicity, and that a rejected reading leaves the meter untouched.
+- Fuel and stock balance floors, capacity limits, and that a rejected movement writes no row.
+- A failed stock transfer leaving both stores unchanged.
+- Production and expense approval lifecycles, including frozen figures after approval.
+- Work-order completion rolling service schedules forward.
+- Cross-tenant reads and writes blocked by RLS, even with a known row id.
+- Platform administrators reading no rows from any operational table.
+- Sensitive safety details being unreadable without the granular permission, and every access audited.
 
-### Important limitations of the current implementation
+**Not covered:** Supabase Auth, Storage, and PostgREST behaviour, since the harness stubs them; and
+real concurrency, which needs a multi-connection server. Those remain in the manual QA checklist.
 
-- The Workforce UI covers workers and attendance only. Assignments, training, PPE issue history, worker editing/deactivation, and document uploads have schema support but no user interface yet.
-- Audit and notification tables exist; there is not yet an application-wide trigger/service or UI for them.
-- The platform-super-admin database role exists; there is no platform administration console yet.
+## Remaining work
 
-## Remaining MVP work
+### Insight layer
 
-### Finish Workforce before beginning Equipment
+- Reports and CSV export for production, fuel, stock, and expenses.
+- Notifications: the table exists from `0001` but nothing writes to it and there is no UI.
+- Dashboard trends over time, rather than the current point-in-time figures.
 
-- Worker edit, soft delete/deactivate, assignments, training records, PPE issues, and detail-page attendance history.
-- Attendance filtering, bulk entry, check-in/check-out times, and exports.
-- Workforce audit entries, domain tests, and real Supabase RLS integration tests.
+### Administration
 
-### Operational modules not started
+- Organization settings, user invitations, and role management UI. The permissions
+  (`member.invite`, `member.update_role`, `role.manage`) exist with no screens behind them.
+- Mine-site management UI beyond onboarding, and site-level access restrictions.
 
-| Priority | Module | Key first deliverable |
-| --- | --- | --- |
-| 1 | Equipment | Register, status, site assignment, meter readings, and maintenance link. |
-| 2 | Shifts and production | Shift register, daily production entry, approval lifecycle, daily summary. |
-| 3 | Fuel | Storage locations, receipts/issues, transactional balance protection, variance view. |
-| 4 | Maintenance | Requests, work orders, downtime, preventive schedules. |
-| 5 | Inventory | Items, receipts/issues, transfers, transactional stock balance, low-stock alert. |
-| 6 | Expenses | Categories, receipts, approval workflow, currency-aware amounts. |
-| 7 | Compliance and safety | Licences, deadlines, tasks, incidents, inspections, corrective actions. |
-| 8 | Insight | Real dashboard KPIs, reports, CSV export, notifications, audit-log UI. |
+### Documents
 
-### Cross-cutting release work
+- Private Supabase Storage buckets, upload UI, file validation, and signed-URL access.
+  `equipment_documents`, `compliance_documents`, and training certificates all store a path today with
+  no way to put a file at it.
 
-- Private Supabase Storage buckets, file validation, and signed-URL access.
-- User invitations, role-management UI, site-level assignment restrictions, and account administration.
-- Loading, error, empty, and confirmation states across every module.
-- Pagination, query filtering, rate limiting for sensitive actions, and form accessibility review.
-- Supabase integration tests for tenant isolation and RLS; business-logic tests for balances and approvals.
-- PWA/offline capture strategy, production monitoring, backup/recovery, and pilot manual-QA signoff.
+### Localization
 
-## Current test coverage
+- Client-side forms and detail views are still English. Module landing screens are translated.
 
-Unit tests currently cover organization input, core permission assumptions, worker input, attendance input, and translation interpolation. They do **not** prove database RLS behavior or end-to-end workflows. Those tests are a release blocker once a production pilot is planned.
+### Release readiness
 
-## Recommended next implementation task
+- Pagination and filtering on every list; several screens currently cap at 50 rows with no way to page.
+- Editing and deactivation for most records; the modules are create-and-read heavy.
+- Rate limiting on sensitive actions, accessibility review, performance testing.
+- PWA/offline capture, monitoring, backup and recovery, pilot manual-QA signoff.
 
-The current recommended task is the insight layer: dashboard KPIs, reports/exports, notifications, audit-log UI, then the remaining Kiswahili form and detail-view copy.
+## Recommended next task
 
-Finish the insight layer with dashboard KPIs, reports/exports, notifications, and audit-log UI; then complete Kiswahili localization in client-side forms and detail views.
+Reports and exports, then notifications, which together complete the insight layer and stage 7. After
+that, user administration is the largest gap between the product and a pilot, because an organization
+currently cannot invite its own people.
