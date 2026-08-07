@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import {
   BudgetForm,
   ExpenseCategoryForm,
@@ -64,18 +66,19 @@ export default async function ExpensesPage() {
 
   const awaiting = expenses.filter((expense) => expense.status === "submitted");
   const approvedTotal = expenses.filter((expense) => expense.status === "approved" || expense.status === "paid").reduce((sum, expense) => sum + Number(expense.amount), 0);
+  const locale = await getLocale();
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">CONTROLS</p>
-      <h1 className="mt-2 text-3xl font-bold">Expenses</h1>
-      <p className="mt-2 text-stone-600">Spending and budgets for {site.name}.</p>
+      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <h1 className="mt-2 text-3xl font-bold">{t(locale, "expenses")}</h1>
+      <p className="mt-2 text-stone-600">{t(locale, "expensesDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Approved spend (last 50)</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{awaiting.length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Active budgets</p><p className="mt-1 text-2xl font-bold">{budgets.length}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "approvedSpend")}</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{awaiting.length}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "activeBudgets")}</p><p className="mt-1 text-2xl font-bold">{budgets.length}</p></div>
     </div>
 
     {canCreate && <ExpenseForm
@@ -86,7 +89,7 @@ export default async function ExpensesPage() {
       today={today}
     />}
 
-    <Panel title="Expenses" description="Most recent first.">
+    <Panel title={t(locale, "expenses")} description={t(locale, "mostRecentFirst")}>
       {expenses.length
         ? <ul className="divide-y divide-stone-100">{expenses.map((expense) => {
             const category = Array.isArray(expense.category) ? expense.category[0] : expense.category;
@@ -100,7 +103,7 @@ export default async function ExpensesPage() {
         : <p className="text-sm text-stone-600">No expenses recorded at this site yet.</p>}
     </Panel>
 
-    <Panel title="Budgets" description="Only approved and paid expenses count against a budget.">
+    <Panel title={t(locale, "budgets")} description="Only approved and paid expenses count against a budget.">
       {canUpdate && <div className="mb-5 border-b border-stone-100 pb-5"><BudgetForm categories={categoryOptions} currency={currency} today={today} /></div>}
       {budgets.length
         ? <ul className="divide-y divide-stone-100">{budgets.map((budget) => {

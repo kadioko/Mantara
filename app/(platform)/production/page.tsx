@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { DowntimeForm, ProductionEntryForm } from "@/features/production/production-forms";
 import { productionStatusLabels } from "@/features/production/schemas";
 
@@ -34,11 +36,12 @@ export default async function ProductionPage() {
   const equipmentOptions = (equipmentResult.data ?? []).map((item) => ({ id: item.id, label: item.name }));
   const approvedTotal = entries.filter((entry) => entry.status === "approved").reduce((sum, entry) => sum + Number(entry.quantity), 0);
   const awaiting = entries.filter((entry) => entry.status === "submitted").length;
+  const locale = await getLocale();
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">OPERATIONS</p>
-    <h1 className="mt-2 text-3xl font-bold">Production</h1>
-    <p className="mt-2 text-stone-600">Production capture and approvals for {site.name}.</p>
+    <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "operations")}</p>
+    <h1 className="mt-2 text-3xl font-bold">{t(locale, "production")}</h1>
+    <p className="mt-2 text-stone-600">{t(locale, "productionDescription", { site: site.name })}</p>
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
       <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Approved quantity (last 50)</p><p className="mt-1 text-2xl font-bold">{approvedTotal.toLocaleString()}</p></div>
@@ -49,7 +52,7 @@ export default async function ProductionPage() {
     {canCreate && <div className="mt-8"><ProductionEntryForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
 
     <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">Production entries</h2><p className="text-sm text-stone-600">Most recent first</p></div>
+      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{t(locale, "productionEntries")}</h2><p className="text-sm text-stone-600">{t(locale, "mostRecentFirst")}</p></div>
       {entries.length
         ? <div className="divide-y divide-stone-100">{entries.map((entry) => <article key={entry.id} className="grid gap-2 p-5 md:grid-cols-[1fr_1.5fr_1fr_auto] md:items-center">
             <p className="text-sm text-stone-600">{entry.entry_date}</p>
@@ -61,7 +64,7 @@ export default async function ProductionPage() {
     </div>
 
     <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">Downtime</h2><p className="text-sm text-stone-600">Lost operating time recorded against shifts and equipment.</p></div>
+      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{t(locale, "downtime")}</h2><p className="text-sm text-stone-600">{t(locale, "downtimeDescription")}</p></div>
       <div className="p-5">
         {canCreate && <div className="mb-5 border-b border-stone-100 pb-5"><DowntimeForm shifts={shiftOptions} equipment={equipmentOptions} /></div>}
         {downtimeResult.data?.length

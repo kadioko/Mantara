@@ -6,7 +6,11 @@
 
 ## Executive status
 
-Mantara has a sound multi-tenant foundation and a usable first Workforce workflow. It is not yet an operational MVP: daily production, equipment, fuel, inventory, maintenance, finance, compliance, safety, reports, and notification workflows are still unbuilt.
+**Current deployment update (7 August 2026):** Supabase migrations `0001` through `0013` are applied. The ordered operational sequence is Equipment (`0004`), Production (`0005`), Fuel (`0006`), Maintenance (`0007`), Inventory (`0008`), Expenses (`0009`), Platform Administration (`0010`), Compliance (`0011`), Safety (`0012`), and platform-admin consolidation (`0013`). The current repository state is no longer the earlier foundation-only audit below.
+
+The application now includes the operational workflows for these modules. English and Kiswahili headings, summaries, and primary module sections are available on the new landing screens; client-side forms and detail views are the next localization pass.
+
+Mantara has a sound multi-tenant foundation and working operational workflows for Workforce, Equipment, Production, Fuel, Maintenance, Inventory, Expenses, Compliance, Safety, and platform administration. Reports, notifications, storage-backed documents, and release readiness remain.
 
 The deployed application has production Supabase public configuration and the production build has passed. The first demo company-owner workspace is present in Supabase and clearly labelled as demo data.
 
@@ -74,4 +78,6 @@ Unit tests currently cover organization input, core permission assumptions, work
 
 ## Recommended next implementation task
 
-Complete the Workforce module with worker editing, assignments, training, PPE, and attendance history. This closes the first domain end-to-end and avoids spreading incomplete patterns into Equipment and Production.
+The current recommended task is the insight layer: dashboard KPIs, reports/exports, notifications, audit-log UI, then the remaining Kiswahili form and detail-view copy.
+
+Finish the insight layer with dashboard KPIs, reports/exports, notifications, and audit-log UI; then complete Kiswahili localization in client-side forms and detail views.

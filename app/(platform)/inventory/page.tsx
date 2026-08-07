@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import {
   InventoryCategoryForm,
   InventoryItemForm,
@@ -76,12 +78,13 @@ export default async function InventoryPage() {
       : Promise.resolve({ data: [] as Array<{ id: string; full_name: string }> }),
   ]);
   const today = new Date().toISOString().slice(0, 10);
+  const locale = await getLocale();
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">CONTROLS</p>
-      <h1 className="mt-2 text-3xl font-bold">Inventory</h1>
-      <p className="mt-2 text-stone-600">Catalogue, stores, and stock balances for {site.name}.</p>
+      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <h1 className="mt-2 text-3xl font-bold">{t(locale, "inventory")}</h1>
+      <p className="mt-2 text-stone-600">{t(locale, "inventoryDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
@@ -90,7 +93,7 @@ export default async function InventoryPage() {
       <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">At or below reorder</p><p className="mt-1 text-2xl font-bold">{belowReorder.length}</p></div>
     </div>
 
-    <Panel title="Stock on hand" description="Balances are maintained by the database on every movement.">
+    <Panel title={t(locale, "stockOnHand")} description="Balances are maintained by the database on every movement.">
       {balances.length
         ? <ul className="divide-y divide-stone-100">{balances.map((row) => {
             const low = row.item?.reorder_level !== null && row.item?.reorder_level !== undefined && row.quantity <= Number(row.item.reorder_level);
@@ -102,7 +105,7 @@ export default async function InventoryPage() {
         : <p className="text-sm text-stone-600">No stock is held at this site yet.</p>}
     </Panel>
 
-    {canManage && <Panel title="Catalogue and stores" description="Items, categories, and suppliers are shared across the organization; stores belong to this site.">
+    {canManage && <Panel title={t(locale, "catalogueAndStores")} description="Items, categories, and suppliers are shared across the organization; stores belong to this site.">
       <div className="space-y-6">
         <div><h3 className="mb-3 text-sm font-semibold text-stone-500">Add an item</h3><InventoryItemForm categories={categoryOptions} /></div>
         <div className="border-t border-stone-100 pt-6"><h3 className="mb-3 text-sm font-semibold text-stone-500">Add a category</h3><InventoryCategoryForm /></div>
@@ -129,7 +132,7 @@ export default async function InventoryPage() {
           {canAdjust && <Panel title="Adjust stock" description="Use a negative value for losses and a positive value for gains."><StockAdjustmentForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
         </>}
 
-    <Panel title="Reorder watch" description="Items at or below their reorder level in this site's stores.">
+    <Panel title={t(locale, "reorderWatch")} description="Items at or below their reorder level in this site's stores.">
       {belowReorder.length
         ? <ul className="divide-y divide-stone-100">{belowReorder.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
             <span className="font-medium">{row.item?.name}<span className="ml-2 text-sm font-normal text-stone-500">{row.location?.name}</span></span>

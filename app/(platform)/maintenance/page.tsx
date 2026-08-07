@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import {
   MaintenanceRequestForm,
   MaintenanceScheduleForm,
@@ -64,24 +66,25 @@ export default async function MaintenancePage() {
   const today = new Date().toISOString().slice(0, 10);
   const openOrders = orders.filter((order) => order.status === "planned" || order.status === "in_progress" || order.status === "on_hold").length;
   const overdue = (schedulesResult.data ?? []).filter((schedule) => schedule.next_due_on && schedule.next_due_on < today).length;
+  const locale = await getLocale();
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">CONTROLS</p>
-      <h1 className="mt-2 text-3xl font-bold">Maintenance</h1>
-      <p className="mt-2 text-stone-600">Requests, work orders, and service schedules for {site.name}.</p>
+      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <h1 className="mt-2 text-3xl font-bold">{t(locale, "maintenance")}</h1>
+      <p className="mt-2 text-stone-600">{t(locale, "maintenanceDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Open work orders</p><p className="mt-1 text-2xl font-bold">{openOrders}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Open requests</p><p className="mt-1 text-2xl font-bold">{requests.filter((request) => request.status === "open").length}</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Services overdue</p><p className="mt-1 text-2xl font-bold">{overdue}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "openWorkOrders")}</p><p className="mt-1 text-2xl font-bold">{openOrders}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "openRequests")}</p><p className="mt-1 text-2xl font-bold">{requests.filter((request) => request.status === "open").length}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "servicesOverdue")}</p><p className="mt-1 text-2xl font-bold">{overdue}</p></div>
     </div>
 
     {canCreate && <MaintenanceRequestForm equipment={equipmentOptions} workers={workerOptions} today={today} />}
     {canCreate && <WorkOrderForm equipment={equipmentOptions} workers={workerOptions} requests={openRequestOptions} />}
 
-    <Panel title="Work orders" description="Most recent first.">
+    <Panel title={t(locale, "workOrders")} description={t(locale, "mostRecentFirst")}>
       {orders.length
         ? <ul className="divide-y divide-stone-100">{orders.map((order) => {
             const equipment = Array.isArray(order.equipment) ? order.equipment[0] : order.equipment;
@@ -95,7 +98,7 @@ export default async function MaintenancePage() {
         : <p className="text-sm text-stone-600">No work orders have been created at this site yet.</p>}
     </Panel>
 
-    <Panel title="Requests">
+    <Panel title={t(locale, "requests")}>
       {requests.length
         ? <ul className="divide-y divide-stone-100">{requests.map((request) => {
             const equipment = Array.isArray(request.equipment) ? request.equipment[0] : request.equipment;

@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { FileCheck2 } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, EmptyState, PageHeader, StatCard } from "@/components/ui/feedback";
@@ -52,19 +54,20 @@ export default async function CompliancePage() {
   const requirementOptions: Option[] = requirements.map((row) => ({ id: row.id, label: row.name }));
   const licenceOptions: Option[] = licences.map((row) => ({ id: row.id, label: `${row.licence_number} — ${row.licence_type}` }));
   const workerOptions: Option[] = (workersResult.data ?? []).map((row) => ({ id: row.id, label: row.full_name }));
+  const locale = await getLocale();
 
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Risk and insight"
-        title="Compliance"
-        description={`Licences, obligations, and deadlines for ${organization.name}.`}
+        eyebrow={t(locale, "riskAndInsight")}
+        title={t(locale, "compliance")}
+        description={t(locale, "complianceDescription", { organization: organization.name })}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Licences held" value={licences.length} />
-        <StatCard label={`Expiring within ${EXPIRING_WINDOW_DAYS} days`} value={expiringLicences.length} tone={expiringLicences.length ? "warning" : "default"} />
-        <StatCard label="Tasks overdue" value={overdueTasks.length} tone={overdueTasks.length ? "destructive" : "default"} />
+        <StatCard label={t(locale, "licencesHeld")} value={licences.length} />
+        <StatCard label={t(locale, "expiringWithin", { days: String(EXPIRING_WINDOW_DAYS) })} value={expiringLicences.length} tone={expiringLicences.length ? "warning" : "default"} />
+        <StatCard label={t(locale, "tasksOverdue")} value={overdueTasks.length} tone={overdueTasks.length ? "destructive" : "default"} />
       </div>
 
       <Alert variant="info">
@@ -74,7 +77,7 @@ export default async function CompliancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Licences</CardTitle>
+          <CardTitle>{t(locale, "licences")}</CardTitle>
           <CardDescription>Permits and licences held, with their recorded expiry.</CardDescription>
         </CardHeader>
         {licences.length ? (
@@ -118,7 +121,7 @@ export default async function CompliancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Obligations</CardTitle>
+          <CardTitle>{t(locale, "obligations")}</CardTitle>
           <CardDescription>Recurring duties your organization has defined for itself.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -140,7 +143,7 @@ export default async function CompliancePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tasks and deadlines</CardTitle>
+          <CardTitle>{t(locale, "tasksAndDeadlines")}</CardTitle>
           <CardDescription>Completing a recurring task schedules the next one automatically.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

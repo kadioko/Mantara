@@ -52,7 +52,7 @@ describe("expense transitions", () => {
 
   // The UI must never offer a move the database trigger would reject.
   it("only offers transitions the migration permits", () => {
-    const sql = readFileSync("supabase/migrations/0008_expenses.sql", "utf8");
+    const sql = readFileSync("supabase/migrations/0009_expenses.sql", "utf8");
     const clause = sql.slice(sql.indexOf("validate_expense_transition"), sql.indexOf("create trigger expenses_transition"));
     for (const [from, targets] of Object.entries(allowedExpenseTransitions)) {
       for (const to of targets) {

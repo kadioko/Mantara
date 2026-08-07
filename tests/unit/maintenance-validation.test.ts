@@ -46,7 +46,7 @@ describe("work order transitions", () => {
 
   // The dropdown must never offer a move the database trigger would reject.
   it("only offers transitions the migration permits", () => {
-    const sql = readFileSync("supabase/migrations/0006_maintenance.sql", "utf8");
+    const sql = readFileSync("supabase/migrations/0007_maintenance.sql", "utf8");
     const clause = sql.slice(sql.indexOf("validate_work_order_transition"), sql.indexOf("create trigger maintenance_work_orders_transition"));
     for (const [from, targets] of Object.entries(allowedWorkOrderTransitions)) {
       for (const to of targets) {

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { EquipmentForm } from "@/features/equipment/equipment-forms";
 import { categoryLabels, statusLabels } from "@/features/equipment/schemas";
 
@@ -29,15 +31,16 @@ export default async function EquipmentPage() {
   if (error) throw new Error("Unable to load equipment.");
 
   const canCreate = await hasPermission(organization.id, "equipment.create");
+  const locale = await getLocale();
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">ASSETS</p>
-    <h1 className="mt-2 text-3xl font-bold">Equipment</h1>
-    <p className="mt-2 text-stone-600">Machines and vehicles registered to {site.name}.</p>
+    <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "assets")}</p>
+    <h1 className="mt-2 text-3xl font-bold">{t(locale, "equipment")}</h1>
+    <p className="mt-2 text-stone-600">{t(locale, "equipmentDescription", { site: site.name })}</p>
     {canCreate && <div className="mt-8"><EquipmentForm /></div>}
     <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
       <div className="border-b border-stone-200 px-5 py-4">
-        <h2 className="font-bold">Equipment register</h2>
+        <h2 className="font-bold">{t(locale, "equipmentRegister")}</h2>
         <p className="text-sm text-stone-600">{equipment?.length ?? 0} asset{equipment?.length === 1 ? "" : "s"}</p>
       </div>
       {equipment?.length
@@ -50,7 +53,7 @@ export default async function EquipmentPage() {
             <p className="text-sm text-stone-600">{item.current_meter === null ? "No meter reading" : `${item.current_meter} ${item.meter_type}`}</p>
             <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[item.status] ?? "bg-stone-100 text-stone-700"}`}>{statusLabels[item.status as keyof typeof statusLabels] ?? item.status}</span>
           </article>)}</div>
-        : <p className="p-5 text-sm text-stone-600">No equipment is registered at this site yet.</p>}
+        : <p className="p-5 text-sm text-stone-600">{t(locale, "noEquipment")}</p>}
     </div>
   </section>;
 }

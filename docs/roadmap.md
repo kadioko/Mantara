@@ -9,6 +9,8 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
+- **Deployment update (7 August 2026):** Supabase migrations `0001` through `0013` are applied. To preserve the already-deployed platform-administrators migration at `0003`, Equipment through Safety were safely renumbered as `0004` through `0012`, and platform-admin consolidation follows as `0013`.
+- English and Kiswahili headings, summaries, metrics, and primary sections are now translated on the operational module landing screens. Client-side forms and detail views remain the next localization pass.
 - Product vision and MVP scope are documented in [`blueprint/`](../blueprint/).
 - The GitHub repository is connected and the project builds successfully.
 - A Next.js, TypeScript, Tailwind, and Supabase foundation exists.

@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { ShiftForm } from "@/features/production/production-forms";
 import { shiftStatusLabels } from "@/features/production/schemas";
 
@@ -23,14 +25,15 @@ export default async function ShiftsPage() {
   const supervisors = canCreate
     ? (await workspace.supabase.from("workers").select("id, full_name").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "active").is("deleted_at", null).order("full_name")).data ?? []
     : [];
+  const locale = await getLocale();
 
   return <section>
-    <p className="text-sm font-semibold tracking-wider text-amber-700">OPERATIONS</p>
-    <h1 className="mt-2 text-3xl font-bold">Shifts</h1>
-    <p className="mt-2 text-stone-600">Shift plan for {site.name}.</p>
+    <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "operations")}</p>
+    <h1 className="mt-2 text-3xl font-bold">{t(locale, "shifts")}</h1>
+    <p className="mt-2 text-stone-600">{t(locale, "shiftsDescription", { site: site.name })}</p>
     {canCreate && <div className="mt-8"><ShiftForm supervisors={supervisors.map((worker) => ({ id: worker.id, label: worker.full_name }))} today={new Date().toISOString().slice(0, 10)} /></div>}
     <div className="mt-8 overflow-hidden rounded-xl border border-stone-200 bg-white">
-      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">Recent shifts</h2><p className="text-sm text-stone-600">{shifts?.length ?? 0} shift{shifts?.length === 1 ? "" : "s"}</p></div>
+      <div className="border-b border-stone-200 px-5 py-4"><h2 className="font-bold">{t(locale, "recentShifts")}</h2><p className="text-sm text-stone-600">{shifts?.length ?? 0} {t(locale, "shifts").toLowerCase()}</p></div>
       {shifts?.length
         ? <div className="divide-y divide-stone-100">{shifts.map((shift) => {
             const supervisor = Array.isArray(shift.supervisor) ? shift.supervisor[0] : shift.supervisor;
@@ -41,7 +44,7 @@ export default async function ShiftsPage() {
               <span className="justify-self-start rounded-full bg-stone-100 px-3 py-1 text-xs font-semibold text-stone-700">{shiftStatusLabels[shift.status as keyof typeof shiftStatusLabels] ?? shift.status}</span>
             </article>;
           })}</div>
-        : <p className="p-5 text-sm text-stone-600">No shifts planned yet.</p>}
+        : <p className="p-5 text-sm text-stone-600">{t(locale, "noShifts")}</p>}
     </div>
   </section>;
 }

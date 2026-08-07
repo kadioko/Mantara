@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { HardHat } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState, PageHeader, StatCard } from "@/components/ui/feedback";
@@ -51,6 +53,7 @@ export default async function SafetyPage() {
   const inspections = inspectionsResult.data ?? [];
   const actions = actionsResult.data ?? [];
   const today = new Date().toISOString().slice(0, 10);
+  const locale = await getLocale();
 
   const openIncidents = incidents.filter((incident) => incident.status !== "closed");
   const openActions = actions.filter((action) => action.status === "open" || action.status === "in_progress");
@@ -64,20 +67,20 @@ export default async function SafetyPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Risk and insight"
-        title="Safety"
-        description={`Incidents, inspections, and corrective actions at ${site.name}.`}
+        eyebrow={t(locale, "riskAndInsight")}
+        title={t(locale, "safety")}
+        description={t(locale, "safetyDescription", { site: site.name })}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Open incidents" value={openIncidents.length} tone={openIncidents.length ? "warning" : "default"} />
-        <StatCard label="Open corrective actions" value={openActions.length} />
-        <StatCard label="Actions overdue" value={overdueActions.length} tone={overdueActions.length ? "destructive" : "default"} />
+        <StatCard label={t(locale, "openIncidents")} value={openIncidents.length} tone={openIncidents.length ? "warning" : "default"} />
+        <StatCard label={t(locale, "openCorrectiveActions")} value={openActions.length} />
+        <StatCard label={t(locale, "actionsOverdue")} value={overdueActions.length} tone={overdueActions.length ? "destructive" : "default"} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Incidents</CardTitle>
+          <CardTitle>{t(locale, "incidents")}</CardTitle>
           <CardDescription>Personal and medical information is held separately, behind a restricted and logged view.</CardDescription>
         </CardHeader>
         {incidents.length ? (
@@ -114,7 +117,7 @@ export default async function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Inspections</CardTitle>
+          <CardTitle>{t(locale, "inspections")}</CardTitle>
           <CardDescription>Planned and ad-hoc safety inspections.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -141,7 +144,7 @@ export default async function SafetyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Corrective actions</CardTitle>
+          <CardTitle>{t(locale, "correctiveActions")}</CardTitle>
           <CardDescription>What is being done in response, and by when.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

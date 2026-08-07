@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import {
   FuelAdjustmentForm,
   FuelIssueForm,
@@ -61,27 +63,28 @@ export default async function FuelPage() {
   const equipmentOptions: Option[] = (equipment.data ?? []).map((item) => ({ id: item.id, label: item.name }));
   const workerOptions: Option[] = (workers.data ?? []).map((worker) => ({ id: worker.id, label: worker.full_name }));
   const totalLitres = activeLocations.reduce((sum, location) => sum + Number(location.current_balance_litres), 0);
+  const locale = await getLocale();
 
   return <div className="space-y-6">
     <div>
-      <p className="text-sm font-semibold tracking-wider text-amber-700">CONTROLS</p>
-      <h1 className="mt-2 text-3xl font-bold">Fuel</h1>
-      <p className="mt-2 text-stone-600">Fuel stores and movements for {site.name}.</p>
+      <p className="text-sm font-semibold tracking-wider text-amber-700">{t(locale, "controls")}</p>
+      <h1 className="mt-2 text-3xl font-bold">{t(locale, "fuel")}</h1>
+      <p className="mt-2 text-stone-600">{t(locale, "fuelDescription", { site: site.name })}</p>
     </div>
 
     <div className="grid gap-4 sm:grid-cols-2">
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Fuel on hand</p><p className="mt-1 text-2xl font-bold">{totalLitres.toLocaleString()} L</p></div>
-      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">Active stores</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "fuelOnHand")}</p><p className="mt-1 text-2xl font-bold">{totalLitres.toLocaleString()} L</p></div>
+      <div className="rounded-xl border border-stone-200 bg-white p-5"><p className="text-sm text-stone-500">{t(locale, "activeStores")}</p><p className="mt-1 text-2xl font-bold">{activeLocations.length}</p></div>
     </div>
 
-    <Panel title="Fuel stores" description="Balances are maintained by the database on every movement.">
+    <Panel title={t(locale, "fuelStores")} description="Balances are maintained by the database on every movement.">
       {canManage && <div className="mb-5 border-b border-stone-100 pb-5"><FuelLocationForm /></div>}
       {locations?.length
         ? <ul className="divide-y divide-stone-100">{locations.map((location) => <li key={location.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
             <span className="font-medium">{location.name}<span className="ml-2 text-sm font-normal text-stone-500">{fuelTypeLabels[location.fuel_type as keyof typeof fuelTypeLabels] ?? location.fuel_type}{location.is_active ? "" : " · inactive"}</span></span>
             <span className="text-sm text-stone-600">{Number(location.current_balance_litres).toLocaleString()} L{location.capacity_litres ? ` of ${Number(location.capacity_litres).toLocaleString()} L` : ""}</span>
           </li>)}</ul>
-        : <p className="text-sm text-stone-600">No fuel stores have been created at this site yet.</p>}
+        : <p className="text-sm text-stone-600">{t(locale, "noFuelStores")}</p>}
     </Panel>
 
     {locationOptions.length === 0
