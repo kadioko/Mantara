@@ -2,14 +2,19 @@
 
 Before beginning this checklist, apply the foundation migration to the linked Supabase project. Track wider project progress in the [roadmap](roadmap.md).
 
-- [ ] A new user can register, confirm email, sign in, and sign out.
+> Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
+> migrations to a real PostgreSQL and asserts them. Run `npm run test` first; treat the items here as confirmation
+> against genuine Supabase, and give priority to the ones the integration tests **cannot** reach — anything marked
+> **(concurrency)** or **(Supabase only)**.
+
+- [ ] **(Supabase only)** A new user can register, confirm email, sign in, and sign out.
 - [ ] An authenticated user without a membership is sent to onboarding.
 - [ ] Onboarding creates one organization, an active owner membership, default roles, and the first mine site.
 - [ ] A member can only see its own organization and sites.
 - [ ] User can change active organization and active mine-site context; each selection persists after a refresh.
-- [ ] Direct URL requests without a session redirect to login.
+- [ ] **(Supabase only)** Direct URL requests without a session redirect to login.
 - [ ] Attempted cross-tenant reads and writes are denied by RLS.
-- [ ] Publishable key only is present in the browser; no service-role key is exposed.
+- [ ] **(Supabase only)** Publishable key only is present in the browser; no service-role key is exposed.
 
 ## Workforce — workers and attendance
 
@@ -37,7 +42,7 @@ Apply `supabase/migrations/0003_equipment.sql` before running these checks.
 - [ ] Leaving the opening meter blank stores no meter reading rather than zero.
 - [ ] Recording a meter reading updates the current meter and appears in the reading history.
 - [ ] **A meter reading lower than the current meter is rejected** with the database's message.
-- [ ] Two meter readings submitted at the same moment cannot both lower the meter (row lock holds under concurrency).
+- [ ] **(concurrency)** Two meter readings submitted at the same moment cannot both lower the meter.
 - [ ] Changing status writes a status-history row automatically, including the reason entered on the form.
 - [ ] A status change made directly against the table (not via the form) still produces a history row, with no reason.
 - [ ] Meter readings and status history **cannot be inserted directly** by a client; only the database function and trigger write them.
@@ -61,7 +66,7 @@ Apply `supabase/migrations/0004_production.sql` before running these checks.
 - [ ] **An approved entry's quantity, material, grade, unit, or date cannot be edited** (the freeze trigger rejects it).
 - [ ] An invalid transition (for example draft straight to approved) is rejected by the database.
 - [ ] `production_approvals` cannot be inserted directly by a client; only `review_production_entry` writes them.
-- [ ] Two simultaneous approvals of the same entry cannot both succeed (the row lock holds).
+- [ ] **(concurrency)** Two simultaneous approvals of the same entry cannot both succeed.
 - [ ] Downtime rejects zero, negative, or fractional minutes.
 
 ## Fuel control
@@ -72,7 +77,7 @@ Apply `supabase/migrations/0005_fuel.sql` before running these checks.
 - [ ] Recording a delivery increases the store balance by exactly the litres entered.
 - [ ] Issuing fuel decreases the balance, and the issue appears against the chosen equipment or worker.
 - [ ] **An issue larger than the balance is rejected**, and the message states the litres remaining.
-- [ ] **Two concurrent issues cannot together overdraw a store** (the row lock serializes them).
+- [ ] **(concurrency)** Two concurrent issues cannot together overdraw a store.
 - [ ] A delivery that would exceed a store's stated capacity is rejected.
 - [ ] A negative adjustment reduces the balance; one larger than the balance is rejected.
 - [ ] A zero-litre adjustment is rejected.
@@ -105,9 +110,9 @@ Apply `supabase/migrations/0007_inventory.sql` before running these checks.
 - [ ] Receiving stock creates the balance row on first movement and increases it thereafter.
 - [ ] Issuing stock decreases the balance and can be linked to a work order, equipment, or worker.
 - [ ] **An issue larger than the balance is rejected**, naming the quantity remaining.
-- [ ] **Two concurrent issues cannot together take a balance below zero** (the balance row lock serializes them).
+- [ ] **(concurrency)** Two concurrent issues cannot together take a balance below zero.
 - [ ] A transfer moves stock between two stores and is rejected when both are the same store.
-- [ ] **Two opposing transfers of the same item running at once do not deadlock** — both stores are locked lowest-id first.
+- [ ] **(concurrency)** Two opposing transfers of the same item running at once do not deadlock.
 - [ ] A transfer larger than the source balance is rejected and leaves **both** stores unchanged.
 - [ ] A negative adjustment larger than the balance is rejected; a zero adjustment is rejected.
 - [ ] Balances, receipts, issues, transfers, and adjustments **cannot be written directly** by a client.
@@ -115,6 +120,23 @@ Apply `supabase/migrations/0007_inventory.sql` before running these checks.
 - [ ] An item and a store from different organizations cannot be combined in one movement.
 - [ ] Permissions separate correctly: `inventory.issue` alone allows issuing but not receiving, transferring, or adjusting.
 - [ ] Items at or below their reorder level appear on the reorder watch.
+
+## Expenses and budgets
+
+Apply `supabase/migrations/0008_expenses.sql` before running these checks.
+
+- [ ] A new expense is created as a **draft** and can be submitted for approval.
+- [ ] A user with `expense.create` but not `expense.approve` sees no review form on a submitted expense.
+- [ ] Approving records an `expense_approvals` row and moves the expense to approved.
+- [ ] **An approved expense's amount, category, date, or currency cannot be edited.**
+- [ ] An invalid transition is rejected — draft straight to approved, or paying an unapproved expense.
+- [ ] An approved expense can be marked paid, and `paid_on` is stamped automatically.
+- [ ] `expense_approvals` cannot be inserted directly by a client.
+- [ ] **(concurrency)** Two simultaneous reviews of the same expense cannot both succeed.
+- [ ] Budget progress counts approved and paid expenses only — a draft does not move the bar.
+- [ ] A category-scoped budget ignores expenses in other categories; a site-scoped budget ignores other sites.
+- [ ] A budget whose end date precedes its start date is rejected.
+- [ ] An over-budget figure is shown clearly rather than being capped silently.
 
 ## Role permission defaults
 
