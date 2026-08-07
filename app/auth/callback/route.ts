@@ -9,6 +9,11 @@ export async function GET(request: NextRequest) {
   if (!code) return response;
   const env = publicEnv();
   const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, { cookies: { getAll: () => request.cookies.getAll(), setAll: (items) => items.forEach(({ name, value, options }) => response.cookies.set(name, value, options)) } });
-  await supabase.auth.exchangeCodeForSession(code);
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (!error) {
+    // Turns any invitation addressed to this person into membership, so an invited colleague lands in
+    // the organization that invited them rather than being asked to create one of their own.
+    await supabase.rpc("accept_pending_invitations");
+  }
   return response;
 }

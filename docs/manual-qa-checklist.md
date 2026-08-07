@@ -168,6 +168,34 @@ Apply `supabase/migrations/0011_safety.sql` before running these checks.
 - [ ] Overdue corrective actions are shown as overdue.
 - [ ] A user without `safety.read` is redirected away from `/safety`.
 
+## User administration
+
+Apply `supabase/migrations/0014_members_and_notifications.sql` before running these checks.
+
+- [ ] A user with `member.invite` can invite an email address that has no account yet.
+- [ ] Inviting the same address twice leaves one pending invitation, with the most recent role.
+- [ ] Inviting someone who is already a member is rejected.
+- [ ] **(Supabase only)** The invitee registers with that address, signs in, and lands in the inviting organization rather than onboarding.
+- [ ] An invitee who signs in with a password (not the email link) is also admitted.
+- [ ] A revoked or expired invitation admits nobody.
+- [ ] Changing a member's role takes effect on their next request.
+- [ ] **Nobody can change their own role or suspend their own access.**
+- [ ] **The last active owner cannot be demoted or suspended**, even by someone holding `member.update_role`.
+- [ ] A suspended member loses their permissions but keeps their records.
+- [ ] Every invitation, role change, and suspension appears in `/settings/audit-logs`.
+
+## Notifications and reports
+
+- [ ] Submitting production notifies everyone holding `production.approve`, but not the submitter.
+- [ ] Submitting an expense notifies everyone holding `expense.approve`.
+- [ ] Someone without the approval permission receives nothing.
+- [ ] A user sees only their own notifications, and "mark all read" clears only theirs.
+- [ ] The unread count in the navigation matches the notifications page.
+- [ ] Each report only appears for a user holding the matching read permission.
+- [ ] The CSV download contains the same rows as the screen, including beyond the 200 shown.
+- [ ] **A hand-edited `/reports/export` URL for another organization returns no data**, and an invalid date range is rejected.
+- [ ] A value containing a comma or quote survives the CSV round trip intact.
+
 ## Platform administration
 
 Apply `supabase/migrations/0009_platform_admin.sql`, then bootstrap the first administrator with the

@@ -1,7 +1,7 @@
 # Mantara OS — project status audit
 
 **Audited: 7 August 2026**
-**Database state: migrations `0001`–`0013` applied to Supabase**
+**Database state: migrations `0001`–`0013` applied to Supabase; `0014` awaiting deployment**
 
 ## Executive status
 
@@ -9,11 +9,16 @@ Mantara has a multi-tenant foundation with tenant isolation enforced in the data
 operational workflows for Workforce, Equipment, Production, Fuel, Maintenance, Inventory, Expenses,
 Compliance, and Safety, plus a platform administration console.
 
-The whole migration chain is applied to Supabase and the production build passes. A labelled demo
-workspace exists in Supabase.
+Organizations can now administer themselves: invite people by email, change roles, and suspend access,
+with the database refusing any change that would leave an organization without an owner. The insight
+layer is in place — dashboard figures, reports with CSV export, notifications, and an audit log.
 
-What remains before a pilot: reports and exports, notifications, document storage, organization
-settings and user administration, the remaining Kiswahili coverage, and release hardening.
+Migrations `0001`–`0013` are applied to Supabase and the production build passes. **Migration `0014`
+adds invitations and notifications and is not deployed yet**, so user administration and notifications
+will not work against the live project until it is applied. A labelled demo workspace exists in Supabase.
+
+What remains before a pilot: document storage, organization settings, the remaining Kiswahili coverage,
+and release hardening — pagination, editing, and deactivation in particular.
 
 ## Delivered
 
@@ -34,9 +39,10 @@ settings and user administration, the remaining Kiswahili coverage, and release 
 | Expenses | Categories, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
 | Compliance | Licences with expiry tracking, organization-authored requirements, recurring tasks. |
 | Safety | Incidents, inspections, corrective actions; personal and medical detail behind a granular permission and logged on every access. |
-| Insight | Dashboard with permission-gated operational figures, and an organization audit-log screen. |
+| Insight | Dashboard with permission-gated operational figures, organization audit log, reports with CSV export, and notifications. |
+| User administration | Invitations by email, role changes, and suspension, with the database refusing to leave an organization without an owner. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 263 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 287 tests pass. |
 
 ## Test coverage
 
@@ -59,15 +65,16 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ### Insight layer
 
-- Reports and CSV export for production, fuel, stock, and expenses.
-- Notifications: the table exists from `0001` but nothing writes to it and there is no UI.
 - Dashboard trends over time, rather than the current point-in-time figures.
+- Notifications currently cover submitted production and expenses only. Expiring licences and overdue
+  corrective actions need a scheduled job, which has no home yet.
 
 ### Administration
 
-- Organization settings, user invitations, and role management UI. The permissions
-  (`member.invite`, `member.update_role`, `role.manage`) exist with no screens behind them.
+- Organization settings and custom role management. `role.manage` still has no screen behind it.
 - Mine-site management UI beyond onboarding, and site-level access restrictions.
+- Invitations are claimed on sign-in; no email is actually sent, so the invitee has to be told
+  out of band that they have been invited.
 
 ### Documents
 
@@ -88,6 +95,5 @@ real concurrency, which needs a multi-connection server. Those remain in the man
 
 ## Recommended next task
 
-Reports and exports, then notifications, which together complete the insight layer and stage 7. After
-that, user administration is the largest gap between the product and a pilot, because an organization
-currently cannot invite its own people.
+Stage 8 release readiness. The largest practical gaps are pagination on every list, editing and
+deactivation of records, and document storage, which several tables already have columns for.

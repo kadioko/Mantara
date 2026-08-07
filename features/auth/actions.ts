@@ -16,6 +16,9 @@ export async function signIn(_: AuthState, formData: FormData): Promise<AuthStat
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
   if (error) return { error: t(locale, "authSignInFailed") };
+  // An invited colleague signing in with a password never passes through the auth callback, so their
+  // invitation is claimed here too. It matches only their own address and is safe to repeat.
+  await supabase.rpc("accept_pending_invitations");
   redirect("/dashboard");
 }
 

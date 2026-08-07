@@ -20,7 +20,7 @@ See the [project-status audit](docs/project-status.md) for the delivered scope a
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
-2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0012_platform_admin_consolidation.sql`) using the Supabase CLI or SQL editor.
+2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0014_members_and_notifications.sql`) using the Supabase CLI or SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
