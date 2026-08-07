@@ -1,6 +1,115 @@
 @import "tailwindcss";
 
-:root { --background: #f5f6f4; --foreground: #17211d; }
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
-button, input, select, textarea { font: inherit; }
+/*
+ * Design tokens follow shadcn/ui conventions for Tailwind v4, which is the format components from
+ * registries such as 21st.dev expect. Anything installed from there composes with these tokens
+ * instead of shipping its own colours.
+ */
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  --background: oklch(0.985 0.004 140);
+  --foreground: oklch(0.21 0.02 155);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 155);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 155);
+
+  /* Mantara's identity: deep mine green with a weathered ochre accent. */
+  --primary: oklch(0.42 0.086 158);
+  --primary-foreground: oklch(0.98 0.008 150);
+  --secondary: oklch(0.952 0.008 140);
+  --secondary-foreground: oklch(0.28 0.03 155);
+  --muted: oklch(0.955 0.006 140);
+  --muted-foreground: oklch(0.53 0.018 150);
+  --accent: oklch(0.93 0.045 92);
+  --accent-foreground: oklch(0.36 0.06 78);
+
+  --destructive: oklch(0.58 0.19 27);
+  --destructive-foreground: oklch(0.98 0.008 150);
+  --success: oklch(0.55 0.11 155);
+  --success-foreground: oklch(0.98 0.008 150);
+  --warning: oklch(0.68 0.13 75);
+  --warning-foreground: oklch(0.28 0.05 75);
+
+  --border: oklch(0.9 0.006 140);
+  --input: oklch(0.9 0.006 140);
+  --ring: oklch(0.42 0.086 158);
+}
+
+.dark {
+  --background: oklch(0.17 0.014 158);
+  --foreground: oklch(0.96 0.006 140);
+  --card: oklch(0.21 0.016 158);
+  --card-foreground: oklch(0.96 0.006 140);
+  --popover: oklch(0.21 0.016 158);
+  --popover-foreground: oklch(0.96 0.006 140);
+
+  --primary: oklch(0.72 0.12 158);
+  --primary-foreground: oklch(0.18 0.02 158);
+  --secondary: oklch(0.27 0.018 158);
+  --secondary-foreground: oklch(0.96 0.006 140);
+  --muted: oklch(0.27 0.018 158);
+  --muted-foreground: oklch(0.71 0.015 150);
+  --accent: oklch(0.34 0.045 90);
+  --accent-foreground: oklch(0.94 0.03 92);
+
+  --destructive: oklch(0.66 0.17 25);
+  --destructive-foreground: oklch(0.98 0.008 150);
+  --success: oklch(0.7 0.12 155);
+  --success-foreground: oklch(0.18 0.02 158);
+  --warning: oklch(0.78 0.13 78);
+  --warning-foreground: oklch(0.2 0.03 78);
+
+  --border: oklch(0.3 0.018 158);
+  --input: oklch(0.32 0.018 158);
+  --ring: oklch(0.72 0.12 158);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--border);
+  }
+  body {
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select, textarea { font: inherit; }
+}
