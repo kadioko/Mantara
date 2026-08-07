@@ -217,6 +217,12 @@ Apply `supabase/migrations/0009_platform_admin.sql`, then bootstrap the first ad
 - [ ] A tenant user cannot read `platform_audit_logs` or `platform_admins`.
 - [ ] Neither table can be written directly, even by a platform administrator.
 
+## Operational summary
+
+- [ ] `site_operational_summary()` refuses a site in another organization and an unknown site id.
+- [ ] **A maintenance officer sees equipment figures but zero for production and fuel**, which they hold no read permission for. One `site.read` must not stand in for every module.
+- [ ] An owner sees every figure populated.
+
 ## Role permission defaults
 
 - [ ] A newly created organization's mine manager, site supervisor, storekeeper, and maintenance officer receive the

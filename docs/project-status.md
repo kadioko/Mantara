@@ -1,7 +1,7 @@
 # Mantara OS — project status audit
 
 **Audited: 7 August 2026**
-**Database state: migrations `0001`–`0013` applied to Supabase; `0014` awaiting deployment**
+**Database state: migrations `0001`–`0015` applied to Supabase; `0016` awaiting deployment**
 
 ## Executive status
 
@@ -15,9 +15,10 @@ Organizations can now administer themselves: invite people by email, change role
 with the database refusing any change that would leave an organization without an owner. The insight
 layer is in place — dashboard figures, reports with CSV export, notifications, and an audit log.
 
-Migrations `0001`–`0013` are applied to Supabase and the production build passes. **Migration `0014`
-adds invitations and notifications and is not deployed yet**, so user administration and notifications
-will not work against the live project until it is applied. A labelled demo workspace exists in Supabase.
+Migrations `0001`–`0015` are applied to Supabase and the production build passes. **Migration `0016`
+is not deployed yet**: it closes a permission gap in `site_operational_summary()`, which returned
+production and fuel figures to anyone holding `site.read`, regardless of whether they could read those
+modules. A labelled demo workspace exists in Supabase.
 
 Stage 8 has started: the workers register, equipment register, and audit log now page and search, and
 workers and equipment can be edited and removed. What remains before a pilot: the same treatment for
@@ -47,7 +48,7 @@ coverage.
 | Insight | Dashboard with permission-gated operational figures, organization audit log, reports with CSV export, and notifications. |
 | User administration | Invitations by email, role changes, and suspension, with the database refusing to leave an organization without an owner. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 310 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 316 tests pass. |
 
 ## Test coverage
 
