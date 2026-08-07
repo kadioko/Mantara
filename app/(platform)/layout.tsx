@@ -1,11 +1,17 @@
 import { redirect } from "next/navigation";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { hasPermission } from "@/lib/auth/permissions";
+import { isPlatformAdmin } from "@/lib/auth/platform";
 import { AppShell, type NavItem } from "@/components/shell/app-shell";
 
 export default async function PlatformLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const workspace = await getActiveWorkspace();
-  if (!workspace.activeOrganization) redirect("/onboarding");
+  const platformAdmin = await isPlatformAdmin();
+  if (!workspace.activeOrganization) {
+    // A platform administrator normally has no organization of their own, so onboarding would be the
+    // wrong destination for them.
+    redirect(platformAdmin ? "/admin" : "/onboarding");
+  }
   const organizationId = workspace.activeOrganization.id;
   const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses] = await Promise.all([
     hasPermission(organizationId, "worker.read"),
@@ -24,6 +30,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     ...(canViewMaintenance ? [{ href: "/maintenance", label: "Maintenance" }] : []),
     ...(canViewInventory ? [{ href: "/inventory", label: "Inventory" }] : []),
     ...(canViewExpenses ? [{ href: "/expenses", label: "Expenses" }] : []),
+    ...(platformAdmin ? [{ href: "/admin", label: "Platform admin" }] : []),
   ];
   return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems}>{children}</AppShell>;
 }
