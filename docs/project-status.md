@@ -1,7 +1,7 @@
 # Mantara OS — project status audit
 
 **Audited: 7 August 2026**
-**Database state: migrations `0001`–`0017` applied to Supabase; `0018_ore_handling.sql` ready to deploy**
+**Database state: migrations `0001`–`0017` applied to Supabase; `0018_ore_handling.sql` and `0019_sites_and_organization_settings.sql` ready to deploy**
 
 ## Executive status
 
@@ -22,10 +22,11 @@ is not deployed yet**: it closes a permission gap in `site_operational_summary()
 production and fuel figures to anyone holding `site.read`, regardless of whether they could read those
 modules. A labelled demo workspace exists in Supabase.
 
-Stage 8 has started: the workers register, equipment register, and audit log now page and search, and
-workers and equipment can be edited and removed. What remains before a pilot: the same treatment for
-the other lists and catalogues, document storage, organization settings, and the remaining Kiswahili
-coverage.
+Stage 8 is under way. The workers register, equipment register, and audit log page and search; workers
+and equipment can be edited and removed; and an organization can now manage its own mine sites and
+company details, which it previously could not do at all after onboarding. What remains before a
+pilot: the same paging and editing treatment for the other lists and catalogues, document storage,
+and the remaining Kiswahili coverage.
 
 ## Delivered
 
@@ -50,7 +51,7 @@ coverage.
 | Insight | Dashboard with permission-gated operational figures, organization audit log, reports with CSV export, and notifications. |
 | User administration | Invitations by email, role changes, and suspension, with the database refusing to leave an organization without an owner. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 316 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, and 346 tests pass. |
 
 ## Test coverage
 
