@@ -13,7 +13,7 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     redirect(platformAdmin ? "/admin" : "/onboarding");
   }
   const organizationId = workspace.activeOrganization.id;
-  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses] = await Promise.all([
+  const [canViewWorkers, canViewEquipment, canViewProduction, canViewFuel, canViewMaintenance, canViewInventory, canViewExpenses, canViewCompliance, canViewSafety] = await Promise.all([
     hasPermission(organizationId, "worker.read"),
     hasPermission(organizationId, "equipment.read"),
     hasPermission(organizationId, "production.read"),
@@ -21,6 +21,8 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     hasPermission(organizationId, "maintenance.read"),
     hasPermission(organizationId, "inventory.read"),
     hasPermission(organizationId, "expense.read"),
+    hasPermission(organizationId, "compliance.read"),
+    hasPermission(organizationId, "safety.read"),
   ]);
   const navItems: NavItem[] = [
     ...(canViewWorkers ? [{ href: "/workers", label: "Workers" }, { href: "/attendance", label: "Attendance" }] : []),
@@ -30,6 +32,8 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     ...(canViewMaintenance ? [{ href: "/maintenance", label: "Maintenance" }] : []),
     ...(canViewInventory ? [{ href: "/inventory", label: "Inventory" }] : []),
     ...(canViewExpenses ? [{ href: "/expenses", label: "Expenses" }] : []),
+    ...(canViewCompliance ? [{ href: "/compliance", label: "Compliance" }] : []),
+    ...(canViewSafety ? [{ href: "/safety", label: "Safety" }] : []),
     ...(platformAdmin ? [{ href: "/admin", label: "Platform admin" }] : []),
   ];
   return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems}>{children}</AppShell>;
