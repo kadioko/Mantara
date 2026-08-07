@@ -58,7 +58,7 @@ export async function runReport(kind: ReportKind, from: string, to: string): Pro
 
   if (kind === "fuel") {
     const { data, error } = await supabase
-      .from("fuel_issues").select("issued_on, litres, equipment_meter, store:fuel_storage_locations(name), equipment:equipment(name), worker:workers(full_name)")
+      .from("fuel_issues").select("issued_on, litres, equipment_meter, store:fuel_storage_locations!fuel_issues_storage_location_id_fkey(name), equipment:equipment!fuel_issues_equipment_id_fkey(name), worker:workers!fuel_issues_worker_id_fkey(full_name)")
       .eq("organization_id", organization.id).eq("mine_site_id", site.id)
       .gte("issued_on", from).lte("issued_on", to).order("issued_on");
     if (error) return { error: "Unable to run the report." };
@@ -98,7 +98,7 @@ export async function runReport(kind: ReportKind, from: string, to: string): Pro
   }
 
   const { data, error } = await supabase
-    .from("expenses").select("incurred_on, description, amount, currency_code, status, category:expense_categories(name)")
+    .from("expenses").select("incurred_on, description, amount, currency_code, status, category:expense_categories!expenses_category_id_fkey(name)")
     .eq("organization_id", organization.id).eq("mine_site_id", site.id)
     .gte("incurred_on", from).lte("incurred_on", to).order("incurred_on");
   if (error) return { error: "Unable to run the report." };

@@ -62,3 +62,27 @@ export const downtimeSchema = z.object({
   minutes: z.coerce.number().int().positive("Downtime must be greater than zero minutes.").max(44_640),
   notes: z.string().trim().max(2_000).optional(),
 });
+
+export const oreLotSchema = z.object({
+  shiftId: z.string().uuid().optional().or(z.literal("")),
+  lotNumber: z.string().trim().min(2, "Enter the ore lot number.").max(80),
+  producedOn: z.string().date(),
+  sourceLocation: z.string().trim().max(120).optional(),
+  oreTonnes: z.coerce.number().positive("Ore tonnes must be greater than zero.").max(9_999_999),
+  gradePpm: z.coerce.number().min(0, "Grade PPM cannot be negative.").max(1_000_000),
+  gradeMethod: z.string().trim().max(120).optional(),
+  bagCount: z.coerce.number().int().positive("Enter the number of bags.").max(9_999_999),
+  bagWeightKg: z.coerce.number().positive("Bag weight must be greater than zero.").max(100_000),
+  notes: z.string().trim().max(2_000).optional(),
+});
+
+export const oreDispatchSchema = z.object({
+  lotId: z.string().uuid(),
+  processingPlant: z.string().trim().min(2, "Name the processing plant.").max(160),
+  dispatchedOn: z.string().date(),
+  dispatchedTonnes: z.coerce.number().positive("Dispatched tonnes must be greater than zero.").max(9_999_999),
+  dispatchedBags: z.coerce.number().int().positive("Enter the dispatched bag count.").max(9_999_999),
+  vehicleReference: z.string().trim().max(120).optional(),
+  dispatchReference: z.string().trim().max(120).optional(),
+  notes: z.string().trim().max(2_000).optional(),
+});

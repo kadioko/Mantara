@@ -204,6 +204,49 @@ describe("production approval lifecycle", () => {
   });
 });
 
+describe("ore handling", () => {
+  async function newOreLot(lotNumber: string, tonnes = 20, bags = 400) {
+    const { rows } = await db.query<{ id: string }>(
+      `insert into public.ore_lots (organization_id, mine_site_id, lot_number, ore_tonnes, grade_ppm, bag_count, bag_weight_kg, created_by, updated_by)
+       values ($1, $2, $3, $4, 3.25, $5, 50, $6, $6) returning id`,
+      [acme.organizationId, acme.siteId, lotNumber, tonnes, bags, acme.userId],
+    );
+    return rows[0].id;
+  }
+
+  it("records an ore dispatch and marks a fully sent lot as dispatched", async () => {
+    const lotId = await newOreLot("ORE-TEST-001");
+    await db.query("select public.record_ore_dispatch($1, $2, current_date, $3, $4, $5, $6)", [
+      lotId, "Kahama Processing Plant", 20, 400, "T 123 ABC", "WAYBILL-001",
+    ]);
+    const { rows } = await db.query<{ status: string; bagged_weight_kg: string }>(
+      "select status, bagged_weight_kg from public.ore_lots where id = $1", [lotId]);
+    expect(rows[0].status).toBe("dispatched");
+    expect(Number(rows[0].bagged_weight_kg)).toBe(20_000);
+  });
+
+  it("refuses a dispatch that exceeds the lot tonnes and writes no movement", async () => {
+    const lotId = await newOreLot("ORE-TEST-002", 10, 200);
+    const message = await expectRejection(() => db.query(
+      "select public.record_ore_dispatch($1, $2, current_date, $3, $4)", [lotId, "Kahama Processing Plant", 10.001, 200],
+    ));
+    expect(message).toMatch(/only 10.*remain/i);
+    const { rows } = await db.query("select id from public.ore_dispatches where ore_lot_id = $1", [lotId]);
+    expect(rows).toHaveLength(0);
+  });
+
+  it("accounts for previous partial dispatches before allowing the next one", async () => {
+    const lotId = await newOreLot("ORE-TEST-003", 20, 400);
+    await db.query("select public.record_ore_dispatch($1, $2, current_date, $3, $4)", [lotId, "Kahama Processing Plant", 12, 240]);
+    const message = await expectRejection(() => db.query(
+      "select public.record_ore_dispatch($1, $2, current_date, $3, $4)", [lotId, "Kahama Processing Plant", 8, 161],
+    ));
+    expect(message).toMatch(/only 160 bags remain/i);
+    const { rows } = await db.query<{ status: string }>("select status from public.ore_lots where id = $1", [lotId]);
+    expect(rows[0].status).toBe("in_transit");
+  });
+});
+
 describe("work orders and service schedules", () => {
   async function newWorkOrder(title: string, equipmentId: string | null = null) {
     const { rows } = await db.query<{ id: string }>(

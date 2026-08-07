@@ -22,7 +22,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
   const { data: incident } = await workspace.supabase
     .from("safety_incidents")
-    .select("id, reference, title, category, severity, status, occurred_at, reported_on, location, summary, people_involved, lost_time_hours, closed_on, reporter:workers(full_name), equipment:equipment(name)")
+    .select("id, reference, title, category, severity, status, occurred_at, reported_on, location, summary, people_involved, lost_time_hours, closed_on, reporter:workers!safety_incidents_reported_by_worker_id_fkey(full_name), equipment:equipment!safety_incidents_equipment_id_fkey(name)")
     .eq("id", incidentId)
     .eq("organization_id", organization.id)
     .eq("mine_site_id", site.id)

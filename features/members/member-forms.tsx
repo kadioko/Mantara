@@ -11,9 +11,9 @@ import {
   changeMemberStatus,
   inviteMember,
   revokeInvitation,
-  systemRoleCodes,
   type MemberState,
 } from "./actions";
+import { systemRoleCodes } from "./schemas";
 
 
 export const roleLabels: Record<string, string> = {

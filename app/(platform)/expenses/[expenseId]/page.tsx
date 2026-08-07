@@ -21,7 +21,7 @@ export default async function ExpenseDetailPage({ params }: { params: Promise<{ 
 
   const { data: expense } = await workspace.supabase
     .from("expenses")
-    .select("id, description, amount, currency_code, incurred_on, reference, status, notes, submitted_at, paid_on, category:expense_categories(name), supplier:suppliers(name), work_order:maintenance_work_orders(title)")
+    .select("id, description, amount, currency_code, incurred_on, reference, status, notes, submitted_at, paid_on, category:expense_categories!expenses_category_id_fkey(name), supplier:suppliers!expenses_supplier_id_fkey(name), work_order:maintenance_work_orders!expenses_work_order_id_fkey(title)")
     .eq("id", expenseId)
     .eq("organization_id", organization.id)
     .eq("mine_site_id", site.id)

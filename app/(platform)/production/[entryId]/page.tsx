@@ -36,7 +36,7 @@ export default async function ProductionEntryPage({ params }: { params: Promise<
     ["Date", entry.entry_date],
     ["Shift", shift?.name ? `${shift.name} (${shift.shift_date})` : "—"],
     ["Quantity", `${entry.quantity} ${entry.unit}`],
-    ["Grade", entry.grade === null ? "—" : String(entry.grade)],
+    ["Grade (PPM)", entry.grade === null ? "—" : `${entry.grade} PPM`],
     ["Location", entry.location || "—"],
     ["Status", productionStatusLabels[entry.status as keyof typeof productionStatusLabels] ?? entry.status],
   ];

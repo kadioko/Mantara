@@ -77,6 +77,19 @@ Apply `supabase/migrations/0004_production.sql` before running these checks.
 - [ ] **(concurrency)** Two simultaneous approvals of the same entry cannot both succeed.
 - [ ] Downtime rejects zero, negative, or fractional minutes.
 
+## Ore handling and processing-plant dispatch
+
+Apply `supabase/migrations/0018_ore_handling.sql` after the production migration.
+
+- [ ] A bagged ore lot records the source, tonnes, assay grade in PPM, bag count, and bag weight.
+- [ ] Duplicate lot numbers inside one organization are rejected; the same number in another organization is allowed.
+- [ ] A user without `production.create` cannot create an ore lot, and a user without `production.read` cannot see lots or dispatches.
+- [ ] A dispatch links to a bagged lot and names the processing plant, tonnes, bags, and transport reference.
+- [ ] A dispatch that would exceed either the ore lot's tonnes or bag count is rejected and writes no dispatch row.
+- [ ] **(concurrency)** Two dispatches cannot together exceed a lot's tonnes or bags.
+- [ ] A fully dispatched lot is marked dispatched; a partial dispatch is marked in transit.
+- [ ] A dispatch is written to the organization audit log, while a user in another organization sees neither the lot nor the audit entry.
+
 ## Fuel control
 
 Apply `supabase/migrations/0005_fuel.sql` before running these checks.

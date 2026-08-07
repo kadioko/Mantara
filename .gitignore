@@ -6,3 +6,5 @@ supabase/.temp/
 tmp/
 coverage
 *.tsbuildinfo
+
+.vercel

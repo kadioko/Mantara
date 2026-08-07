@@ -42,9 +42,9 @@ export default async function MaintenancePage() {
   ]);
 
   const [ordersResult, requestsResult, schedulesResult, equipmentResult, workersResult] = await Promise.all([
-    workspace.supabase.from("maintenance_work_orders").select("id, title, status, priority, scheduled_for, equipment:equipment(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).limit(50),
-    workspace.supabase.from("maintenance_requests").select("id, title, status, priority, reported_on, equipment:equipment(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("reported_on", { ascending: false }).limit(50),
-    workspace.supabase.from("maintenance_schedules").select("id, name, next_due_on, next_due_meter, interval_meter, interval_days, equipment:equipment(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("is_active", true).order("next_due_on", { nullsFirst: false }),
+    workspace.supabase.from("maintenance_work_orders").select("id, title, status, priority, scheduled_for, equipment:equipment!maintenance_work_orders_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).limit(50),
+    workspace.supabase.from("maintenance_requests").select("id, title, status, priority, reported_on, equipment:equipment!maintenance_requests_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("reported_on", { ascending: false }).limit(50),
+    workspace.supabase.from("maintenance_schedules").select("id, name, next_due_on, next_due_meter, interval_meter, interval_days, equipment:equipment!maintenance_schedules_equipment_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("is_active", true).order("next_due_on", { nullsFirst: false }),
     canCreate || canUpdate
       ? workspace.supabase.from("equipment").select("id, name").eq("organization_id", organization.id).eq("mine_site_id", site.id).is("deleted_at", null).order("name")
       : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),

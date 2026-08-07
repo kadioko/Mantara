@@ -1,7 +1,7 @@
 # Mantara OS — project status audit
 
 **Audited: 7 August 2026**
-**Database state: migrations `0001`–`0015` applied to Supabase; `0016` and `0017` awaiting deployment**
+**Database state: migrations `0001`–`0017` applied to Supabase; `0018_ore_handling.sql` ready to deploy**
 
 ## Executive status
 
@@ -40,7 +40,7 @@ coverage.
 | Localization | English and Kiswahili for navigation, authentication, onboarding, dashboard, and every module landing screen. |
 | Workforce | Worker register and profile, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail, meter readings that cannot move backwards, status history, operator assignments. |
-| Production | Shifts, production capture, database-enforced approval lifecycle, downtime. |
+| Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, and protected processing-plant dispatches. |
 | Fuel | Stores with transactional balances, deliveries, issues, adjustments; balances cannot go negative. |
 | Maintenance | Requests, work orders with an enforced lifecycle, parts, costs, service schedules that roll forward. |
 | Inventory | Catalogue, stores, suppliers, stock ledger with non-negative balances and deadlock-safe transfers. |

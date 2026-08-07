@@ -37,7 +37,7 @@ const icons: Record<string, LucideIcon> = {
   "/admin": Boxes,
 };
 
-export function NavigationLinks({ items, mobile = false }: { items: NavItem[]; mobile?: boolean }) {
+export function NavigationLinks({ items, mobile = false, compact = false }: { items: NavItem[]; mobile?: boolean; compact?: boolean }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Main navigation" className={mobile ? "grid grid-cols-2 gap-2" : "space-y-1"}>
@@ -52,9 +52,10 @@ export function NavigationLinks({ items, mobile = false }: { items: NavItem[]; m
           : "border-stone-200 bg-white text-stone-700 hover:border-emerald-300 hover:bg-emerald-50";
         return (
           <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
-            className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 ${mobile ? `justify-center ${mobileClass}` : desktopClass}`}>
+            title={compact ? item.label : undefined}
+            className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 ${mobile ? mobileClass : desktopClass} ${compact ? "justify-center px-2" : mobile ? "justify-center" : ""}`}>
             <Icon aria-hidden className="size-4 shrink-0" />
-            <span className="truncate">{item.label}</span>
+            {!compact && <span className="truncate">{item.label}</span>}
           </Link>
         );
       })}

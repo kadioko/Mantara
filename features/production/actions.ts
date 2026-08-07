@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { requireScope, rowInScopeHard, rpcMessage, type ActiveScope } from "@/lib/auth/scope";
 import {
   downtimeSchema,
+  oreDispatchSchema,
+  oreLotSchema,
   productionEntrySchema,
   productionReviewSchema,
   productionSubmitSchema,
@@ -133,4 +135,51 @@ export async function createDowntime(_: ProductionState, formData: FormData): Pr
   if (error) return { error: "Unable to record the downtime. Please try again." };
   revalidatePath("/production");
   return { success: "Downtime recorded." };
+}
+
+export async function createOreLot(_: ProductionState, formData: FormData): Promise<ProductionState> {
+  const parsed = oreLotSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the ore lot details." };
+  const scope = await requireScope("production.create", "You do not have permission to record bagged ore.");
+  if ("error" in scope) return scope;
+  if (parsed.data.shiftId && !await shiftInScope(scope, parsed.data.shiftId)) return { error: "That shift does not belong to the active mine site." };
+  const { error } = await scope.workspace.supabase.from("ore_lots").insert({
+    organization_id: scope.organizationId,
+    mine_site_id: scope.siteId,
+    shift_id: parsed.data.shiftId || null,
+    lot_number: parsed.data.lotNumber,
+    produced_on: parsed.data.producedOn,
+    source_location: parsed.data.sourceLocation || null,
+    ore_tonnes: parsed.data.oreTonnes,
+    grade_ppm: parsed.data.gradePpm,
+    grade_method: parsed.data.gradeMethod || null,
+    bag_count: parsed.data.bagCount,
+    bag_weight_kg: parsed.data.bagWeightKg,
+    notes: parsed.data.notes || null,
+    created_by: scope.workspace.user.id,
+    updated_by: scope.workspace.user.id,
+  });
+  if (error) return { error: error.code === "23505" ? "That ore lot number already exists in this organization." : "Unable to save the ore lot. Please try again." };
+  revalidatePath("/production");
+  return { success: "Bagged ore lot recorded." };
+}
+
+export async function dispatchOreLot(_: ProductionState, formData: FormData): Promise<ProductionState> {
+  const parsed = oreDispatchSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the dispatch details." };
+  const scope = await requireScope("production.update", "You do not have permission to dispatch ore.");
+  if ("error" in scope) return scope;
+  const { error } = await scope.workspace.supabase.rpc("record_ore_dispatch", {
+    requested_lot_id: parsed.data.lotId,
+    requested_processing_plant: parsed.data.processingPlant,
+    requested_dispatched_on: parsed.data.dispatchedOn,
+    requested_tonnes: parsed.data.dispatchedTonnes,
+    requested_bags: parsed.data.dispatchedBags,
+    requested_vehicle_reference: parsed.data.vehicleReference || null,
+    requested_dispatch_reference: parsed.data.dispatchReference || null,
+    requested_notes: parsed.data.notes || null,
+  });
+  if (error) return { error: rpcMessage(error, "Unable to record the ore dispatch. Please try again.") };
+  revalidatePath("/production");
+  return { success: "Ore dispatch recorded for the processing plant." };
 }

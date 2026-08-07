@@ -35,7 +35,7 @@ export default async function ExpensesPage() {
   ]);
 
   const [expensesResult, categoriesResult, suppliersResult, workOrdersResult, budgetsResult] = await Promise.all([
-    workspace.supabase.from("expenses").select("id, description, amount, currency_code, incurred_on, status, category:expense_categories(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("incurred_on", { ascending: false }).limit(50),
+    workspace.supabase.from("expenses").select("id, description, amount, currency_code, incurred_on, status, category:expense_categories!expenses_category_id_fkey(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("incurred_on", { ascending: false }).limit(50),
     workspace.supabase.from("expense_categories").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name"),
     canCreate
       ? workspace.supabase.from("suppliers").select("id, name").eq("organization_id", organization.id).eq("is_active", true).order("name")
@@ -43,7 +43,7 @@ export default async function ExpensesPage() {
     canCreate
       ? workspace.supabase.from("maintenance_work_orders").select("id, title").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("created_at", { ascending: false }).limit(30)
       : Promise.resolve({ data: [] as Array<{ id: string; title: string }> }),
-    workspace.supabase.from("budgets").select("id, name, period, starts_on, ends_on, amount, currency_code, category:expense_categories(name)").eq("organization_id", organization.id).order("starts_on", { ascending: false }),
+    workspace.supabase.from("budgets").select("id, name, period, starts_on, ends_on, amount, currency_code, category:expense_categories!budgets_category_id_fkey(name)").eq("organization_id", organization.id).order("starts_on", { ascending: false }),
   ]);
   if (expensesResult.error) throw new Error("Unable to load expenses.");
 

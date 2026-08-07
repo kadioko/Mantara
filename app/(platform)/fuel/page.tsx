@@ -45,7 +45,7 @@ export default async function FuelPage() {
   const needsMovementData = locationOptions.length > 0;
   const [receipts, issues, adjustments, equipment, workers] = await Promise.all([
     workspace.supabase.from("fuel_receipts").select("id, litres, supplier, received_on, location:fuel_storage_locations(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("received_on", { ascending: false }).limit(10),
-    workspace.supabase.from("fuel_issues").select("id, litres, issued_on, equipment:equipment(name), worker:workers(full_name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("issued_on", { ascending: false }).limit(10),
+    workspace.supabase.from("fuel_issues").select("id, litres, issued_on, equipment:equipment!fuel_issues_equipment_id_fkey(name), worker:workers!fuel_issues_worker_id_fkey(full_name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("issued_on", { ascending: false }).limit(10),
     workspace.supabase.from("fuel_adjustments").select("id, litres_delta, reason, adjusted_on").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("adjusted_on", { ascending: false }).limit(10),
     needsMovementData && canIssue
       ? workspace.supabase.from("equipment").select("id, name").eq("organization_id", organization.id).eq("mine_site_id", site.id).is("deleted_at", null).order("name")

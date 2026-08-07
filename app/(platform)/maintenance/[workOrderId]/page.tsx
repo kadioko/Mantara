@@ -25,7 +25,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
 
   const { data: order } = await workspace.supabase
     .from("maintenance_work_orders")
-    .select("id, title, description, status, priority, scheduled_for, started_at, completed_at, meter_at_service, notes, equipment:equipment(name), assignee:workers(full_name)")
+    .select("id, title, description, status, priority, scheduled_for, started_at, completed_at, meter_at_service, notes, equipment:equipment!maintenance_work_orders_equipment_id_fkey(name), assignee:workers!maintenance_work_orders_assigned_worker_id_fkey(full_name)")
     .eq("id", workOrderId)
     .eq("organization_id", organization.id)
     .eq("mine_site_id", site.id)

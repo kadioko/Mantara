@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: Compliance and safety complete; stage 7 in progress**  
+**Current position: Ore handling added to core operations; stage 8 in progress**  
 **Last updated: 7 August 2026**
 
 For the audited feature-by-feature state, including what is not yet implemented, see [project status](project-status.md).
@@ -17,7 +17,8 @@ Mantara is being built as the digital operating system for African mining: a tru
 - Authentication, onboarding, organizations, memberships, roles, permissions, mine sites, audit-log tables, and RLS migration are implemented locally.
 - The workforce module is complete: worker register and detail, daily attendance, assignments, training, and PPE issue history.
 - The equipment module is implemented: asset register and detail, transactional meter readings, status changes with automatic history, and operator assignments.
-- The production module is implemented: shifts, production capture, a database-enforced approval lifecycle, and downtime.
+- The production module is implemented: shifts, PPM-aware production capture, a database-enforced approval lifecycle, downtime, bagged ore lots, and processing-plant dispatch records.
+- Ore handling is the next operating wedge: each lot records tonnes, assay grade in PPM, bags and bag weight; a locked dispatch function prevents more tonnes or bags being sent to a processing plant than were recorded in the lot.
 - Fuel control is implemented: storage locations with transactionally maintained balances, deliveries, issues, and adjustments that cannot drive a store negative.
 - Maintenance is implemented: requests, work orders with a database-enforced lifecycle, parts, costs, and service schedules that roll forward when a work order is completed.
 - Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
@@ -71,7 +72,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Complete; deployed to Vercel |
 | 3. Workforce | Workers, assignments, attendance, training, PPE | Code complete; awaiting migration deployment |
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
-| 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
+| 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Code complete; ore migration `0018` awaiting deployment |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Code complete |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, and record editing started |

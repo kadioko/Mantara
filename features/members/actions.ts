@@ -5,19 +5,9 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/context";
 import { rpcMessage } from "@/lib/auth/scope";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { systemRoleCodes } from "./schemas";
 
 export type MemberState = { error?: string; success?: string };
-
-export const systemRoleCodes = [
-  "company_owner",
-  "mine_manager",
-  "site_supervisor",
-  "accountant",
-  "storekeeper",
-  "maintenance_officer",
-  "safety_officer",
-  "viewer",
-] as const;
 
 const inviteSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email address."),
