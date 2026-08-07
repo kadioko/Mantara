@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: Stage 6 controls complete; migrations now executed and tested**  
+**Current position: Compliance and safety complete; stage 7 in progress**  
 **Last updated: 7 August 2026**
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
@@ -20,13 +20,15 @@ Mantara is being built as the digital operating system for African mining: a tru
 - Expenses and budgets are implemented: an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
 - Platform administration is implemented at `/admin`: organization metadata, suspension, administrator management, and an append-only platform audit log.
 - A shared UI layer now exists in `components/ui/`, using shadcn/ui conventions and design tokens so components from registries such as [21st.dev](https://21st.dev) can be dropped in unchanged.
+- Compliance is implemented: licences with expiry tracking, organization-authored requirements, and tasks that reschedule themselves when a recurring obligation is completed.
+- Safety is implemented: incidents, inspections, and corrective actions, with personal and medical detail held separately behind a granular permission and logged on every access.
 - Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
 - The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
 - The production database migrations are **not yet applied**; therefore real login and tenant data cannot be tested until they are deployed.
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (241 tests), and `npm run build` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (261 tests), and `npm run build` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -45,6 +47,9 @@ What the integration tests now cover:
 - Ledger tables have no insert policy, and the internal balance helpers are not executable by API roles.
 - A platform administrator reads **no rows** from any operational table, holds no permission in any organization,
   and cannot write tenant data; suspension makes an organization read-only without affecting any other.
+- Sensitive safety details cannot be read or written without the granular permission, cannot be reached by querying
+  the table directly, and every access — but never a denied attempt — is written to the audit log.
+- Completing a recurring compliance obligation schedules the next one; a one-off task schedules nothing.
 
 Two limits are worth stating plainly. The harness stubs Supabase's `auth` schema and API roles, so it models
 Supabase rather than being it — Auth, Storage, and PostgREST behaviour are still unverified. And concurrency is not
@@ -62,7 +67,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
 | 5. Production | Shifts, production capture, approvals, summaries | Code complete; awaiting migration deployment |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Planned |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | In progress: compliance and safety complete; reports, notifications, and audit-log UI planned |
 | 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Planned |
 
 ## Platform administration: what the role can and cannot do
@@ -119,9 +124,9 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0001`–`0008` to Supabase and configure Auth redirect URLs.
+1. Apply migrations `0001`–`0011` to Supabase and configure Auth redirect URLs.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
-3. Build stage 7: compliance, safety, reports, notifications, and the audit-log UI.
+3. Finish stage 7 with reports, notifications, and the audit-log UI.
 4. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules

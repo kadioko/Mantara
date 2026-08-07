@@ -9,7 +9,7 @@ The foundation is implemented locally and linked to Supabase. Deploy the first m
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
-2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0009_platform_admin.sql`) using the Supabase CLI or SQL editor.
+2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0011_safety.sql`) using the Supabase CLI or SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.

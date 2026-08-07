@@ -138,6 +138,36 @@ Apply `supabase/migrations/0008_expenses.sql` before running these checks.
 - [ ] A budget whose end date precedes its start date is rejected.
 - [ ] An over-budget figure is shown clearly rather than being capped silently.
 
+## Compliance
+
+Apply `supabase/migrations/0010_compliance.sql` before running these checks.
+
+- [ ] A licence can be recorded, and one expiring within 60 days is highlighted.
+- [ ] A licence whose expiry precedes its issue date is rejected.
+- [ ] Requirements are authored by the organization; nothing in the product asserts what the law requires.
+- [ ] A task linked to a **recurring** requirement schedules the next one on completion, at the right interval.
+- [ ] A one-off task, or one with no requirement, schedules nothing on completion.
+- [ ] A task cannot be completed twice.
+- [ ] A user with `compliance.read` only cannot complete a task.
+- [ ] Overdue tasks are shown as overdue against today's date.
+- [ ] A document must be attached to a licence or a task; neither is rejected.
+
+## Safety
+
+Apply `supabase/migrations/0011_safety.sql` before running these checks.
+
+- [ ] An incident can be reported, and appears with its category and severity.
+- [ ] A site supervisor (holding `safety.read` but not `safety.read_sensitive`) sees the incident but **cannot open sensitive details**.
+- [ ] A safety officer can record and open sensitive details.
+- [ ] **Opening sensitive details writes an `audit_logs` row naming the reader**, and a second view writes a second row.
+- [ ] A denied attempt writes **no** audit row.
+- [ ] Sensitive details cannot be read by querying `safety_incident_details` directly, even as a safety officer.
+- [ ] Sensitive details cannot be inserted directly into that table.
+- [ ] A user without `safety.read_sensitive` is told details exist without any of their content being shown.
+- [ ] A corrective action must be attached to an incident or an inspection.
+- [ ] Overdue corrective actions are shown as overdue.
+- [ ] A user without `safety.read` is redirected away from `/safety`.
+
 ## Platform administration
 
 Apply `supabase/migrations/0009_platform_admin.sql`, then bootstrap the first administrator with the
