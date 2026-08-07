@@ -162,11 +162,11 @@ export function CorrectiveActionForm({ incidents, inspections, workers }: { inci
   </form>;
 }
 
-export function CorrectiveActionStatusForm({ actionId, status }: { actionId: string; status: string }) {
+export function CorrectiveActionStatusForm({ actionId, status, actionTitle }: { actionId: string; status: string; actionTitle: string }) {
   const [state, action, pending] = useActionState(updateCorrectiveAction, {} as SafetyState);
   return <form action={action} className="flex flex-wrap items-end gap-2">
     <input name="actionId" type="hidden" value={actionId} />
-    <select name="status" defaultValue={status} className="h-9 rounded-md border border-input bg-card px-2 text-sm">
+    <select name="status" defaultValue={status} aria-label={`Status for ${actionTitle}`} className="h-9 rounded-md border border-input bg-card px-2 text-sm">
       {correctiveActionStatuses.map((value) => <option key={value} value={value}>{actionStatusLabels[value]}</option>)}
     </select>
     <Button disabled={pending} size="sm" variant="outline">{pending ? "Saving…" : "Update"}</Button>

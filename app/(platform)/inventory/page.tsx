@@ -103,10 +103,10 @@ export default async function InventoryPage() {
 
     {canManage && <Panel title={t(locale, "catalogueAndStores")} description="Items, categories, and suppliers are shared across the organization; stores belong to this site.">
       <div className="space-y-6">
-        <div><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add an item</h3><InventoryItemForm categories={categoryOptions} /></div>
-        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a category</h3><InventoryCategoryForm /></div>
-        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a store</h3><InventoryLocationForm /></div>
-        <div className="border-t border-border pt-6"><h3 className="mb-3 text-sm font-semibold text-muted-foreground">Add a supplier</h3><SupplierForm /></div>
+        <div><h2 className="mb-3 text-sm font-semibold text-muted-foreground">Add an item</h2><InventoryItemForm categories={categoryOptions} /></div>
+        <div className="border-t border-border pt-6"><h2 className="mb-3 text-sm font-semibold text-muted-foreground">Add a category</h2><InventoryCategoryForm /></div>
+        <div className="border-t border-border pt-6"><h2 className="mb-3 text-sm font-semibold text-muted-foreground">Add a store</h2><InventoryLocationForm /></div>
+        <div className="border-t border-border pt-6"><h2 className="mb-3 text-sm font-semibold text-muted-foreground">Add a supplier</h2><SupplierForm /></div>
       </div>
     </Panel>}
 

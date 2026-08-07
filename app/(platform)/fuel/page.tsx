@@ -94,7 +94,7 @@ export default async function FuelPage() {
     <Panel title="Recent movements">
       <div className="grid gap-6 lg:grid-cols-3">
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">Deliveries</h3>
+          <h2 className="text-sm font-semibold text-muted-foreground">Deliveries</h2>
           {receipts.data?.length
             ? <ul className="mt-2 space-y-2">{receipts.data.map((row) => {
                 const location = Array.isArray(row.location) ? row.location[0] : row.location;
@@ -103,7 +103,7 @@ export default async function FuelPage() {
             : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">Issues</h3>
+          <h2 className="text-sm font-semibold text-muted-foreground">Issues</h2>
           {issues.data?.length
             ? <ul className="mt-2 space-y-2">{issues.data.map((row) => {
                 const equipmentRow = Array.isArray(row.equipment) ? row.equipment[0] : row.equipment;
@@ -113,7 +113,7 @@ export default async function FuelPage() {
             : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}
         </div>
         <div>
-          <h3 className="text-sm font-semibold text-muted-foreground">Adjustments</h3>
+          <h2 className="text-sm font-semibold text-muted-foreground">Adjustments</h2>
           {adjustments.data?.length
             ? <ul className="mt-2 space-y-2">{adjustments.data.map((row) => <li key={row.id} className="text-sm"><span className="font-medium">{Number(row.litres_delta) > 0 ? "+" : "−"}{Math.abs(Number(row.litres_delta)).toLocaleString()} L</span> <span className="text-muted-foreground">{row.adjusted_on} · {row.reason}</span></li>)}</ul>
             : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}

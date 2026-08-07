@@ -101,7 +101,7 @@ export default async function UsersPage() {
                     </TableCell>
                     <TableCell>
                       {canManageRoles
-                        ? <MemberRoleForm userId={member.user_id} roleCode={member.role_code} isSelf={isSelf} />
+                        ? <MemberRoleForm userId={member.user_id} roleCode={member.role_code} isSelf={isSelf} memberName={member.full_name ?? member.email ?? "this member"} />
                         : <span className="text-sm text-muted-foreground">{roleLabels[member.role_code] ?? member.role_name}</span>}
                     </TableCell>
                     <TableCell>

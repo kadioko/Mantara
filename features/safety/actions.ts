@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireScope, rowInScope, rowInScopeHard, rpcMessage } from "@/lib/auth/scope";
+import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 import {
   correctiveActionSchema,
   correctiveActionStatusSchema,
@@ -85,6 +86,8 @@ export async function revealIncidentDetails(_: SensitiveDetailsState, formData: 
   const incidentId = String(formData.get("incidentId") ?? "");
   const scope = await requireScope("safety.read_sensitive", "You do not have permission to view sensitive incident details.");
   if ("error" in scope) return scope;
+  // Bulk-reading medical notes is exactly the pattern worth slowing down, audit trail or not.
+  if (!await withinRateLimit("safety.sensitive_read")) return { error: rateLimitMessage("safety.sensitive_read") };
   const { data, error } = await scope.workspace.supabase.rpc("read_safety_incident_details", {
     requested_incident_id: incidentId,
   });

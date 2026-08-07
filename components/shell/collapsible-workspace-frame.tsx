@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ConnectionStatus } from "./connection-status";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 /** A full-width workspace is one click away. */
@@ -9,6 +10,7 @@ export function CollapsibleWorkspaceFrame({
   leading,
   actions,
   mobileNavigation,
+  offlineLabel,
   collapseLabel,
   expandLabel,
   children,
@@ -17,6 +19,7 @@ export function CollapsibleWorkspaceFrame({
   leading: React.ReactNode;
   actions: React.ReactNode;
   mobileNavigation: React.ReactNode;
+  offlineLabel: string;
   collapseLabel: string;
   expandLabel: string;
   children: React.ReactNode;
@@ -43,6 +46,7 @@ export function CollapsibleWorkspaceFrame({
           </div>
           {actions}
         </header>
+        <ConnectionStatus offlineLabel={offlineLabel} />
         {mobileNavigation}
         <main className="mx-auto max-w-7xl p-5 pb-10 md:p-8 md:pb-12">{children}</main>
       </div>

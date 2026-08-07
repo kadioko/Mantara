@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { logError } from "@/lib/observability/log";
 
 /**
  * Loads every permission the caller holds in an organization, once per request.
@@ -19,7 +20,7 @@ const loadPermissions = cache(async (organizationId: string): Promise<Set<string
 
   if (error) {
     // Worth seeing in logs: a failure here looks exactly like a loss of access to the operator.
-    console.error("Failed to load permissions", { organizationId, message: error.message });
+    logError({ event: "auth.permissions.load_failed", organizationId, message: error.message });
     return null;
   }
 

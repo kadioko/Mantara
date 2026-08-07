@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isReportKind, runReport, toCsv } from "@/features/reports/queries";
+import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 
 /**
  * Serves the same query the report screen shows, as a download. Permission and tenant scope are
@@ -13,6 +14,10 @@ export async function GET(request: NextRequest) {
 
   if (!isReportKind(kind) || !isDate(from) || !isDate(to)) {
     return NextResponse.json({ error: "Provide a valid report and date range." }, { status: 400 });
+  }
+
+  if (!await withinRateLimit("report.export")) {
+    return NextResponse.json({ error: rateLimitMessage("report.export") }, { status: 429 });
   }
 
   const result = await runReport(kind, from, to);

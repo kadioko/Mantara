@@ -45,7 +45,7 @@ export function InviteMemberForm() {
   </form>;
 }
 
-export function MemberRoleForm({ userId, roleCode, isSelf }: { userId: string; roleCode: string; isSelf: boolean }) {
+export function MemberRoleForm({ userId, roleCode, isSelf, memberName }: { userId: string; roleCode: string; isSelf: boolean; memberName: string }) {
   const [state, action, pending] = useActionState(changeMemberRole, {} as MemberState);
   if (isSelf) {
     // The database refuses a self role change; saying so is clearer than a control that always fails.
@@ -53,7 +53,7 @@ export function MemberRoleForm({ userId, roleCode, isSelf }: { userId: string; r
   }
   return <form action={action} className="flex flex-wrap items-center gap-2">
     <input name="userId" type="hidden" value={userId} />
-    <select name="roleCode" defaultValue={roleCode} className={selectClass}>
+    <select name="roleCode" defaultValue={roleCode} aria-label={`Role for ${memberName}`} className={selectClass}>
       {systemRoleCodes.map((code) => <option key={code} value={code}>{roleLabels[code]}</option>)}
     </select>
     <Button disabled={pending} size="sm" variant="outline">{pending ? "Saving…" : "Change"}</Button>

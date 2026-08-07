@@ -34,5 +34,5 @@ export function AppShell({ organizations, activeOrganization, sites, activeSite,
   </details>;
 
   return <CollapsibleWorkspaceFrame sidebar={sidebar} leading={leading} actions={actions} mobileNavigation={mobileNavigation}
-    collapseLabel={t(locale, "collapseSidebar")} expandLabel={t(locale, "expandSidebar")}>{children}</CollapsibleWorkspaceFrame>;
+    collapseLabel={t(locale, "collapseSidebar")} expandLabel={t(locale, "expandSidebar")} offlineLabel={t(locale, "offline")}>{children}</CollapsibleWorkspaceFrame>;
 }

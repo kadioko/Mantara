@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/context";
 import { rpcMessage } from "@/lib/auth/scope";
+import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { systemRoleCodes } from "./schemas";
 
@@ -38,6 +39,7 @@ export async function inviteMember(_: MemberState, formData: FormData): Promise<
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the invitation details." };
   const scope = await activeOrganization();
   if ("error" in scope) return scope;
+  if (!await withinRateLimit("member.invite")) return { error: rateLimitMessage("member.invite") };
   const { error } = await scope.supabase.rpc("invite_member", {
     requested_organization_id: scope.organizationId,
     invitee_email: parsed.data.email,
@@ -64,6 +66,7 @@ export async function changeMemberRole(_: MemberState, formData: FormData): Prom
   if (!parsed.success) return { error: "Check the role selection." };
   const scope = await activeOrganization();
   if ("error" in scope) return scope;
+  if (!await withinRateLimit("member.role_change")) return { error: rateLimitMessage("member.role_change") };
   const { error } = await scope.supabase.rpc("set_member_role", {
     requested_organization_id: scope.organizationId,
     target_user_id: parsed.data.userId,

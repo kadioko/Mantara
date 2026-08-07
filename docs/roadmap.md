@@ -75,7 +75,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Code complete; ore migration `0018` awaiting deployment |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Code complete |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, and record editing started |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, editing, rate limiting, accessibility, and monitoring done; performance testing, offline capture, and pilot signoff outstanding |
 
 ## Platform administration: what the role can and cannot do
 
@@ -131,10 +131,12 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0001`–`0014` to Supabase and configure Auth redirect URLs.
+1. Apply migrations `0019`–`0022` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
-3. Begin stage 8 release readiness: pagination, editing and deactivation, document storage, and accessibility.
-4. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
+3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
+4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.
+5. Lift the 571 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file) and find a Kiswahili speaker for the mining vocabulary.
+6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules
 

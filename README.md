@@ -69,3 +69,35 @@ Unit tests cover form and schema validation. The integration tests in `tests/int
 files to a PostgreSQL database compiled to WebAssembly, then assert the rules the application relies on the database
 to enforce — balance floors, approval lifecycles, and tenant isolation under RLS. They need no Docker and no Supabase
 project, so they run anywhere `npm test` does.
+
+## Audits
+
+```bash
+npm run audit:all
+```
+
+Three static checks, each of which exists because something got past a review once:
+
+- `npm run a11y` — labelling, heading order, icon-only controls, keyboard reachability. It catches
+  the mechanical failures only. Whether a label is meaningful and whether a focus order makes sense
+  still need a person.
+- `npm run contrast` — every design token pair against WCAG AA, in both themes. Tokens are written
+  in oklch, so it converts oklch to sRGB properly; reading the lightness number and guessing is what
+  let a 1.58:1 sidebar ship. `--border` is recorded as decorative and exempt, with the reasoning in
+  the script.
+- `npm run i18n:report` — untranslated catalogue keys, and text written directly into components
+  that no translator can reach. The second number is the one that matters.
+
+## Operating the deployment
+
+- `/api/health` returns `200` when the instance can reach the database and `503` when it cannot. It
+  is anonymous and deliberately says nothing else, so it cannot be used to learn the schema or which
+  tenants exist. Point an uptime monitor at it.
+- Logs are one JSON line per event on stdout (`lib/observability/log.ts`). Any log drain will collect
+  them. Personal and operational fields are redacted by name, because logs are readable by more
+  people than the database is.
+- `LOG_LEVEL` (`debug`/`info`/`warn`/`error`, default `info`) trims volume without a redeploy.
+- `DOCUMENTS_ENABLED=true` switches on document storage. It is off until an upload and a download
+  have been confirmed against a real bucket.
+- `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
+  grows without bound.

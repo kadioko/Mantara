@@ -175,7 +175,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
                       <Badge variant={action.status === "completed" ? "success" : overdue ? "destructive" : "secondary"}>
                         {actionStatusLabels[action.status as keyof typeof actionStatusLabels] ?? action.status}
                       </Badge>
-                      {canUpdate && <CorrectiveActionStatusForm actionId={action.id} status={action.status} />}
+                      {canUpdate && <CorrectiveActionStatusForm actionId={action.id} status={action.status} actionTitle={action.description ?? "this action"} />}
                     </div>
                   </li>
                 );

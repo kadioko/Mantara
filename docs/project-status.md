@@ -96,7 +96,18 @@ end to end before relying on it.
 
 ### Localization
 
-- Client-side forms and detail views are still English. Module landing screens are translated.
+`t()` falls back to English for any key a locale has not translated, so a screen can ship the day
+its English copy is written rather than waiting on a translator, and a missing key renders readable
+text instead of a blank. `npm run i18n:report` reports both kinds of gap.
+
+- The catalogue itself is complete: 216 keys, 100% Swahili.
+- The real gap is elsewhere. 571 phrases are written directly into components and so cannot be
+  translated at all. The report ranks them by file; the module form files are the worst by far
+  (`production-forms.tsx`, `inventory-forms.tsx`, `safety-forms.tsx`). Lifting them into the
+  catalogue is mechanical; writing the Swahili for mining terminology needs a speaker, not a
+  machine translation, and is not something to fake.
+- Shared primitives are translated, so pagination, search, and the offline banner are bilingual on
+  every screen at once.
 
 ### Release readiness
 
@@ -105,13 +116,38 @@ end to end before relying on it.
   are assembled in the application rather than paged in the database, so they are still unbounded.
 - Editing and removal exist for workers and equipment. Inventory items, suppliers, fuel stores,
   compliance requirements, and expense categories are still create-only.
-- Rate limiting on sensitive actions, a full accessibility audit, and performance testing. Forms use
-  enclosing labels and the primitives carry focus-visible rings, and the workspace switcher's contrast
-  was measured and corrected, but no assistive-technology pass has been done.
-- PWA/offline capture, monitoring, backup and recovery, pilot manual-QA signoff.
+- **Rate limiting** is in place (`0022_rate_limiting.sql`, `lib/auth/rate-limit.ts`) on invitations,
+  role changes, sensitive safety reads, and report exports. The subject is always `auth.uid()` and
+  never an argument, so a caller cannot exhaust someone else's allowance and lock them out. It fails
+  open if the limiter itself errors: RLS and the permission checks remain the real protection, and an
+  unreachable limiter must not stop an operator recording production. Sign-in and registration are
+  excluded deliberately — they happen before there is a session to key on, and Supabase Auth applies
+  its own limits there.
+- **Accessibility.** `npm run a11y` and `npm run contrast` both pass. The sweep found and fixed five
+  labelling and heading defects and four contrast failures, including a `--destructive` button that
+  sat at 3.19:1 in dark theme. `--input` was raised to clear 3:1 against both card and background,
+  because a text field's border is the only thing showing where the control ends. `--border` is
+  recorded as decorative and exempt, with the reasoning kept in the script rather than dropped.
+  These are mechanical checks only — no assistive-technology pass has been done, and a screen-reader
+  run remains outstanding.
+- **Monitoring.** `/api/health` proves database reachability, not just that Next.js is running, and
+  returns `503` with no detail to an anonymous prober. `lib/observability/log.ts` writes one JSON
+  line per event to stdout, which every hosting platform collects, and redacts personal and
+  operational fields by name so an aggregator readable by a wide group never receives a worker's
+  name or a tonnage figure.
+- **Offline** is partly addressed and honestly so. `ConnectionStatus` warns an operator the moment
+  the connection drops, which prevents the failure that actually costs an afternoon at a site with
+  patchy signal: filling in a long form and losing it to a browser error page. Full offline capture —
+  a service worker and a sync queue — is not built. Queuing writes against rules that can reject them
+  on arrival is a design problem in its own right; a shift entry accepted on a phone and refused an
+  hour later is worse than one that never appeared to save.
+- Performance testing, backup and recovery, and pilot manual-QA signoff are still outstanding.
 
 ## Recommended next task
 
-Continue stage 8. Extend the paging and editing patterns now established in `lib/paging.ts` and the
-worker/equipment screens to the remaining lists and catalogues, then document storage, which several
-tables already have columns for.
+Deploy migrations `0019`–`0022`, then run the manual QA checklist against the live site. Everything
+below that line is verified only as far as PGlite and a static analyser can reach: Storage, real
+concurrency, Supabase Auth, and PostgREST behaviour are not covered by any test here.
+
+After that, the largest remaining piece of product work is lifting the 571 uncatalogued UI phrases
+into `lib/i18n/messages.ts` and finding a Kiswahili speaker for the mining vocabulary.
