@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, EmptyState, PageHeader } from "@/components/ui/feedback";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import {
   InviteMemberForm,
   MemberRoleForm,
@@ -15,6 +16,8 @@ import {
   RevokeInvitationForm,
   roleLabels,
 } from "@/features/members/member-forms";
+
+export const metadata = { title: "People" };
 
 type Member = {
   user_id: string;

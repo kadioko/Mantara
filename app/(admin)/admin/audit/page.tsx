@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, PageHeader } from "@/components/ui/feedback";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+export const metadata = { title: "Platform audit log" };
+
 const actionTone: Record<string, "destructive" | "success" | "secondary"> = {
   "organization.suspended": "destructive",
   "organization.restored": "success",

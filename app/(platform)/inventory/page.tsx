@@ -4,6 +4,8 @@ import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
+
+export const metadata = { title: "Inventory" };
 import {
   InventoryCategoryForm,
   InventoryItemForm,

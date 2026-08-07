@@ -13,6 +13,8 @@ import {
 } from "@/features/fuel/fuel-forms";
 import { fuelTypeLabels } from "@/features/fuel/schemas";
 
+export const metadata = { title: "Fuel" };
+
 export default async function FuelPage() {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;

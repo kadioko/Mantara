@@ -7,6 +7,8 @@ import { t } from "@/lib/i18n/messages";
 import { DowntimeForm, ProductionEntryForm } from "@/features/production/production-forms";
 import { productionStatusLabels } from "@/features/production/schemas";
 
+export const metadata = { title: "Production" };
+
 const statusTone: Record<string, string> = {
   draft: "bg-muted text-foreground",
   submitted: "bg-warning/15 text-warning-foreground",

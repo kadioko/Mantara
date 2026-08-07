@@ -6,6 +6,8 @@ import { EmptyState, PageHeader } from "@/components/ui/feedback";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { SuspendOrganizationForm } from "@/features/platform/platform-forms";
 
+export const metadata = { title: "Organizations" };
+
 type PlatformOrganization = {
   id: string;
   name: string;

@@ -6,6 +6,8 @@ import { Alert, PageHeader, StatCard } from "@/components/ui/feedback";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+export const metadata = { title: "Platform overview" };
+
 type Stats = { organizations: number; suspended: number; users: number; sites: number; admins: number };
 
 export default async function AdminOverviewPage() {

@@ -7,6 +7,8 @@ import { Card } from "@/components/ui/card";
 import { EmptyState, PageHeader } from "@/components/ui/feedback";
 import { markAllNotificationsRead, markNotificationRead } from "@/features/notifications/actions";
 
+export const metadata = { title: "Notifications" };
+
 /** Where each kind of notification should take the reader to act on it. */
 const destinations: Record<string, string> = {
   "production.submitted": "/production",

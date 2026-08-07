@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { isReportKind, reportKinds, reportLabels, runReport, type ReportKind } from "@/features/reports/queries";
 import { cn } from "@/lib/utils";
 
+export const metadata = { title: "Reports" };
+
 function defaultRange() {
   const now = new Date();
   const to = now.toISOString().slice(0, 10);

@@ -13,6 +13,8 @@ import {
 } from "@/features/expenses/expense-forms";
 import { budgetPeriodLabels, expenseStatusLabels } from "@/features/expenses/schemas";
 
+export const metadata = { title: "Expenses" };
+
 const statusTone: Record<string, string> = {
   draft: "bg-muted text-foreground",
   submitted: "bg-warning/15 text-warning-foreground",

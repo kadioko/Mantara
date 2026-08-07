@@ -5,6 +5,8 @@ import { Alert, PageHeader } from "@/components/ui/feedback";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { GrantAdminForm, RevokeAdminForm } from "@/features/platform/platform-forms";
 
+export const metadata = { title: "Administrators" };
+
 type PlatformAdmin = {
   user_id: string;
   email: string | null;

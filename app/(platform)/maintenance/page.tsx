@@ -13,6 +13,8 @@ import {
 } from "@/features/maintenance/maintenance-forms";
 import { priorityLabels, requestStatusLabels, workOrderStatusLabels } from "@/features/maintenance/schemas";
 
+export const metadata = { title: "Maintenance" };
+
 const statusTone: Record<string, string> = {
   planned: "bg-muted text-foreground",
   in_progress: "bg-warning/15 text-warning-foreground",

@@ -5,6 +5,8 @@ import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import { EmptyState, StatCard } from "@/components/ui/feedback";
 
+export const metadata = { title: "Overview" };
+
 type Tile = { label: string; value: number | string; href: string; tone?: "default" | "warning" | "destructive" };
 
 /**

@@ -9,6 +9,8 @@ import { categoryLabels, statusLabels } from "@/features/equipment/schemas";
 import { likePattern, pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination, SearchField } from "@/components/ui/pagination";
 
+export const metadata = { title: "Equipment" };
+
 const statusTone: Record<string, string> = {
   operational: "bg-success/12 text-primary",
   standby: "bg-muted text-foreground",

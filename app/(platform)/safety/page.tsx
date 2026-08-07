@@ -18,6 +18,8 @@ import {
 } from "@/features/safety/safety-forms";
 import { actionStatusLabels, categoryLabels, severityLabels, statusLabels } from "@/features/safety/schemas";
 
+export const metadata = { title: "Safety" };
+
 const severityTone: Record<string, "secondary" | "warning" | "destructive"> = {
   low: "secondary",
   medium: "warning",

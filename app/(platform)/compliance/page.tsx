@@ -17,6 +17,8 @@ import {
 } from "@/features/compliance/compliance-forms";
 import { licenceStatusLabels, recurrenceLabels, taskStatusLabels } from "@/features/compliance/schemas";
 
+export const metadata = { title: "Compliance" };
+
 const EXPIRING_WINDOW_DAYS = 60;
 
 export default async function CompliancePage() {

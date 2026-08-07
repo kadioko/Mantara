@@ -6,6 +6,8 @@ import { currentMembership } from "@/lib/auth/context";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 
+export const metadata = { title: "Set up your workspace" };
+
 export default async function OnboardingPage() {
   const { supabase, membership } = await currentMembership();
   if (membership) redirect("/dashboard");

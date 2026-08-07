@@ -11,6 +11,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination } from "@/components/ui/pagination";
 
+export const metadata = { title: "Audit log" };
+
 /**
  * Several actions are recorded but were previously unreadable — most importantly, every time someone
  * opens the personal or medical details attached to a safety incident. Recording an access nobody can

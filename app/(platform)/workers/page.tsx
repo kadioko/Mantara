@@ -8,6 +8,8 @@ import { likePattern, pageInfo, readPaging, type PageParams } from "@/lib/paging
 import { Pagination, SearchField } from "@/components/ui/pagination";
 import { WorkerForm } from "@/features/workers/worker-form";
 
+export const metadata = { title: "Workers" };
+
 export default async function WorkersPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const workspace = await getActiveWorkspace();
   if (!workspace.activeOrganization || !workspace.activeSite || !await hasPermission(workspace.activeOrganization.id, "worker.read")) redirect("/dashboard");

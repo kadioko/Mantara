@@ -4,6 +4,8 @@ import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { AttendanceForm, type AttendanceRow } from "@/features/workers/attendance-form";
 import { attendanceRosterSchema } from "@/features/workers/schemas";
 
+export const metadata = { title: "Attendance" };
+
 function resolveDate(raw: string | string[] | undefined) {
   const candidate = Array.isArray(raw) ? raw[0] : raw;
   const today = new Date().toISOString().slice(0, 10);

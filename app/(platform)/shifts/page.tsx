@@ -6,6 +6,8 @@ import { t } from "@/lib/i18n/messages";
 import { ShiftForm } from "@/features/production/production-forms";
 import { shiftStatusLabels } from "@/features/production/schemas";
 
+export const metadata = { title: "Shifts" };
+
 export default async function ShiftsPage() {
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
