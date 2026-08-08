@@ -1,13 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { selectClass } from "@/components/ui/form";
-import { Ban, RotateCcw, UserPlus, X } from "lucide-react";
+import { Ban, MapPin, RotateCcw, UserPlus, X } from "lucide-react";
 import { Input, Label } from "@/components/ui/input";
 import { ActionFeedback } from "@/components/ui/feedback";
 import {
   changeMemberRole,
+  changeMemberSites,
   changeMemberStatus,
   inviteMember,
   revokeInvitation,
@@ -85,4 +86,72 @@ export function RevokeInvitationForm({ invitationId }: { invitationId: string })
     </Button>
     <ActionFeedback state={state} />
   </form>;
+}
+
+export type SiteOption = { id: string; name: string };
+
+/**
+ * Chooses which mine sites a member may reach.
+ *
+ * Nothing ticked means every site. The wording says so out loud rather than leaving the reader to
+ * infer it, because the opposite reading — nothing ticked meaning no access — would be a reasonable
+ * guess and would make one careless save look like it had locked somebody out of the company.
+ */
+export function MemberSitesForm({
+  userId,
+  memberName,
+  sites,
+  selected,
+  isSelf,
+}: {
+  userId: string;
+  memberName: string;
+  sites: SiteOption[];
+  selected: string[];
+  isSelf: boolean;
+}) {
+  const [state, action, pending] = useActionState(changeMemberSites, {} as MemberState);
+  const [open, setOpen] = useState(false);
+
+  if (sites.length < 2) return null; // Nothing to choose between at a single-site company.
+
+  const summary = selected.length === 0
+    ? "All sites"
+    : sites.filter((site) => selected.includes(site.id)).map((site) => site.name).join(", ");
+
+  if (!open) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">{summary}</span>
+        {!isSelf && (
+          <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(true)} aria-label={`Change site access for ${memberName}`}>
+            <MapPin aria-hidden />Change
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <form action={action} className="w-full space-y-2 rounded-lg border border-border bg-secondary/30 p-3">
+      <input name="userId" type="hidden" value={userId} />
+      <fieldset>
+        <legend className="text-sm font-medium">Mine sites {memberName} may reach</legend>
+        <p className="mt-0.5 text-xs text-muted-foreground">Tick none to allow every site, including sites added later.</p>
+        <div className="mt-2 space-y-1.5">
+          {sites.map((site) => (
+            <label key={site.id} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" name="siteIds" value={site.id} defaultChecked={selected.includes(site.id)} className="size-4 rounded border-input" />
+              {site.name}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      <ActionFeedback state={state} />
+      <div className="flex gap-2">
+        <Button disabled={pending} size="sm">{pending ? "Saving…" : "Save"}</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+      </div>
+    </form>
+  );
 }

@@ -240,7 +240,13 @@ Each of these has already caused a defect in this codebase:
    without that, a leak of this kind passes every test.
 2. **A view runs as its owner unless declared `security_invoker`.** `inventory_stock_overview`
    declares it. Without those five words the view reads past every policy underneath.
-3. **An unbounded query silently stops at 1000 rows.** PostgREST caps responses and says nothing, so
+3. **Restrictive policies are how you narrow access without touching what is already there.**
+   Site restriction (`0028`) adds one restrictive policy per site-scoped table; PostgreSQL AND-s
+   them with the existing permissive policies, so none of those had to be edited and none could be
+   missed. A restrictive policy can never grant anything. The one real cost: a table added later
+   needs its own policy, because the migration generates them from the catalogue as it stood when
+   it ran. Any new table with a `mine_site_id` must add one.
+4. **An unbounded query silently stops at 1000 rows.** PostgREST caps responses and says nothing, so
    a list, a total or a report simply comes back short and looks complete. Anything that must be
    whole either pages through (`features/reports/fetch-all.ts`) or aggregates in the database
    (`0025_module_totals.sql`).

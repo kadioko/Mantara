@@ -142,10 +142,15 @@ describe("ledger tables are read-only to clients", () => {
     });
   }
 
-  it("has no insert policy defined for any ledger table", async () => {
+  it("has no policy that permits an insert into any ledger table", async () => {
+    // Restrictive policies are excluded deliberately, and the distinction matters. A restrictive
+    // policy is AND-ed with the permissive ones and can only ever narrow access, so it cannot be
+    // what lets a row in. Only a permissive policy grants anything. The site-restriction policy
+    // added in 0028 is restrictive and covers several of these tables.
     const { rows } = await db.query<{ tablename: string }>(
       `select tablename from pg_policies
-       where schemaname = 'public' and tablename = any($1) and cmd in ('INSERT', 'ALL')`,
+       where schemaname = 'public' and tablename = any($1)
+         and cmd in ('INSERT', 'ALL') and permissive = 'PERMISSIVE'`,
       [ledgerTables],
     );
     expect(rows).toEqual([]);

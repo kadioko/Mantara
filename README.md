@@ -15,9 +15,9 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0018` are deployed. `0019`–`0027` are not.** Until they are applied, mine-site
+**Migrations `0001`–`0018` are deployed. `0019`–`0028` are not.** Until they are applied, mine-site
 management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals,
-the compliance recurrence fix and the scheduled alerts are not live. Document storage (`0020`) additionally stays hidden
+the compliance recurrence fix, the scheduled alerts and per-site access restriction are not live. Document storage (`0020`) additionally stays hidden
 behind `DOCUMENTS_ENABLED`.
 
 See the [project status](docs/project-status.md) for what is verified and what is not, and the
@@ -27,7 +27,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0027_scheduled_alerts.sql`, using the Supabase CLI or the SQL editor.
+   `0028_site_restriction.sql`, using the Supabase CLI or the SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
@@ -49,6 +49,11 @@ Three consequences worth knowing before changing anything:
 - **Views run as their owner unless told otherwise.** `inventory_stock_overview` is declared
   `with (security_invoker = true)`. Deleting those five words would hand one mining company its
   competitor's stock levels. `tests/integration/stock-overview.test.ts` fails five ways if anyone does.
+- **Restrictive policies narrow; permissive policies widen.** Site restriction (`0028`) is added as
+  one restrictive policy per site-scoped table, AND-ed with the hundred-odd permissive policies
+  already there. Rewriting each of those to also check a site would have been a large edit to the
+  only thing separating two mining companies' data, and one missed table would be a silent hole.
+  A restrictive policy cannot grant anything, so the change can only ever subtract.
 - **A permission code that does not exist denies everyone silently.** `has_permission()` returns
   false for a code nobody holds, so a typo reads like a deliberate decision and nothing throws.
   `tests/unit/permission-codes.test.ts` checks every code the app asks for against the migrations.

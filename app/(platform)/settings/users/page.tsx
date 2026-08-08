@@ -12,9 +12,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   InviteMemberForm,
   MemberRoleForm,
+  MemberSitesForm,
   MemberStatusForm,
   RevokeInvitationForm,
   roleLabels,
+  type SiteOption,
 } from "@/features/members/member-forms";
 
 export const metadata = { title: "People" };
@@ -39,7 +41,7 @@ export default async function UsersPage() {
     hasPermission(organization.id, "member.update_role"),
   ]);
 
-  const [membersResult, invitationsResult] = await Promise.all([
+  const [membersResult, invitationsResult, sitesResult, restrictionsResult] = await Promise.all([
     workspace.supabase.rpc("organization_members", { requested_organization_id: organization.id }),
     workspace.supabase
       .from("organization_invitations")
@@ -48,9 +50,27 @@ export default async function UsersPage() {
       .is("accepted_at", null)
       .is("revoked_at", null)
       .order("created_at", { ascending: false }),
+    workspace.supabase
+      .from("mine_sites")
+      .select("id, name")
+      .eq("organization_id", organization.id)
+      .is("deleted_at", null)
+      .order("name"),
+    workspace.supabase
+      .from("membership_sites")
+      .select("user_id, mine_site_id")
+      .eq("organization_id", organization.id),
   ]);
 
   const members = (membersResult.data ?? []) as Member[];
+  // Sites this reader can themselves reach. If they are restricted, they cannot grant access to a
+  // site they cannot see — which is the right behaviour and falls out of RLS rather than a check.
+  const sites = (sitesResult.data ?? []) as SiteOption[];
+  // A member with no rows here is unrestricted, so the map is deliberately sparse.
+  const restrictions = new Map<string, string[]>();
+  for (const row of (restrictionsResult.data ?? []) as { user_id: string; mine_site_id: string }[]) {
+    restrictions.set(row.user_id, [...(restrictions.get(row.user_id) ?? []), row.mine_site_id]);
+  }
   const invitations = invitationsResult.data ?? [];
   const now = new Date().toISOString();
 
@@ -84,6 +104,7 @@ export default async function UsersPage() {
                 <TableHead>Person</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Mine sites</TableHead>
                 <TableHead className="text-right">Access</TableHead>
               </TableRow>
             </TableHeader>
@@ -108,6 +129,15 @@ export default async function UsersPage() {
                       <Badge variant={member.status === "active" ? "success" : member.status === "suspended" ? "destructive" : "secondary"}>
                         {member.status}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <MemberSitesForm
+                        userId={member.user_id}
+                        memberName={member.full_name ?? member.email ?? "this member"}
+                        sites={sites}
+                        selected={restrictions.get(member.user_id) ?? []}
+                        isSelf={isSelf || !canManageRoles}
+                      />
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end">

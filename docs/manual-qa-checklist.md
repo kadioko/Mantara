@@ -396,3 +396,27 @@ rather than waiting for the schedule.
 - [ ] A suspended organization generates no alerts.
 - [ ] `select has_function_privilege('authenticated', 'public.generate_alerts()', 'execute');` is
       false — no client may write notifications for other people.
+
+## Per-site access restriction
+
+Apply `0028` before running these checks. They need an organization with at least two mine sites.
+
+- [ ] **Before restricting anyone, nothing changes.** Every existing member still sees every site's
+      records and every site in the workspace switcher. This is the check that matters most on
+      first deployment.
+- [ ] Restricting a member to one site hides the other site's workers, equipment, production, fuel,
+      maintenance, inventory, expenses and safety records from them.
+- [ ] The other site disappears from their workspace switcher.
+- [ ] **A crafted request naming a record at the other site is refused**, not merely hidden.
+- [ ] They can still read and edit records at their own site as before.
+- [ ] Restricting one person does not restrict anyone else.
+- [ ] Organization-wide records — a licence or budget with no site — remain visible to them.
+- [ ] **A company owner is never restricted**, even if their own row is set. Confirm by setting an
+      owner to one site and checking they still reach the other.
+- [ ] Saving with nothing ticked returns the member to every site, and the wording on the form says
+      so before it is saved.
+- [ ] A member without `member.update_role` sees the current access but no control to change it.
+- [ ] Every change appears in the audit log as `member.sites_changed`.
+- [ ] A restricted administrator cannot grant access to a site they cannot themselves see.
+- [ ] **(concurrency)** Restricting a member while they have the app open takes effect on their next
+      request, without them signing in again.

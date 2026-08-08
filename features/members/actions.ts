@@ -101,3 +101,34 @@ export async function acceptPendingInvitations() {
   const { data } = await supabase.rpc("accept_pending_invitations");
   return typeof data === "number" ? data : 0;
 }
+
+/**
+ * Replaces a member's mine-site restriction.
+ *
+ * An empty selection means every site, not no sites. That reading is deliberate and matches the
+ * database: a member with no restriction rows reaches everywhere, which is what every member did
+ * before this existed. The alternative — empty meaning nothing — would let one careless save lock
+ * somebody out of the whole company.
+ */
+export async function changeMemberSites(_: MemberState, formData: FormData): Promise<MemberState> {
+  const userId = formData.get("userId");
+  if (typeof userId !== "string" || !userId) return { error: "Check the member and try again." };
+  const siteIds = formData.getAll("siteIds").filter((value): value is string => typeof value === "string" && value !== "");
+
+  const scope = await activeOrganization();
+  if ("error" in scope) return scope;
+  if (!await withinRateLimit("member.role_change")) return { error: rateLimitMessage("member.role_change") };
+
+  const { error } = await scope.supabase.rpc("set_member_sites", {
+    requested_organization_id: scope.organizationId,
+    requested_user_id: userId,
+    requested_site_ids: siteIds,
+  });
+  if (error) return { error: rpcMessage(error, "Unable to change the site access. Please try again.") };
+  revalidatePath("/settings/users");
+  return {
+    success: siteIds.length === 0
+      ? "This person can now reach every mine site."
+      : `Restricted to ${siteIds.length} mine site${siteIds.length === 1 ? "" : "s"}.`,
+  };
+}

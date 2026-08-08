@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0027` written, tested, and not deployed.**
+**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0028` written, tested, and not deployed.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -14,10 +14,10 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The gap between "built" and "in use" is deployment. **Nine migrations are undeployed**, and until they
+The gap between "built" and "in use" is deployment. **Ten migrations are undeployed**, and until they
 are applied the following are not live: mine-site management, organization settings, custom roles,
 rate limiting, the stock overview, the catalogue retirement guards, the module totals, the compliance
-recurrence fix, and the scheduled alerts.
+recurrence fix, the scheduled alerts, and per-site access restriction.
 
 Nothing in the running deployment is broken by their absence — but two things are worth being blunt
 about. Several headline figures on the live site are still computed the old, incorrect way. And
@@ -30,7 +30,7 @@ nobody is being told when a licence is about to expire.
 | Foundation | Next.js 16, strict TypeScript, Tailwind v4, Supabase SSR clients, environment validation, Vercel deployment. |
 | Authentication | Register, login, logout, callback, protected requests, onboarding redirect. Supabase owns password storage. |
 | Tenancy | Organizations, memberships, mine sites with add/edit/retire, organization settings, active organization/site cookies, constraints and RLS. |
-| Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, and platform administration as a separate axis granting no tenant access. |
+| Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
 | Localization | Bilingual navigation, authentication, onboarding, dashboard, every module landing screen, the shared list primitives, and the module data-entry forms. |
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 475 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 499 tests pass. |
 
 ## What the tests actually prove
 
@@ -67,6 +67,9 @@ WebAssembly and assert what the database itself enforces:
 - Platform administrators reading no rows from any operational table.
 - Sensitive safety details unreadable without the granular permission, and every access audited.
 - Rate limiting keyed on the caller, with no way to spend someone else's allowance.
+- Site restriction hiding another site's records and refusing writes to them, staying inert for
+  members who have none, never applying to organization-wide records or to a company owner, and
+  covering every table that carries a mine_site_id.
 - Alert generation being idempotent across repeated runs, escalating through expiry thresholds
   without repeating one, routing compliance and safety work to different readers, and generating
   nothing for a suspended organization or across a tenant boundary.
@@ -105,9 +108,10 @@ claim when the truth is that we could not find out.
 
 ### Administration
 
-- Permissions are organization-wide. A member holding a permission holds it at every site; per-site
-  restriction is not possible.
 - Invitations are claimed on sign-in and no email is sent, so an invitee has to be told out of band.
+- A table added to the schema after `0028` needs its own site-restriction policy. The migration
+  generates them from the catalogue, so it cannot miss a table that existed when it ran, but it
+  cannot reach forward either. This is recorded in the architecture blueprint.
 
 ### Documents — built, switched off
 
@@ -153,6 +157,6 @@ Performance testing under load, backup and recovery procedure, and pilot manual-
 
 ## Recommended next task
 
-Deploy `0019`–`0027`, then work the manual QA checklist against the live site. Everything below that
+Deploy `0019`–`0028`, then work the manual QA checklist against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

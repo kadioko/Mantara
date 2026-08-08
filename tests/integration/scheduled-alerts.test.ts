@@ -153,17 +153,50 @@ describe("licence expiry", () => {
     expect(await runAlerts()).toBe(0);
   });
 
-  it("stops once the licence has expired", async () => {
+  it("says nothing at all about a licence that has already expired", async () => {
     // Past expiry there is nothing to warn about — it has happened, and the compliance screen shows
     // it in red. Continuing to send "expires in -3 days" would be noise.
-    await db.query("update public.mineral_licences set expires_on = current_date - 3 where licence_number = 'ML-001'");
-    // Clear only this organization's licence alerts. Deleting every organization's would let the
-    // rival's own perfectly valid alerts regenerate and be mistaken for a failure here.
+    //
+    // This uses its own licence rather than moving an existing one and clearing its alerts. The
+    // first version of this test deleted every organization's licence notifications, which let the
+    // rival's own perfectly valid alerts regenerate; it then read four new rows and reported a
+    // failure that was entirely the test's own doing. Asserting on one licence that was never
+    // eligible removes the possibility of that mistake rather than working around it.
+    await actAs(db, acme.userId);
     await db.query(
-      "delete from public.notifications where subject_key like 'licence.expiring%' and organization_id = $1",
-      [acme.organizationId]);
+      `insert into public.mineral_licences (organization_id, licence_number, licence_type, expires_on, status, created_by)
+       values ($1, 'ML-EXPIRED', 'Lapsed licence', current_date - 3, 'active', $2)`,
+      [acme.organizationId, acme.userId]);
+
     await runAlerts();
-    expect(await notices(acme.userId, "compliance.licence_expiring")).toEqual([]);
+    const rows = await notices(acme.userId, "compliance.licence_expiring");
+    expect(rows.every((row) => !row.body.includes("ML-EXPIRED"))).toBe(true);
+  });
+
+  it("says nothing about a surrendered licence, whatever its date", async () => {
+    // A licence the company gave up is not an obligation any more. Alerting on it would send people
+    // to renew something they deliberately let go.
+    await actAs(db, acme.userId);
+    await db.query(
+      `insert into public.mineral_licences (organization_id, licence_number, licence_type, expires_on, status, created_by)
+       values ($1, 'ML-GONE', 'Surrendered licence', current_date + 5, 'surrendered', $2)`,
+      [acme.organizationId, acme.userId]);
+
+    await runAlerts();
+    const rows = await notices(acme.userId, "compliance.licence_expiring");
+    expect(rows.every((row) => !row.body.includes("ML-GONE"))).toBe(true);
+  });
+
+  it("says nothing about a deleted licence", async () => {
+    await actAs(db, acme.userId);
+    await db.query(
+      `insert into public.mineral_licences (organization_id, licence_number, licence_type, expires_on, status, deleted_at, created_by)
+       values ($1, 'ML-DELETED', 'Removed licence', current_date + 5, 'active', now(), $2)`,
+      [acme.organizationId, acme.userId]);
+
+    await runAlerts();
+    const rows = await notices(acme.userId, "compliance.licence_expiring");
+    expect(rows.every((row) => !row.body.includes("ML-DELETED"))).toBe(true);
   });
 });
 
