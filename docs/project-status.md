@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 9 August 2026**
-**Database: every migration through `0033` applied. `0019`, `0020`, `0024`, `0026` and `0029` were directly verified for their triggers, indexes, policies and private Storage bucket.**
+**Database: every migration through `0035` applied. `0019`, `0020`, `0024`, `0026` and `0029` were directly verified for their triggers, indexes, policies and private Storage bucket.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -268,9 +268,10 @@ makes sense, and whether a screen reader can complete a shift entry are all stil
 `ConnectionStatus` warns the moment the connection drops, which prevents the failure that costs an
 afternoon at a site with patchy signal: filling in a long form and losing it to a browser error page.
 
-Full offline capture is not built and is not a small addition. Queuing writes against database rules
-that can reject them on arrival is a design problem in its own right — a shift entry accepted on a
-phone and refused an hour later is worse for an operator than one that never appeared to save.
+Phase A offline capture has started: shift plans and maintenance requests keep AES-GCM encrypted,
+user/organization/site-bound drafts in IndexedDB and clear them only after a successful server save.
+Attendance and safety-observation drafts remain, while balance-sensitive and approval workflows
+intentionally stay online-only until their conflict behavior is designed and tested.
 
 ### Performance
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { useT } from "@/lib/i18n/client";
+import { useEncryptedDraft } from "@/lib/offline/encrypted-drafts";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -36,7 +37,9 @@ function OptionSelect({ name, label, options, placeholder }: { name: string; lab
 export function ShiftForm({ supervisors, today }: { supervisors: Option[]; today: string }) {
   const tr = useT();
   const [state, action, pending] = useActionState(createShift, {} as ProductionState);
-  return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
+  const formRef = useRef<HTMLFormElement>(null);
+  const draftStatus = useEncryptedDraft(formRef, "shift-plan", Boolean(state.success));
+  return <form ref={formRef} action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Plan a shift</h2><p className="mt-1 text-sm text-muted-foreground">Shifts group production and downtime for a day.</p></div>
     <label className="text-sm font-semibold">{tr("fShiftName")} *<input required name="name" maxLength={80} placeholder="Day shift" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fDate")} *<input required name="shiftDate" type="date" defaultValue={today} className={fieldClass} /></label>
@@ -44,7 +47,7 @@ export function ShiftForm({ supervisors, today }: { supervisors: Option[]; today
     <label className="text-sm font-semibold">{tr("fStartsAt")}<input name="startsAt" type="time" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fEndsAt")}<input name="endsAt" type="time" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
-    <div className="md:col-span-3"><Feedback state={state} /></div>
+    <div className="md:col-span-3"><Feedback state={state} />{draftStatus !== "idle" && <p role="status" className="mt-2 text-xs text-muted-foreground">{tr(draftStatus === "restored" ? "offlineDraftRestored" : "offlineDraftSaved")}</p>}</div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Create shift"}</Button></div>
   </form>;
 }

@@ -56,9 +56,13 @@ for (const file of files) {
     // sentences under a panel heading that say what a screen is for, and a reader who cannot read
     // those is worse off than one missing a field label. Leaving them out understated this count.
     const props = [...line.matchAll(/\b(placeholder|aria-label|title|label|alt|description|hint|eyebrow)="([^"]{3,})"/g)].map((m) => m[2]);
-    for (const phrase of [...between, ...props]) {
+    for (const phrase of between) {
       if (/^[A-Z0-9_.-]+$/.test(phrase)) continue; // constants and codes, not prose
-      findings.push({ file: relative(root, file), line: index + 1, phrase });
+      findings.push({ file: relative(root, file), line: index + 1, phrase, kind: "text" });
+    }
+    for (const phrase of props) {
+      if (/^[A-Z0-9_.-]+$/.test(phrase)) continue;
+      findings.push({ file: relative(root, file), line: index + 1, phrase, kind: "attribute" });
     }
   });
 }
@@ -67,7 +71,18 @@ const byFile = new Map();
 for (const finding of findings) byFile.set(finding.file, (byFile.get(finding.file) ?? 0) + 1);
 const ranked = [...byFile.entries()].sort((a, b) => b[1] - a[1]);
 
+if (process.argv.includes("--json")) {
+  console.log(JSON.stringify({ missing, findings }, null, 2));
+  process.exit(findings.length || missing.length ? 1 : 0);
+}
+if (process.argv.includes("--phrases")) {
+  console.log([...new Set(findings.map((finding) => finding.phrase))].sort().join("\n"));
+  process.exit(0);
+}
+
 console.log(`\nUncatalogued UI text: ${findings.length} phrases across ${byFile.size} files.`);
+console.log(`Unique uncatalogued phrases: ${new Set(findings.map((finding) => finding.phrase)).size}.`);
+console.log(`Text nodes: ${findings.filter((finding) => finding.kind === "text").length}; attributes: ${findings.filter((finding) => finding.kind === "attribute").length}.`);
 console.log("Worst first — lifting these into lib/i18n/messages.ts is what unblocks translation:");
 for (const [file, count] of ranked.slice(0, 20)) console.log(`  ${String(count).padStart(4)}  ${file}`);
 if (ranked.length > 20) console.log(`  ...and ${ranked.length - 20} more files.`);

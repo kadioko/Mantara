@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: MVP modules are built; migrations `0001`–`0033` are applied and verified**
+**Current position: MVP modules are built; migrations `0001`–`0035` are applied and verified**
 **Last updated: 9 August 2026**
 
 For the audited feature-by-feature state, including what is not implemented, see [project status](project-status.md).
@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: every migration from `0001` through `0033` is applied to Supabase.** The five migrations that the API cannot describe (`0019`, `0020`, `0024`, `0026`, `0029`) were also checked directly for their policies, triggers, indexes and bucket. The Vercel build remains live; `npm run deploy:check` is the repeatable API-level confirmation.
+**Deployment: every migration from `0001` through `0035` is applied to Supabase.** The five migrations that the API cannot describe (`0019`, `0020`, `0024`, `0026`, `0029`) were also checked directly for their policies, triggers, indexes and bucket. The Vercel build remains live; `npm run deploy:check` is the repeatable API-level confirmation.
 
 Every planned module exists:
 
@@ -152,8 +152,8 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 The following product phases are intentionally **not** part of the MVP. They should be funded and validated in this order, with a design-partner decision between phases.
 
-1. **Operational intelligence.** Finish reliable cost per tonne/gram/ounce, fuel and equipment utilization, worker productivity, daily summaries, and then forecasts. The AI assistant comes last in this phase: it must cite the operator's own data and abstain when records are incomplete.
-2. **GeoAI and geology.** Add controlled sample, assay, drill-hole, boundary and map capture; only then introduce analysis or recommendations. Mantara must not make geological certainty claims from sparse data.
+1. **Operational intelligence.** Cost per tonne/gram/ounce, budget consumption, worker productivity, recorded equipment utilization and transparent 30-day run rates are implemented in `0034` and `/intelligence`. Remaining: revenue/recovery assumptions, true cash-flow forecasts, scheduled daily summaries and Mantara Brain grounded in cited records.
+2. **GeoAI and geology.** `0035` and `/geology` provide controlled samples, assays, drill-hole collars, interval/boundary/file storage and a coordinate plot. Remaining: interval/boundary entry UI, richer spatial maps, exploration dashboards and evidence-bounded recommendations.
 3. **Computer vision and drones.** Begin with consented image/video intake and auditable human review. PPE detection, vehicle counts, stockpile estimation and pit-progress models require field validation, retention rules, and clear false-positive handling.
 4. **Marketplace.** Build supplier verification, rental/service requests and quote comparison before reviews, payments or any trading workflow. Payments and marketplace dispute handling are a separate regulated operating capability.
 

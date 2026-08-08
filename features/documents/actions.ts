@@ -3,13 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { documentsEnabled } from "@/lib/features";
-import { requireScope, rowInScope, rowInScopeHard } from "@/lib/auth/scope";
+import { requireScope, rowInScope, rowInScopeHard, type ActiveScope } from "@/lib/auth/scope";
 import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 
 export type DocumentState = { error?: string; success?: string };
 export type DocumentUploadState = DocumentState & { uploadUrl?: string; path?: string; token?: string };
 
-export const documentScopes = ["equipment", "compliance", "training"] as const;
+export const documentScopes = ["equipment", "compliance", "training", "geology"] as const;
 export type DocumentScope = (typeof documentScopes)[number];
 
 const BUCKET = "documents";
@@ -19,7 +19,18 @@ const scopeConfig: Record<DocumentScope, { permission: string; table: string; si
   equipment: { permission: "equipment.update", table: "equipment", siteScoped: true, softDeleted: true },
   compliance: { permission: "compliance.update", table: "mineral_licences", siteScoped: false, softDeleted: true },
   training: { permission: "worker.update", table: "workers", siteScoped: true, softDeleted: true },
+  geology: { permission: "geology.update", table: "mine_sites", siteScoped: false, softDeleted: true },
 };
+
+async function ownerBelongsToScope(scope: ActiveScope, documentScope: DocumentScope, ownerId: string, config: (typeof scopeConfig)[DocumentScope]) {
+  if (documentScope === "geology") {
+    const { data } = await scope.workspace.supabase.from("mine_sites").select("id").eq("id", ownerId).eq("organization_id", scope.organizationId).is("deleted_at", null).maybeSingle();
+    return Boolean(data);
+  }
+  return config.softDeleted
+    ? rowInScope(scope, config.table, ownerId, { siteScoped: config.siteScoped })
+    : rowInScopeHard(scope, config.table, ownerId, { siteScoped: config.siteScoped });
+}
 
 const uploadSchema = z.object({
   scope: z.enum(documentScopes),
@@ -63,9 +74,7 @@ export async function createDocumentUpload(_: DocumentState, formData: FormData)
   // the one place in the product where a loop costs storage rather than rows.
   if (!await withinRateLimit("document.upload")) return { error: await rateLimitMessage("document.upload") };
 
-  const owned = config.softDeleted
-    ? await rowInScope(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped })
-    : await rowInScopeHard(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped });
+  const owned = await ownerBelongsToScope(scope, parsed.data.scope, parsed.data.ownerId, config);
   if (!owned) return { error: "That record does not belong to the active workspace." };
 
   // The first segment is the organization; the storage policies read it to decide access.
@@ -87,9 +96,7 @@ export async function finalizeDocumentUpload(formData: FormData): Promise<Docume
   const scope = await requireScope(config.permission, "You do not have permission to attach documents here.");
   if ("error" in scope) return scope;
 
-  const owned = config.softDeleted
-    ? await rowInScope(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped })
-    : await rowInScopeHard(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped });
+  const owned = await ownerBelongsToScope(scope, parsed.data.scope, parsed.data.ownerId, config);
   if (!owned || !path.startsWith(`${scope.organizationId}/${parsed.data.scope}/${parsed.data.ownerId}/`)) {
     return { error: "That upload does not belong to the active workspace." };
   }
@@ -116,14 +123,20 @@ export async function finalizeDocumentUpload(formData: FormData): Promise<Docume
       updated_by: actor,
     });
     if (insertError) return { error: "Unable to record the document. Please try again." };
-  } else {
+  } else if (parsed.data.scope === "training") {
     const { error: updateError } = await scope.workspace.supabase
       .from("training_records").update({ certificate_path: path, updated_by: scope.workspace.user.id })
       .eq("id", parsed.data.ownerId).eq("organization_id", scope.organizationId);
     if (updateError) return { error: "Unable to record the certificate. Please try again." };
+  } else {
+    const { error: insertError } = await scope.workspace.supabase.from("geological_files").insert({
+      organization_id: scope.organizationId, mine_site_id: scope.siteId, document_name: parsed.data.documentName,
+      document_path: path, created_by: actor, updated_by: actor,
+    });
+    if (insertError) return { error: "Unable to record the geological file. Please try again." };
   }
 
-  revalidatePath(parsed.data.scope === "training" ? "/workers" : `/${parsed.data.scope === "compliance" ? "compliance" : "equipment"}`);
+  revalidatePath(parsed.data.scope === "training" ? "/workers" : `/${parsed.data.scope === "compliance" ? "compliance" : parsed.data.scope}`);
   return { success: "Document attached." };
 }
 

@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { useT } from "@/lib/i18n/client";
+import { useEncryptedDraft } from "@/lib/offline/encrypted-drafts";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -45,7 +46,9 @@ function PrioritySelect() {
 export function MaintenanceRequestForm({ equipment, workers, today }: { equipment: Option[]; workers: Option[]; today: string }) {
   const tr = useT();
   const [state, action, pending] = useActionState(createMaintenanceRequest, {} as MaintenanceState);
-  return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
+  const formRef = useRef<HTMLFormElement>(null);
+  const draftStatus = useEncryptedDraft(formRef, "maintenance-request", Boolean(state.success));
+  return <form ref={formRef} action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Raise a request</h2><p className="mt-1 text-sm text-muted-foreground">Report a fault or a job that needs planning.</p></div>
     <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder="Hydraulic leak on boom" className={fieldClass} /></label>
     <PrioritySelect />
@@ -53,7 +56,7 @@ export function MaintenanceRequestForm({ equipment, workers, today }: { equipmen
     <OptionSelect name="reportedByWorkerId" label="Reported by" options={workers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">{tr("fReportedOn")} *<input required name="reportedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fDescription")}<textarea name="description" maxLength={2000} rows={2} className={fieldClass} /></label>
-    <div className="md:col-span-3"><Feedback state={state} /></div>
+    <div className="md:col-span-3"><Feedback state={state} />{draftStatus !== "idle" && <p role="status" className="mt-2 text-xs text-muted-foreground">{tr(draftStatus === "restored" ? "offlineDraftRestored" : "offlineDraftSaved")}</p>}</div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Raise request"}</Button></div>
   </form>;
 }
