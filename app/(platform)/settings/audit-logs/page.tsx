@@ -20,6 +20,25 @@ export const metadata = { title: "Audit log" };
  */
 const sensitiveActions = new Set(["safety_incident_details.viewed", "safety_incident_details.recorded"]);
 
+/**
+ * Actions that move value or discharge an obligation, highlighted because they are what an owner or
+ * an inspector comes to this screen to find. A fuel adjustment of four thousand litres should not
+ * read the same as somebody being invited to the workspace.
+ */
+const consequentialActions = new Set([
+  "fuel.adjusted",
+  "fuel.stock_take",
+  "inventory.adjusted",
+  "production.approved",
+  "production.rejected",
+  "expense.approved",
+  "expense.rejected",
+  "expense.paid",
+  "inventory.count.applied",
+  "role.permissions_changed",
+  "member.sites_changed",
+]);
+
 export default async function AuditLogsPage({ searchParams }: { searchParams: Promise<PageParams> }) {
   const [workspace, locale] = await Promise.all([getActiveWorkspace(), getLocale()]);
   const organization = workspace.activeOrganization;
@@ -71,13 +90,14 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
                 const values = (entry.new_values ?? {}) as Record<string, unknown>;
                 const name = typeof values.name === "string" ? values.name : null;
                 const sensitive = sensitiveActions.has(entry.action);
+                const consequential = consequentialActions.has(entry.action);
                 return (
                   <TableRow key={entry.id}>
                     <TableCell className="whitespace-nowrap text-muted-foreground">
                       {new Date(entry.created_at).toISOString().replace("T", " ").slice(0, 16)}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={sensitive ? "warning" : "secondary"}>{entry.action}</Badge>
+                      <Badge variant={sensitive ? "warning" : consequential ? "destructive" : "secondary"}>{entry.action}</Badge>
                     </TableCell>
                     <TableCell>
                       <p className="font-medium">{name ?? entry.entity_type}</p>

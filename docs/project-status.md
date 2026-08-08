@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: every migration applied. `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside and need `supabase/verify-deployment.sql`.**
+**Database: every migration through `0032` applied; `0033` is new. `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside and need `supabase/verify-deployment.sql`.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 606 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 622 tests pass. |
 
 ## What the tests actually prove
 
@@ -66,6 +66,10 @@ WebAssembly and assert what the database itself enforces:
 - Retirement guards refusing to strand stock, and permitting ordinary corrections.
 - Platform administrators reading no rows from any operational table.
 - Sensitive safety details unreadable without the granular permission, and every access audited.
+- Every action that moves value or discharges an obligation writing an audit entry — fuel and stock
+  adjustments, stock takes, production and expense approvals and rejections, and every retirement —
+  recorded by trigger so no write path can miss one, and the log unwritable, uneditable and
+  undeletable from any client.
 - Rate limiting keyed on the caller, with no way to spend someone else's allowance.
 - Every pending migration surviving being applied twice, since a half-finished apply through the SQL
   editor is not wrapped in a transaction and the natural next move is to run it again.
@@ -109,6 +113,18 @@ A failed totals lookup now renders a dash rather than a zero. Zero is a claim, a
 claim when the truth is that we could not find out.
 
 ## Remaining work
+
+### Accountability
+
+The audit log previously recorded member changes, role changes, ore dispatches and every read of a
+worker's medical detail. It recorded none of the actions that move value: a fuel adjustment taking
+4,000 litres out of a tank, a stock adjustment, a production approval that a royalty return is built
+from, an expense approval, or any retirement. Those are exactly what an owner or an inspector asks
+about afterwards, and there was no answer on any screen.
+
+`0033` records them by **trigger rather than at the call site**. A trail that depends on each function
+remembering to write one has holes wherever somebody forgot, and the holes are invisible — the log
+looks fine, it is simply missing the row.
 
 ### Insight
 

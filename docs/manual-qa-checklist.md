@@ -506,3 +506,25 @@ Apply `0032` before running these checks.
       looking like it failed to load.
 - [ ] **The numbers are recognisable to someone who was there.** Only a site person can say whether
       last month really was down 8%; this is the check that catches a date-window error.
+
+## Audit trail coverage
+
+Apply `0033` before running these checks. All of these are read from `/settings/audit-logs`.
+
+- [ ] **Adjusting fuel writes an entry naming who did it and how many litres.** This is the single
+      most abusable action in the product and was not recorded at all before `0033`.
+- [ ] A fuel stock take writes an entry carrying both the measured and the book figure.
+- [ ] A stock adjustment and an applied stock count each write an entry.
+- [ ] **Approving production writes an entry naming the approver**, and the entry says what the
+      status was before, not only what it is now.
+- [ ] Rejecting production writes an entry too.
+- [ ] Approving and paying an expense each write an entry.
+- [ ] Retiring a store, tank, item, supplier, worker, machine, licence or compliance requirement
+      writes an entry — and so does restoring one.
+- [ ] **Editing a record without retiring or approving it writes nothing.** A log full of noise is a
+      log nobody reads.
+- [ ] Consequential actions are visually distinct from routine ones in the list.
+- [ ] **(Supabase only)** A crafted request cannot insert, edit or delete an audit entry — confirm
+      with the REST API directly, not only through the app.
+- [ ] No entry belonging to one organization is visible to another.
+- [ ] Every entry names an actor; none show a blank.

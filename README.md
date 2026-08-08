@@ -15,7 +15,9 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Every migration is applied.** `npm run deploy:check` confirms all 24 that PostgREST can see, using
+**`0033` is new and not yet applied.** Everything before it is.
+
+**Every earlier migration is applied.** `npm run deploy:check` confirms all 24 that PostgREST can see, using
 only the publishable key and reading no tenant data. Five — `0019`, `0020`, `0024`, `0026`, `0029` —
 create only triggers, indexes, policies or storage objects, which PostgREST cannot describe; run
 `supabase/verify-deployment.sql` in the SQL editor to settle those.
