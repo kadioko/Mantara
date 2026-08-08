@@ -116,7 +116,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
             </TableBody>
           </Table>
         ) : (
-          <CardContent><EmptyState icon={<HardHat className="size-6" aria-hidden />} title="No incidents recorded" description="Reporting near misses as well as injuries gives the clearest picture of site risk." /></CardContent>
+          <CardContent><EmptyState icon={<HardHat className="size-6" aria-hidden />} title={t(locale, "pNoIncidents")} description={t(locale, "pNearMisses")} /></CardContent>
         )}
         <Pagination basePath="/safety" info={incidentsInfo} search="" />
         {canCreate && <CardContent className="border-t"><IncidentForm workers={workerOptions} equipment={equipmentOptions} today={today} /></CardContent>}

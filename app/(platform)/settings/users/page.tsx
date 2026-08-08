@@ -78,7 +78,7 @@ export default async function UsersPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={t(locale, "settings")}
-        title="People"
+        title={t(locale, "pPeople")}
         description={`Everyone with access to ${organization.name}, and what they can do.`}
       />
 

@@ -52,7 +52,10 @@ for (const file of files) {
   lines.forEach((line, index) => {
     if (line.includes("t(locale,") || line.trimStart().startsWith("//") || line.trimStart().startsWith("*")) return;
     const between = [...line.matchAll(/>\s*([A-Z][a-zA-Z][^<>{}]{3,})</g)].map((m) => m[1].trim());
-    const props = [...line.matchAll(/\b(placeholder|aria-label|title|label|alt)="([^"]{3,})"/g)].map((m) => m[2]);
+    // `description`, `hint` and `eyebrow` belong here as much as `label` does — they are the
+    // sentences under a panel heading that say what a screen is for, and a reader who cannot read
+    // those is worse off than one missing a field label. Leaving them out understated this count.
+    const props = [...line.matchAll(/\b(placeholder|aria-label|title|label|alt|description|hint|eyebrow)="([^"]{3,})"/g)].map((m) => m[2]);
     for (const phrase of [...between, ...props]) {
       if (/^[A-Z0-9_.-]+$/.test(phrase)) continue; // constants and codes, not prose
       findings.push({ file: relative(root, file), line: index + 1, phrase });

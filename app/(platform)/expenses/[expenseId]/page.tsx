@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/card";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { ExpenseReviewForm, ExpenseStatusForm } from "@/features/expenses/expense-forms";
 import { allowedExpenseTransitions, expenseStatusLabels } from "@/features/expenses/schemas";
 
@@ -15,6 +17,7 @@ const transitionLabels: Record<string, string> = {
 export default async function ExpenseDetailPage({ params }: { params: Promise<{ expenseId: string }> }) {
   const { expenseId } = await params;
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
   if (!organization || !site || !await hasPermission(organization.id, "expense.read")) redirect("/dashboard");
@@ -61,7 +64,7 @@ export default async function ExpenseDetailPage({ params }: { params: Promise<{ 
       <p className="mt-1 text-muted-foreground">{expenseStatusLabels[expense.status as keyof typeof expenseStatusLabels] ?? expense.status} · {site.name}</p>
     </div>
 
-    <Panel title="Expense">
+    <Panel title={t(locale, "pExpense")}>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium">{value}</dd></div>)}
       </dl>
@@ -71,13 +74,13 @@ export default async function ExpenseDetailPage({ params }: { params: Promise<{ 
       </div>}
     </Panel>
 
-    {expense.status === "submitted" && canApprove && <Panel title="Review" description="Approve or reject this submitted expense.">
+    {expense.status === "submitted" && canApprove && <Panel title={t(locale, "pReview")} description={t(locale, "pApproveOrReject")}>
       <ExpenseReviewForm expenseId={expense.id} />
     </Panel>}
 
     {expense.status === "submitted" && !canApprove && <p className="rounded-xl border border-warning/40 bg-warning/15 p-5 text-sm text-warning-foreground">This expense is awaiting approval by someone with approval permission.</p>}
 
-    <Panel title="Approval history">
+    <Panel title={t(locale, "pApprovalHistory")}>
       {approvals?.length
         ? <ul className="divide-y divide-border">{approvals.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
             <span className="font-medium capitalize">{row.decision}</span>

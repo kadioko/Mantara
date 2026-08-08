@@ -84,11 +84,12 @@ export function ComplianceTaskForm({ requirements, licences, workers, today }: {
 }
 
 export function CompleteTaskForm({ taskId, today, recurring }: { taskId: string; today: string; recurring: boolean }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(completeComplianceTask, {} as ComplianceState);
   return <form action={action} className="flex flex-wrap items-end gap-2">
     <input name="taskId" type="hidden" value={taskId} />
     <input name="completedOn" type="hidden" value={today} />
-    <Input name="notes" maxLength={500} aria-label="Completion notes" placeholder={recurring ? "Notes — the next one is scheduled automatically" : "Completion notes"} className="h-9 w-full sm:w-72" />
+    <Input name="notes" maxLength={500} aria-label={tr("fCompletionNotes")} placeholder={recurring ? "Notes — the next one is scheduled automatically" : "Completion notes"} className="h-9 w-full sm:w-72" />
     <Button disabled={pending} size="sm" variant="outline"><CheckCircle2 aria-hidden />{pending ? "Saving…" : "Complete"}</Button>
     <div className="w-full"><ActionFeedback state={state} /></div>
   </form>;

@@ -122,7 +122,7 @@ export default async function CompliancePage() {
             </TableBody>
           </Table>
         ) : (
-          <CardContent><EmptyState icon={<FileCheck2 className="size-6" aria-hidden />} title="No licences recorded" description="Add the permits this organization holds so their expiry can be tracked." /></CardContent>
+          <CardContent><EmptyState icon={<FileCheck2 className="size-6" aria-hidden />} title={t(locale, "pNoLicences")} description={t(locale, "pAddPermits")} /></CardContent>
         )}
         {canUpdate && licences.length > 0 && (
           <div className="border-t">

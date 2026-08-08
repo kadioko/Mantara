@@ -117,6 +117,10 @@ which is precisely backwards for an operator at a mine site.
 `npm run i18n:report` shows two numbers. Catalogue coverage is the easy one. The number that matters
 is text written directly into components, which no translator can reach at all.
 
+Example placeholders stay in English on purpose — "CAT 320 excavator", "EXC-001" — because they are
+format hints rather than instructions, and a product code translated is less useful than the
+original.
+
 ## Tests
 
 ```bash

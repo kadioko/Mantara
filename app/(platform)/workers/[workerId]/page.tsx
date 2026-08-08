@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/card";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { AssignmentForm, PpeForm, TrainingForm, WorkerStatusForm } from "@/features/workers/worker-detail-forms";
 import { EditWorkerForm, RemoveWorkerForm } from "@/features/workers/worker-edit-forms";
 
@@ -13,6 +15,7 @@ function Empty({ children }: { children: React.ReactNode }) {
 export default async function WorkerDetailPage({ params }: { params: Promise<{ workerId: string }> }) {
   const { workerId } = await params;
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
   if (!organization || !site || !await hasPermission(organization.id, "worker.read")) redirect("/dashboard");
@@ -52,7 +55,7 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ w
       <p className="mt-1 capitalize text-muted-foreground">{worker.employment_type} · {worker.status} · {site.name}</p>
     </div>
 
-    <Panel title="Profile">
+    <Panel title={t(locale, "pProfile")}>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium capitalize">{value}</dd></div>)}
       </dl>
@@ -64,28 +67,28 @@ export default async function WorkerDetailPage({ params }: { params: Promise<{ w
       </div>}
     </Panel>
 
-    <Panel title="Assignments" description="Where this worker is deployed.">
+    <Panel title={t(locale, "pAssignments")} description={t(locale, "pWhereWorkerDeployed")}>
       {canManage && <div className="mb-5 border-b border-border pb-5"><AssignmentForm workerId={worker.id} today={today} /></div>}
       {assignments.data?.length
         ? <ul className="divide-y divide-border">{assignments.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.assignment_name || "Assignment"}</span><span className="text-sm text-muted-foreground">{row.starts_on} → {row.ends_on || "ongoing"}</span></li>)}</ul>
         : <Empty>No assignments recorded.</Empty>}
     </Panel>
 
-    <Panel title="Training" description="Completed training and certificate expiry.">
+    <Panel title={t(locale, "pTraining")} description={t(locale, "pTrainingDone")}>
       {canManage && <div className="mb-5 border-b border-border pb-5"><TrainingForm workerId={worker.id} today={today} /></div>}
       {training.data?.length
         ? <ul className="divide-y divide-border">{training.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.training_name}</span><span className="text-sm text-muted-foreground">Completed {row.completed_on}{row.expires_on ? ` · expires ${row.expires_on}` : ""}</span></li>)}</ul>
         : <Empty>No training recorded.</Empty>}
     </Panel>
 
-    <Panel title="PPE issued" description="Protective equipment issued to this worker.">
+    <Panel title="PPE issued" description={t(locale, "pProtectiveEquipment")}>
       {canManage && <div className="mb-5 border-b border-border pb-5"><PpeForm workerId={worker.id} today={today} /></div>}
       {ppe.data?.length
         ? <ul className="divide-y divide-border">{ppe.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.item_name} × {row.quantity}</span><span className="text-sm text-muted-foreground">Issued {row.issued_on}{row.returned_on ? ` · returned ${row.returned_on}` : ""}</span></li>)}</ul>
         : <Empty>No PPE issued.</Empty>}
     </Panel>
 
-    <Panel title="Recent attendance" description="Last 10 recorded days.">
+    <Panel title={t(locale, "pRecentAttendance")} description={t(locale, "pLastTenDays")}>
       {attendance.data?.length
         ? <ul className="divide-y divide-border">{attendance.data.map((row) => <li key={row.id} className="flex justify-between gap-2 py-3"><span className="font-medium">{row.attendance_date}</span><span className="text-sm capitalize text-muted-foreground">{row.status}</span></li>)}</ul>
         : <Empty>No attendance recorded yet.</Empty>}

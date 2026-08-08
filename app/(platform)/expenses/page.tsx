@@ -133,7 +133,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
         : <p className="text-sm text-muted-foreground">No budgets set.</p>}
     </Panel>
 
-    {canUpdate && <CatalogueList title="Categories" description="Retiring a category leaves past expenses reporting correctly; it simply stops being offered on new ones.">
+    {canUpdate && <CatalogueList title={t(locale, "pCategories")} description={t(locale, "pRetiringCategory")}>
       <div className="px-5 py-4"><ExpenseCategoryForm /></div>
       {categories.map((category) => <ExpenseCategoryRow key={category.id} category={category} canManage={canUpdate} />)}
     </CatalogueList>}

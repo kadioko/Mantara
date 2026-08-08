@@ -193,10 +193,18 @@ data-entry form in the product was stuck in English while the pages around them 
 backwards for a product whose forms are filled in by supervisors at a mine site and whose landing
 pages are read by head office.
 
-- The catalogue is complete: 326 keys, 100% Kiswahili.
-- 422 phrases are still written directly into components and cannot be translated at all, down from
-  595. `npm run i18n:report` ranks them by file. Most of what remains is placeholder example text
-  ("CAT 320 excavator", "WAYBILL-001") and one-off headings rather than field labels.
+- The catalogue is complete: 415 keys, 100% Kiswahili.
+- **The panel titles and descriptions on every module page are translated.** Those are the sentences
+  somebody reads to work out what a screen is for, and they matter more to a supervisor navigating
+  the product than any single field label does.
+- 388 phrases remain. `npm run i18n:report` ranks them by file.
+- **The report itself was understating the gap.** It never counted `description`, `hint` or
+  `eyebrow`, which are exactly the explanatory sentences under a heading — the text a reader who is
+  lost most needs. Fixed, so today's number is honest and slightly higher than a naive comparison
+  with earlier figures would suggest.
+- Example placeholders are deliberately left in English: "CAT 320 excavator", "EXC-001", "3600".
+  They are format hints, and a product code rendered in Kiswahili would be less useful than the
+  original, not more.
 - The mechanical part is lifting them into the catalogue. **The part that needs a person is the
   Kiswahili for mining vocabulary** — grade, assay, headgear, stope, waybill. Machine-translating
   those would produce something a Tanzanian operator would not trust, which is worse than English.

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { BellOff, CheckCheck } from "lucide-react";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,6 +26,7 @@ const destinations: Record<string, string> = {
 
 export default async function NotificationsPage() {
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const { data } = await workspace.supabase
     .from("notifications")
     .select("id, type, title, body, read_at, created_at")
@@ -79,7 +82,7 @@ export default async function NotificationsPage() {
             <EmptyState
               icon={<BellOff className="size-6" aria-hidden />}
               title="No notifications"
-              description="You will be told here when something needs your approval."
+              description={t(locale, "pToldHere")}
             />
           </div>
         )}

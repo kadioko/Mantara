@@ -115,7 +115,7 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
         : <p className="text-sm text-muted-foreground">No maintenance requests raised.</p>}
     </Panel>
 
-    <Panel title="Service schedules" description="Completing a work order rolls the matching schedule forward.">
+    <Panel title={t(locale, "pServiceSchedules")} description={t(locale, "pCompletingRollsForward")}>
       {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenanceScheduleForm equipment={equipmentOptions} /></div>}
       {schedulesResult.data?.length
         ? <ul className="divide-y divide-border">{schedulesResult.data.map((schedule) => {

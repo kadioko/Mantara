@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { Download, FileBarChart } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
@@ -21,6 +23,7 @@ function defaultRange() {
 
 export default async function ReportsPage({ searchParams }: { searchParams: Promise<{ kind?: string; from?: string; to?: string }> }) {
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
   if (!organization || !site) redirect("/dashboard");
@@ -46,7 +49,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
     <div className="space-y-6">
       <PageHeader
         eyebrow="Risk and insight"
-        title="Reports"
+        title={t(locale, "pReports")}
         description={`Movements at ${site.name} between ${from} and ${to}.`}
         actions={
           "error" in result ? undefined : (
@@ -101,7 +104,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               <EmptyState
                 icon={<FileBarChart className="size-6" aria-hidden />}
                 title="Nothing in this period"
-                description="Widen the date range, or choose another report."
+                description={t(locale, "pWidenRange")}
               />
             </CardContent>
           )}

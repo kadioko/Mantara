@@ -172,22 +172,22 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     </section>
 
     {canManage && <>
-      <CatalogueList title="Items" description="Shared across the organization. Retiring an item needs its stock to be zero first.">
+      <CatalogueList title={t(locale, "pItems")} description={t(locale, "pItemsShared")}>
         <div className="px-5 py-4"><InventoryItemForm categories={categoryOptions} /></div>
         {items.map((item) => <ItemRow key={item.id} item={item} categories={categoryOptions} canManage={canManage} />)}
       </CatalogueList>
 
-      <CatalogueList title="Categories" description="Used to group items in reports.">
+      <CatalogueList title={t(locale, "pCategories")} description={t(locale, "pCategoriesGroup")}>
         <div className="px-5 py-4"><InventoryCategoryForm /></div>
         {categories.map((category) => <CategoryRow key={category.id} category={category} canManage={canManage} />)}
       </CatalogueList>
 
-      <CatalogueList title="Stores" description="Stores belong to this mine site. A store must be empty before it can be taken out of service.">
+      <CatalogueList title={t(locale, "pStores")} description={t(locale, "pStoresBelongSite")}>
         <div className="px-5 py-4"><InventoryLocationForm /></div>
         {stores.map((store) => <StoreRow key={store.id} store={store} canManage={canManage} />)}
       </CatalogueList>
 
-      <CatalogueList title="Suppliers" description="Shared across the organization.">
+      <CatalogueList title={t(locale, "pSuppliers")} description={t(locale, "pSharedOrg")}>
         <div className="px-5 py-4"><SupplierForm /></div>
         {suppliers.map((supplier) => <SupplierRow key={supplier.id} supplier={supplier} canManage={canManage} />)}
       </CatalogueList>
@@ -196,8 +196,8 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     {!canMove
       ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Add at least one catalogue item and one active store before recording stock movements.</p>
       : <>
-          {canReceive && <Panel title="Receive stock"><StockReceiptForm items={itemOptions} locations={locationOptions} suppliers={supplierOptions} today={today} /></Panel>}
-          {canIssue && <Panel title="Issue stock" description="An issue larger than the balance is rejected.">
+          {canReceive && <Panel title={t(locale, "pReceiveStock")}><StockReceiptForm items={itemOptions} locations={locationOptions} suppliers={supplierOptions} today={today} /></Panel>}
+          {canIssue && <Panel title={t(locale, "pIssueStock")} description={t(locale, "pIssueRejected")}>
             <StockIssueForm
               items={itemOptions}
               locations={locationOptions}
@@ -207,13 +207,13 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
               today={today}
             />
           </Panel>}
-          {canTransfer && locationOptions.length > 1 && <Panel title="Transfer between stores"><StockTransferForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
-          {canAdjust && <Panel title="Adjust stock" description="Use a negative value for losses and a positive value for gains."><StockAdjustmentForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
+          {canTransfer && locationOptions.length > 1 && <Panel title={t(locale, "pTransferStores")}><StockTransferForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
+          {canAdjust && <Panel title={t(locale, "pAdjustStock")} description={t(locale, "pNegativeForLosses")}><StockAdjustmentForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
         </>}
 
     {canAdjust && locationOptions.length > 0 && <Panel
-      title="Stock counts"
-      description="Walk a store, enter what you find, then apply. The difference against the records is kept as a number rather than disappearing into an adjustment note.">
+      title={t(locale, "pStockCounts")}
+      description={t(locale, "pWalkStore")}>
       <StartStockCountForm stores={locationOptions} today={today} />
       {openCounts.length > 0 && <div className="mt-6 space-y-4">
         {openCounts.map((count) => <OpenStockCount key={count.id} count={count} items={itemOptions} />)}
@@ -226,7 +226,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
       </div>}
     </Panel>}
 
-    <Panel title={t(locale, "reorderWatch")} description="Items at or below their reorder level in this site's stores.">
+    <Panel title={t(locale, "reorderWatch")} description={t(locale, "pReorderList")}>
       {reorderRows.length
         ? <ul className="divide-y divide-border">{reorderRows.map((row) => (
             <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">

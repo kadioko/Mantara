@@ -37,7 +37,7 @@ export default async function RolesPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={t(locale, "settings")}
-        title="Roles"
+        title={t(locale, "pRoles")}
         description={`What each role in ${organization.name} is allowed to do.`}
       />
 

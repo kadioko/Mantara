@@ -3,6 +3,8 @@ import { Panel } from "@/components/ui/card";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import {
   CompleteWorkOrderForm,
   MaintenanceCostForm,
@@ -19,6 +21,7 @@ import {
 export default async function WorkOrderPage({ params }: { params: Promise<{ workOrderId: string }> }) {
   const { workOrderId } = await params;
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const organization = workspace.activeOrganization;
   const site = workspace.activeSite;
   if (!organization || !site || !await hasPermission(organization.id, "maintenance.read")) redirect("/dashboard");
@@ -62,7 +65,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
       <p className="mt-1 text-muted-foreground">{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status} · {site.name}</p>
     </div>
 
-    <Panel title="Work order">
+    <Panel title={t(locale, "pWorkOrder")}>
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium">{value}</dd></div>)}
       </dl>
@@ -71,11 +74,11 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
       {canUpdate && transitions.length > 0 && <div className="mt-5 border-t border-border pt-5"><WorkOrderStatusForm workOrderId={order.id} allowed={transitions} /></div>}
     </Panel>
 
-    {canUpdate && order.status === "in_progress" && <Panel title="Complete" description="Records the service meter and rolls any active schedule for this equipment forward.">
+    {canUpdate && order.status === "in_progress" && <Panel title={t(locale, "pComplete")} description={t(locale, "pRecordsServiceMeter")}>
       <CompleteWorkOrderForm workOrderId={order.id} />
     </Panel>}
 
-    <Panel title="Parts">
+    <Panel title={t(locale, "pParts")}>
       {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenancePartForm workOrderId={order.id} /></div>}
       {parts.data?.length
         ? <ul className="divide-y divide-border">{parts.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
@@ -85,7 +88,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
         : <p className="text-sm text-muted-foreground">No parts recorded.</p>}
     </Panel>
 
-    <Panel title="Costs" description={`Total recorded: ${totalCost.toLocaleString()}`}>
+    <Panel title={t(locale, "pCosts")} description={`Total recorded: ${totalCost.toLocaleString()}`}>
       {canUpdate && <div className="mb-5 border-b border-border pb-5"><MaintenanceCostForm workOrderId={order.id} today={today} /></div>}
       {costs.data?.length
         ? <ul className="divide-y divide-border">{costs.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">

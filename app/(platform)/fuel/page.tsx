@@ -106,7 +106,7 @@ export default async function FuelPage() {
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "activeStores")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.activeStores)}</p></div>
     </div>
 
-    <CatalogueList title={t(locale, "fuelStores")} description="Balances are maintained by the database on every movement. A tank must be empty before it can be taken out of service.">
+    <CatalogueList title={t(locale, "fuelStores")} description={t(locale, "pBalancesMaintained")}>
       {canManage && <div className="px-5 py-4"><FuelLocationForm /></div>}
       {locations?.length
         ? (locations as CatalogueTank[]).map((tank) => <TankRow key={tank.id} tank={tank} canManage={canManage} />)
@@ -114,8 +114,8 @@ export default async function FuelPage() {
     </CatalogueList>
 
     {canAdjust && locationOptions.length > 0 && <Panel
-      title="Fuel reconciliation"
-      description="Record what a tank actually holds. The difference against the records is kept as a number, and the balance is corrected for you.">
+      title={t(locale, "pFuelReconciliation")}
+      description={t(locale, "pRecordTankHolds")}>
       <FuelStockTakeForm locations={locationOptions} today={today} />
       {takes.length > 0 && <ul className="mt-6 divide-y divide-border border-t border-border">
         {takes.map((take) => {
@@ -137,8 +137,8 @@ export default async function FuelPage() {
     </Panel>}
 
     {consumption.length > 0 && <Panel
-      title="Consumption per machine"
-      description="Litres per meter unit over the last 90 days, worked out from the meter reading on each issue. Highest first.">
+      title={t(locale, "pConsumptionPerMachine")}
+      description={t(locale, "pLitresPerUnit")}>
       <ul className="divide-y divide-border">
         {consumption.map((row) => (
           <li key={row.equipment_id} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -159,12 +159,12 @@ export default async function FuelPage() {
     {locationOptions.length === 0
       ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Create an active fuel store before recording deliveries or issues.</p>
       : <>
-          {canReceive && <Panel title="Record a delivery" description="Adds fuel to the selected store."><FuelReceiptForm locations={locationOptions} today={today} /></Panel>}
-          {canIssue && <Panel title="Issue fuel" description="An issue that would take a store below zero is rejected."><FuelIssueForm locations={locationOptions} equipment={equipmentOptions} workers={workerOptions} today={today} /></Panel>}
-          {canAdjust && <Panel title="Adjust stock" description="Use a negative value for losses and a positive value for gains."><FuelAdjustmentForm locations={locationOptions} today={today} /></Panel>}
+          {canReceive && <Panel title={t(locale, "pRecordDelivery")} description={t(locale, "pAddsFuel")}><FuelReceiptForm locations={locationOptions} today={today} /></Panel>}
+          {canIssue && <Panel title={t(locale, "pIssueFuel")} description={t(locale, "pIssueBelowZero")}><FuelIssueForm locations={locationOptions} equipment={equipmentOptions} workers={workerOptions} today={today} /></Panel>}
+          {canAdjust && <Panel title={t(locale, "pAdjustStock")} description={t(locale, "pNegativeForLosses")}><FuelAdjustmentForm locations={locationOptions} today={today} /></Panel>}
         </>}
 
-    <Panel title="Recent movements">
+    <Panel title={t(locale, "pRecentMovements")}>
       <div className="grid gap-6 lg:grid-cols-3">
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground">Deliveries</h2>

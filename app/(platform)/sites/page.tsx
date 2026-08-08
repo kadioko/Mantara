@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Alert, EmptyState, PageHeader } from "@/components/ui/feedback";
@@ -12,6 +14,7 @@ export const metadata = { title: "Mine sites" };
 
 export default async function SitesPage() {
   const workspace = await getActiveWorkspace();
+  const locale = await getLocale();
   const organization = workspace.activeOrganization;
   if (!organization || !await hasPermission(organization.id, "site.read")) redirect("/dashboard");
 
@@ -37,7 +40,7 @@ export default async function SitesPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow="Core workspace"
-        title="Mine sites"
+        title={t(locale, "pMineSites")}
         description={`Every site belonging to ${organization.name}.`}
         actions={canCreate ? <CreateSiteForm defaultCountry={rows[0]?.country_code ?? "TZ"} /> : undefined}
       />
@@ -79,7 +82,7 @@ export default async function SitesPage() {
             <EmptyState
               icon={<MapPin className="size-6" aria-hidden />}
               title="No mine sites"
-              description="Every operational record belongs to a site, so an organization needs at least one."
+              description={t(locale, "pEverySiteNeeded")}
             />
           </CardContent>
         </Card>

@@ -32,7 +32,7 @@ export default async function OrganizationSettingsPage() {
       <PageHeader
         eyebrow={t(locale, "settings")}
         title="Organization"
-        description="The company these records belong to."
+        description={t(locale, "pTheCompany")}
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
