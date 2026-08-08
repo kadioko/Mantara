@@ -141,7 +141,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply `0030`, `0031` and `0032`, and confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql`. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql` — the API cannot describe triggers, indexes or policies. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.

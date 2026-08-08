@@ -2,7 +2,17 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 
-const publicPaths = new Set(["/login", "/register", "/auth/callback"]);
+/**
+ * Paths that must answer without a session.
+ *
+ * `/api/health` is here because an uptime monitor has no session and never will. Without it the
+ * probe was redirected to /login, which answers 200 — so the monitor would have reported the service
+ * healthy while the database was unreachable. A monitor that lies is worse than no monitor, and this
+ * was live for several commits before anything caught it.
+ *
+ * Nothing else under /api belongs here. The report export is deliberately authenticated.
+ */
+const publicPaths = new Set(["/login", "/register", "/auth/callback", "/api/health"]);
 
 export async function proxy(request: NextRequest) {
   const { response, supabase } = updateSession(request);

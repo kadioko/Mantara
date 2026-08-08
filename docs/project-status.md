@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0028` applied to Supabase. `0030`, `0031` and `0032` are not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
+**Database: every migration applied. `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside and need `supabase/verify-deployment.sql`.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -225,7 +225,7 @@ manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0030`, `0031` and `0032` following [the runbook](deployment.md), then work the manual QA checklist
-against the live site. Everything below that
+Run `supabase/verify-deployment.sql` to settle the five migrations the API cannot describe, then
+work the manual QA checklist against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

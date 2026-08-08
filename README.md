@@ -15,13 +15,13 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0028` are applied.** Confirmed against the live project with
-`npm run deploy:check`, which asks PostgREST what exists using only the publishable key. **`0030`
-(fuel reconciliation) is not applied.** Five — `0019`, `0020`, `0024`, `0026`, `0029` — create only
-triggers, indexes, policies or storage objects, which PostgREST cannot describe; run
+**Every migration is applied.** `npm run deploy:check` confirms all 24 that PostgREST can see, using
+only the publishable key and reading no tenant data. Five — `0019`, `0020`, `0024`, `0026`, `0029` —
+create only triggers, indexes, policies or storage objects, which PostgREST cannot describe; run
 `supabase/verify-deployment.sql` in the SQL editor to settle those.
 
-Document storage (`0020`) stays hidden behind `DOCUMENTS_ENABLED` whether or not its migration ran.
+Document storage (`0020`) stays hidden behind `DOCUMENTS_ENABLED` whether or not its migration ran,
+and its bucket did not answer an anonymous probe — worth confirming before switching it on.
 
 **[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
 locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards
