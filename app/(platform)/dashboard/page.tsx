@@ -4,6 +4,7 @@ import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
 import { EmptyState, StatCard } from "@/components/ui/feedback";
+import { TrendCard, type Comparison } from "@/components/ui/trend";
 
 export const metadata = { title: "Overview" };
 
@@ -138,6 +139,11 @@ export default async function DashboardPage() {
 
   const populated = groups.filter((group) => group.tiles.length > 0);
 
+  // The last 30 days against the 30 before them. Gated per module in the database, so a measure the
+  // reader cannot open never reaches this page.
+  const { data: comparisonRows } = await supabase.rpc("site_period_comparison", { requested_site_id: siteId });
+  const comparisons = (comparisonRows ?? []) as Comparison[];
+
   return <section className="space-y-8">
     <div className="relative overflow-hidden rounded-3xl border border-emerald-900/15 bg-[linear-gradient(120deg,rgba(236,253,245,0.9),rgba(255,255,255,0.96))] px-6 py-7 shadow-sm md:px-8">
       <div aria-hidden className="absolute -right-10 -top-16 size-48 rounded-full bg-emerald-200/40 blur-2xl" />
@@ -147,6 +153,17 @@ export default async function DashboardPage() {
         <p className="mt-2 max-w-2xl text-muted-foreground">{t(locale, "overviewDescription", { site: site.name })}</p>
       </div>
     </div>
+
+    {comparisons.length > 0 && (
+      <div>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Last 30 days</h2>
+        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {comparisons.map((comparison) => (
+            <TrendCard key={comparison.measure} comparison={comparison} periodLabel="the 30 before" />
+          ))}
+        </div>
+      </div>
+    )}
 
     {populated.length ? populated.map((group) => (
       <div key={group.heading}>

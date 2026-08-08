@@ -12,7 +12,7 @@ answer still proves a table is there. It cannot see triggers, indexes, policies 
 so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
 settles them in the SQL editor.
 
-As of the last check: `0001`–`0028` applied, `0030` and `0031` not, and `0019`/`0020`/`0024`/`0026`/`0029`
+As of the last check: `0001`–`0028` applied, `0030`, `0031` and `0032` not, and `0019`/`0020`/`0024`/`0026`/`0029`
 unconfirmed. Re-applying any of them is safe — see below — so when in doubt, run it again.
 
 ## The original position
@@ -59,6 +59,7 @@ Apply in filename order. Several depend on earlier ones — `0029` needs the vie
 | `0029` | Inventory indexes | |
 | `0030` | Fuel reconciliation and consumption analysis | New table written only through `record_fuel_stock_take()` |
 | `0031` | Inventory stock counts and shrinkage | Applying a count is one atomic operation; lines are frozen afterwards |
+| `0032` | Dashboard period comparison | Read-only; adds indexes on the date columns each measure filters by |
 
 ## Locks
 

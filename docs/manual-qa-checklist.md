@@ -485,3 +485,24 @@ Apply `0031` before running these checks.
 - [ ] Shrinkage totals an item short in two separate counts as short twice over.
 - [ ] **The findings are plausible to the storekeeper.** Only a person who knows the store can say
       whether a shortfall is a loss, a miscount, or an issue nobody recorded.
+
+## Dashboard period comparison
+
+Apply `0032` before running these checks.
+
+- [ ] The dashboard shows each measure with its previous-period figure and the change between them.
+- [ ] **The comparison figure is shown, not only the percentage.** A percentage without its base is
+      half a fact.
+- [ ] A period that starts from zero shows the change without a percentage, rather than showing
+      infinity or a nonsense number.
+- [ ] Production rising is coloured as good; downtime and incidents rising are coloured as bad.
+- [ ] **Fuel issued and spend are not coloured either way.** Burning more fuel in a busier month is
+      not bad news, and colouring it would train people to ignore the colour where it matters.
+- [ ] Fuel variance and stock variance appear on the dashboard and match what the fuel and inventory
+      screens show for the same period.
+- [ ] **A maintenance officer does not see production, downtime or spend** — the measure is absent
+      entirely, not shown as zero.
+- [ ] Every measure appears even with no data, showing zero against zero, rather than the section
+      looking like it failed to load.
+- [ ] **The numbers are recognisable to someone who was there.** Only a site person can say whether
+      last month really was down 8%; this is the check that catches a date-window error.

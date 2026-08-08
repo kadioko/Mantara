@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0028` applied to Supabase. `0030` and `0031` are not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
+**Database: migrations `0001`–`0028` applied to Supabase. `0030`, `0031` and `0032` are not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 573 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 592 tests pass. |
 
 ## What the tests actually prove
 
@@ -106,7 +106,24 @@ claim when the truth is that we could not find out.
 
 ### Insight
 
-**Fuel variance is now measured**, which one of the pilot success criteria asks for and nothing
+**The dashboard now compares.** A bare figure is not information: 1,240 tonnes means nothing until
+you know last month was 1,350. `site_period_comparison()` returns the last 30 days against the 30
+before, per measure, gated on the same read permission as the records behind it — a trend line
+discloses as much as a figure, which is the leak `0016` fixed in `operational_summary`.
+
+Each measure carries **whether up is good**, so the screen colours a change without a second list of
+rules drifting away from this one. Production rising is good; downtime and incidents rising are not;
+fuel issued and spend rising are neither on their own — burning more fuel while producing more ore is
+what a busy month looks like, and calling that bad would teach people to ignore the colour.
+
+Both variances surface here, which is the point of putting them on the dashboard: a storekeeper sees
+shrinkage on the inventory screen and a fuel officer sees it on the fuel screen, but the person who
+cares most about both opens the dashboard and nothing else.
+
+- Still point-in-time rather than a series: this compares two periods, it does not draw a line over
+  twelve. A chart is the obvious next step and needs no new data.
+
+**Fuel variance is measured**, which one of the pilot success criteria asks for and nothing
 addressed. A stock take records the measured level against the book level, keeps the difference as a
 number, and corrects the balance through the ordinary adjustment path. Previously that discrepancy
 was entered as an adjustment with a free-text reason: the balance was fixed and the finding was
@@ -126,7 +143,7 @@ as a shortfall that never happened.
 `inventory_shrinkage()` totals what the counts found per item. One negative variance is a miscount as
 often as a loss; the same item short in three counts running is the thing worth acting on, and that
 is only visible once the findings are kept as numbers.
-- Dashboard trends over time, rather than point-in-time figures.
+
 
 ### Administration
 
@@ -208,7 +225,7 @@ manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0030` and `0031` following [the runbook](deployment.md), then work the manual QA checklist
+Deploy `0030`, `0031` and `0032` following [the runbook](deployment.md), then work the manual QA checklist
 against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

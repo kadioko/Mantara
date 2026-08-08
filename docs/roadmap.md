@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: migrations `0001`–`0028` are applied to Supabase and the Vercel build is live**, confirmed with `npm run deploy:check`. `0030` and `0031` are not applied, and `0019`, `0020`, `0024`, `0026` and `0029` cannot be confirmed from outside because they create only triggers, indexes and policies — run `supabase/verify-deployment.sql` to settle those.
+**Deployment: migrations `0001`–`0028` are applied to Supabase and the Vercel build is live**, confirmed with `npm run deploy:check`. `0030`, `0031` and `0032` are not applied, and `0019`, `0020`, `0024`, `0026` and `0029` cannot be confirmed from outside because they create only triggers, indexes and policies — run `supabase/verify-deployment.sql` to settle those.
 
 Every planned module exists:
 
@@ -22,7 +22,7 @@ Every planned module exists:
 - **Expenses** — an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
 - **Compliance** — licences with expiry tracking and editing, organization-authored requirements with editing and retirement, and tasks that reschedule themselves while the requirement is in service and stop when it is retired.
 - **Safety** — incidents, inspections, corrective actions, with personal and medical detail held separately behind a granular permission, rate limited, and logged on every access.
-- **Insight** — dashboard figures gated per module, an organization audit log, reports with CSV export that cannot silently truncate, and notifications that now include a daily job alerting on licence expiry, overdue compliance tasks and overdue corrective actions, so nobody has to remember to look.
+- **Insight** — dashboard figures gated per module and compared against the previous period, an organization audit log, reports with CSV export that cannot silently truncate, and notifications that now include a daily job alerting on licence expiry, overdue compliance tasks and overdue corrective actions, so nobody has to remember to look.
 - **Administration** — invitations, role changes, suspension, a custom-roles screen, per-member mine-site restriction, mine-site management, organization settings, and `/admin` for the platform team.
 - **Operations** — `/api/health`, structured JSON logging with field redaction, and a Postgres-backed rate limiter.
 
@@ -36,7 +36,7 @@ Supporting work:
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (573 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (592 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -141,7 +141,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply `0030` and `0031`, and confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql`. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply `0030`, `0031` and `0032`, and confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql`. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.

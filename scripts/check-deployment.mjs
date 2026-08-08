@@ -103,6 +103,7 @@ const markers = [
   ["0029", "stock overview ordering", null],
   ["0030", "fuel reconciliation", table("fuel_stock_takes")],
   ["0031", "inventory stock counts", table("inventory_stock_counts")],
+  ["0032", "period comparison", rpc("site_period_comparison", { requested_site_id: NO_SUCH_ID })],
 ];
 
 console.log(`Project: ${new URL(url).host}\n`);
