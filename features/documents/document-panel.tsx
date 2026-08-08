@@ -3,6 +3,7 @@ import { documentsEnabled } from "@/lib/features";
 import { Panel } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/feedback";
 import type { DocumentScope } from "./actions";
+import { DocumentList } from "./document-list";
 
 export type StoredDocument = { id: string; document_name: string; document_path: string; expires_on?: string | null };
 
@@ -25,19 +26,7 @@ export function DocumentPanel({
   return (
     <Panel title={title} description="Files are held privately and opened through short-lived links.">
       {documents.length ? (
-        <ul className="divide-y">
-          {documents.map((document) => (
-            <li key={document.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-              <span className="flex items-center gap-2 font-medium">
-                <FileText className="size-4 text-muted-foreground" aria-hidden />
-                {document.document_name}
-              </span>
-              <span className="text-sm text-muted-foreground">
-                {document.expires_on ? `Expires ${document.expires_on}` : "No expiry recorded"}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <DocumentList scope={scope} documents={documents} />
       ) : (
         <EmptyState
           icon={<FileText className="size-6" aria-hidden />}

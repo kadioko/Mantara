@@ -7,6 +7,7 @@ import { requireScope, rowInScope, rowInScopeHard } from "@/lib/auth/scope";
 import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 
 export type DocumentState = { error?: string; success?: string };
+export type DocumentUploadState = DocumentState & { uploadUrl?: string; path?: string; token?: string };
 
 export const documentScopes = ["equipment", "compliance", "training"] as const;
 export type DocumentScope = (typeof documentScopes)[number];
@@ -38,13 +39,15 @@ function safeFileName(name: string) {
 }
 
 /**
- * Prepares a private upload and records the resulting path.
+ * Prepares a private upload. The browser uploads with the short-lived token, then calls
+ * `finalizeDocumentUpload` to record the path. This ordering prevents a failed transfer from
+ * leaving a document row that points to an object which was never uploaded.
  *
  * Storage is off until DOCUMENTS_ENABLED is set, so this refuses rather than half-working. Both the
  * bucket policies and this action check the same permission; the policies are what actually enforce
  * it, since a signed URL is issued by the database, not by us.
  */
-export async function createDocumentUpload(_: DocumentState, formData: FormData): Promise<DocumentState & { uploadUrl?: string; path?: string; token?: string }> {
+export async function createDocumentUpload(_: DocumentState, formData: FormData): Promise<DocumentUploadState> {
   if (!documentsEnabled()) return { error: "Document storage is not switched on yet." };
 
   const parsed = uploadSchema.safeParse(Object.fromEntries(formData));
@@ -69,6 +72,27 @@ export async function createDocumentUpload(_: DocumentState, formData: FormData)
   const path = `${scope.organizationId}/${parsed.data.scope}/${parsed.data.ownerId}/${Date.now()}-${safeFileName(parsed.data.fileName)}`;
   const { data, error } = await scope.workspace.supabase.storage.from(BUCKET).createSignedUploadUrl(path);
   if (error || !data) return { error: "Unable to prepare the upload. Please try again." };
+
+  return { success: "Upload ready.", uploadUrl: data.signedUrl, path, token: data.token };
+}
+
+/** Records an object only after the browser has successfully uploaded it to the private bucket. */
+export async function finalizeDocumentUpload(formData: FormData): Promise<DocumentState> {
+  if (!documentsEnabled()) return { error: "Document storage is not switched on yet." };
+
+  const parsed = uploadSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the document details." };
+  const path = String(formData.get("path") ?? "");
+  const config = scopeConfig[parsed.data.scope];
+  const scope = await requireScope(config.permission, "You do not have permission to attach documents here.");
+  if ("error" in scope) return scope;
+
+  const owned = config.softDeleted
+    ? await rowInScope(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped })
+    : await rowInScopeHard(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped });
+  if (!owned || !path.startsWith(`${scope.organizationId}/${parsed.data.scope}/${parsed.data.ownerId}/`)) {
+    return { error: "That upload does not belong to the active workspace." };
+  }
 
   const actor = scope.workspace.user.id;
   if (parsed.data.scope === "equipment") {
@@ -99,8 +123,8 @@ export async function createDocumentUpload(_: DocumentState, formData: FormData)
     if (updateError) return { error: "Unable to record the certificate. Please try again." };
   }
 
-  revalidatePath(`/${parsed.data.scope === "compliance" ? "compliance" : "equipment"}`);
-  return { success: "Document recorded.", uploadUrl: data.signedUrl, path, token: data.token };
+  revalidatePath(parsed.data.scope === "training" ? "/workers" : `/${parsed.data.scope === "compliance" ? "compliance" : "equipment"}`);
+  return { success: "Document attached." };
 }
 
 /** Issues a short-lived link. Reading is authorised by the bucket policy, not by this function. */

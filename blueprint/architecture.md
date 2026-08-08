@@ -106,7 +106,7 @@ All UUID-keyed tables use UTC timestamps. Mutable primary records include `creat
 | Compliance | `mineral_licences`, `compliance_requirements`, `compliance_tasks`, `compliance_documents` | Deadlines indexed by organization, site, and due date. |
 | Safety | `safety_incidents`, `safety_inspections`, `corrective_actions` | Sensitive details use granular permissions and audit logging. |
 
-The foundation migration introduces the tenancy and authorization tables, timestamp trigger, RLS helper functions, policies, and indexes. Each domain migration adds its tables when its module begins. There are 26 migrations; they are numbered in application order and are never rewritten once deployed, so later migrations correct earlier ones in place rather than editing them.
+The foundation migration introduces the tenancy and authorization tables, timestamp trigger, RLS helper functions, policies, and indexes. Each domain migration adds its tables when its module begins. There are **33 applied migrations (`0001`–`0033`)**; they are numbered in application order and are never rewritten once deployed, so later migrations correct earlier ones in place rather than editing them. `0033` completes trigger-level audit coverage for value-moving and retirement actions.
 
 ## 5. Initial permission matrix
 

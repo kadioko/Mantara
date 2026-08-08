@@ -12,6 +12,9 @@ import {
 } from "@/features/equipment/equipment-forms";
 import { categoryLabels, statusLabels } from "@/features/equipment/schemas";
 import { EditEquipmentForm, RemoveEquipmentForm } from "@/features/equipment/equipment-edit-forms";
+import { DocumentPanel } from "@/features/documents/document-panel";
+import { DocumentUploadForm } from "@/features/documents/document-upload-form";
+import { documentsEnabled } from "@/lib/features";
 
 export default async function EquipmentDetailPage({ params }: { params: Promise<{ equipmentId: string }> }) {
   const { equipmentId } = await params;
@@ -32,13 +35,14 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
   if (!item) notFound();
 
   const canManage = await hasPermission(organization.id, "equipment.update");
-  const [readings, history, assignments, workers] = await Promise.all([
+  const [readings, history, assignments, workers, documents] = await Promise.all([
     workspace.supabase.from("equipment_meter_readings").select("id, reading_value, reading_at, notes").eq("equipment_id", equipmentId).order("reading_at", { ascending: false }).limit(15),
     workspace.supabase.from("equipment_status_history").select("id, previous_status, new_status, reason, changed_at").eq("equipment_id", equipmentId).order("changed_at", { ascending: false }).limit(15),
     workspace.supabase.from("equipment_assignments").select("id, assignment_name, starts_on, ends_on, worker:workers(full_name)").eq("equipment_id", equipmentId).order("starts_on", { ascending: false }),
     canManage
       ? workspace.supabase.from("workers").select("id, full_name").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "active").is("deleted_at", null).order("full_name")
       : Promise.resolve({ data: [] as Array<{ id: string; full_name: string }> }),
+    workspace.supabase.from("equipment_documents").select("id, document_name, document_path, expires_on").eq("equipment_id", equipmentId).eq("organization_id", organization.id).order("created_at", { ascending: false }),
   ]);
 
   const today = new Date().toISOString().slice(0, 10);
@@ -98,5 +102,10 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
           })}</ul>
         : <p className="text-sm text-muted-foreground">No assignments recorded.</p>}
     </Panel>
+
+    {documentsEnabled() && <>
+      <DocumentPanel title="Documents" scope="equipment" documents={documents.data ?? []} />
+      {canManage && <Panel title="Attach document" description="Attach a private certificate, inspection report, or other asset record."><DocumentUploadForm scope="equipment" ownerId={item.id} /></Panel>}
+    </>}
   </div>;
 }

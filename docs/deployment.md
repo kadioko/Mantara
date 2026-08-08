@@ -12,8 +12,7 @@ answer still proves a table is there. It cannot see triggers, indexes, policies 
 so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
 settles them in the SQL editor.
 
-As of the last check: `0001`–`0028` applied, `0030`, `0031` and `0032` not, and `0019`/`0020`/`0024`/`0026`/`0029`
-unconfirmed. Re-applying any of them is safe — see below — so when in doubt, run it again.
+As of 9 August 2026: **`0001`–`0033` are applied.** `0019`/`0020`/`0024`/`0026`/`0029` have also been checked directly because API-level checks cannot see triggers, indexes, policies, or Storage objects. Re-applying the idempotent migrations remains safe when recovering a partial SQL-editor run — see below.
 
 ## The original position
 
@@ -125,8 +124,8 @@ in `securityHeaders` (`lib/security/headers.ts`) from `Content-Security-Policy-R
 
 Nothing here requires a new environment variable. Two optional ones:
 
-- `DOCUMENTS_ENABLED=true` switches on document storage. Leave it off until an upload and a download
-  have been confirmed against the real bucket — none of that path can be exercised by any test here.
+- `DOCUMENTS_ENABLED=true` switches on the private document UI. Leave it off until an upload, a signed
+  download, permission denial, and expired-link case have been confirmed against the real bucket — none of that path can be exercised by any test here.
 - `LOG_LEVEL` trims log volume without a redeploy.
 
 ## What is still not covered by any test

@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 9 August 2026**
-**Database: every migration through `0032` applied; `0033` is new. `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside and need `supabase/verify-deployment.sql`.**
+**Database: every migration through `0033` applied. `0019`, `0020`, `0024`, `0026` and `0029` were directly verified for their triggers, indexes, policies and private Storage bucket.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -14,12 +14,10 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The deployment gap that dominated this document has closed: everything through `0032` is applied, so
+The deployment gap that dominated this document has closed: everything through `0033` is applied, so
 mine-site management, organization settings, custom roles, rate limiting, the stock overview, the
 catalogue guards, the corrected module totals, the compliance recurrence fix, the scheduled alerts
-and per-site restriction are all live. **`0033` is the only migration still to apply**, and until it
-does, the actions that move value — a fuel adjustment, a stock adjustment, a production or expense
-approval, a retirement — leave no audit entry.
+and per-site restriction are all live. **`0033` also adds trigger-level audit coverage** for fuel and stock adjustments/takes, production and expense review, and operational retirements, so those actions now leave an audit entry even when they do not go through a particular server action.
 
 *(Until 9 August this section still said twelve migrations were undeployed, which stopped being true
 several commits earlier. The header at the top of this file was right and the summary was stale —
@@ -117,7 +115,7 @@ claim when the truth is that we could not find out.
 
 ## Remaining work
 
-### Accountability
+### Accountability — applied, needs live confirmation
 
 The audit log previously recorded member changes, role changes, ore dispatches and every read of a
 worker's medical detail. It recorded none of the actions that move value: a fuel adjustment taking
@@ -181,13 +179,9 @@ is only visible once the findings are kept as numbers.
   generates them from the catalogue, so it cannot miss a table that existed when it ran, but it
   cannot reach forward either. This is recorded in the architecture blueprint.
 
-### Documents — built, switched off
+### Documents — UI built, switched off pending live QA
 
-The bucket, its policies, signed upload and download, and the document panel are all in place, but
-`DOCUMENTS_ENABLED` defaults to off and the surface stays hidden. Storage cannot be exercised by the
-migration harness or the test suite, so **none of the upload path has been run against a real
-bucket**. Apply `0020`, set `DOCUMENTS_ENABLED=true`, and confirm an upload and a download end to end
-before relying on it.
+The private bucket and its policies are applied. Equipment records now include an upload control and signed download link, but `DOCUMENTS_ENABLED` defaults to off and the surface stays hidden. Storage cannot be exercised by the migration harness or the test suite, so **none of the upload path has been run against a real bucket**. Deploy this UI, set `DOCUMENTS_ENABLED=true`, and confirm upload, download, expiry and permission denial end to end before relying on it.
 
 ### Localization
 
@@ -308,8 +302,7 @@ reproduces the measurement and the test holds the current shape so it cannot dri
 
 ### Still outstanding
 
-Load testing against a real server with concurrent users, backup and recovery procedure, and pilot
-manual-QA signoff.
+Live load testing with concurrent users, a backup-and-recovery drill, and pilot manual-QA signoff. The runbooks now exist in `docs/`; the executions need a selected monitoring/log destination and a designated pilot/test organization.
 
 The Content-Security-Policy is outstanding in a specific sense: it is written, served and reporting,
 but it has never blocked anything and cannot be called proven until a week of real traffic has been
@@ -317,7 +310,5 @@ read. Nobody should describe this product as having a CSP until that has happene
 
 ## Recommended next task
 
-Run `supabase/verify-deployment.sql` to settle the five migrations the API cannot describe, then
-work the manual QA checklist against the live site. Everything below that
-line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
-Supabase Auth and PostgREST behaviour are covered by no test here.
+Deploy the document UI and work the manual QA checklist against the live site. Storage, real concurrency,
+Supabase Auth and PostgREST behaviour are covered by no automated test here.

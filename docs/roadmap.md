@@ -1,7 +1,7 @@
 # Mantara roadmap and journey
 
-**Current position: every module built; eight migrations awaiting deployment**  
-**Last updated: 8 August 2026**
+**Current position: MVP modules are built; migrations `0001`–`0033` are applied and verified**
+**Last updated: 9 August 2026**
 
 For the audited feature-by-feature state, including what is not implemented, see [project status](project-status.md).
 
@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: migrations `0001`–`0028` are applied to Supabase and the Vercel build is live**, confirmed with `npm run deploy:check`. `0030`, `0031` and `0032` are not applied, and `0019`, `0020`, `0024`, `0026` and `0029` cannot be confirmed from outside because they create only triggers, indexes and policies — run `supabase/verify-deployment.sql` to settle those.
+**Deployment: every migration from `0001` through `0033` is applied to Supabase.** The five migrations that the API cannot describe (`0019`, `0020`, `0024`, `0026`, `0029`) were also checked directly for their policies, triggers, indexes and bucket. The Vercel build remains live; `npm run deploy:check` is the repeatable API-level confirmation.
 
 Every planned module exists:
 
@@ -81,11 +81,11 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Complete; deployed to Supabase |
 | 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Complete; deployed to Vercel |
 | 3. Workforce | Workers, assignments, attendance, training, PPE | Complete; deployed |
-| 4. Equipment | Register, assignments, meter readings, statuses, documents | Complete; document upload stays behind `DOCUMENTS_ENABLED` |
+| 4. Equipment | Register, assignments, meter readings, statuses, documents | Complete; private upload/download UI is built but remains gated until live Storage QA passes |
 | 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Complete; deployed |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Complete; catalogue editing and stock overview await `0023`–`0025` |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Complete; recurrence fix awaits `0026` |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, editing, rate limiting, accessibility, monitoring and bilingual forms done. Outstanding: deploy `0019`–`0026`, screen-reader pass, load testing, backup procedure, offline capture, pilot signoff |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Complete; catalogue editing and stock overview are live |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Complete; audit coverage through `0033` is live |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: remaining work is live Auth/PostgREST/Storage QA, real concurrent writes, screen-reader pass, monitoring/log drain, recovery drill, offline design, and pilot sign-off |
 
 ## Platform administration: what the role can and cannot do
 
@@ -141,12 +141,21 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply `0033`, then confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql` — the API cannot describe triggers, indexes or policies. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
-2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
-3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
-4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.
-5. Lift the remaining 422 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). The lifting is mechanical; the Kiswahili for mining vocabulary — grade, assay, headgear, stope, waybill — needs a speaker, and faking it would produce something an operator would not trust.
+1. Deploy the document UI, set `DOCUMENTS_ENABLED=true` only in the intended environment, then run the signed upload/download and authorization cases in the manual QA checklist. Roll the flag back if any case fails.
+2. Run the live QA cases that PGlite cannot prove: Supabase Auth, PostgREST/RLS, Storage, and simultaneous writes against a dedicated pilot/test organization.
+3. Point an external monitor at `/api/health` and connect Vercel stdout to a chosen log destination. The application is instrumented; alert ownership and the vendor destination still need to be selected.
+4. Complete the release-readiness artefacts: screen-reader session, recovery drill, offline-capture design review, and pilot sign-off. See [release readiness](release-readiness.md), [backup and recovery](backup-recovery.md), and [offline capture design](offline-capture-design.md).
+5. Lift the remaining 388 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). A Kiswahili mining-domain reviewer must approve terms such as grade, assay, headgear, stope, and waybill.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
+
+## Beyond the MVP: build order, not promises
+
+The following product phases are intentionally **not** part of the MVP. They should be funded and validated in this order, with a design-partner decision between phases.
+
+1. **Operational intelligence.** Finish reliable cost per tonne/gram/ounce, fuel and equipment utilization, worker productivity, daily summaries, and then forecasts. The AI assistant comes last in this phase: it must cite the operator's own data and abstain when records are incomplete.
+2. **GeoAI and geology.** Add controlled sample, assay, drill-hole, boundary and map capture; only then introduce analysis or recommendations. Mantara must not make geological certainty claims from sparse data.
+3. **Computer vision and drones.** Begin with consented image/video intake and auditable human review. PPE detection, vehicle counts, stockpile estimation and pit-progress models require field validation, retention rules, and clear false-positive handling.
+4. **Marketplace.** Build supplier verification, rental/service requests and quote comparison before reviews, payments or any trading workflow. Payments and marketplace dispute handling are a separate regulated operating capability.
 
 ## Decision rules
 
