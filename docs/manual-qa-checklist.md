@@ -420,3 +420,20 @@ Apply `0028` before running these checks. They need an organization with at leas
 - [ ] A restricted administrator cannot grant access to a site they cannot themselves see.
 - [ ] **(concurrency)** Restricting a member while they have the app open takes effect on their next
       request, without them signing in again.
+
+## Performance against a real server
+
+`npm run test` asserts on query plans, which transfer from WebAssembly to real PostgreSQL. Timings do
+not, and concurrency is not exercised at all. These need the live project.
+
+- [ ] With a year of records seeded, each list screen returns its first page in under a second on a
+      normal connection: workers, equipment, production, expenses, maintenance, safety, inventory.
+- [ ] Turning to page 20 of production is no slower than page 1.
+- [ ] The dashboard and each module's headline figures load without a visible delay.
+- [ ] **A report covering a year exports without timing out**, and the file contains every row.
+- [ ] **(concurrency)** Two people recording fuel issues from the same tank at the same moment both
+      succeed or one is cleanly refused; the balance is never wrong afterwards.
+- [ ] **(concurrency)** Two simultaneous stock transfers in opposite directions between the same two
+      stores do not deadlock.
+- [ ] `npm run plan:probe` after seeding a pilot's real volume: no plan has become an external sort,
+      and the stock overview is still within the ceiling recorded in project-status.

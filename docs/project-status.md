@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0028` written, tested, and not deployed.**
+**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0029` written, tested, and not deployed.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -14,7 +14,7 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The gap between "built" and "in use" is deployment. **Ten migrations are undeployed**, and until they
+The gap between "built" and "in use" is deployment. **Eleven migrations are undeployed**, and until they
 are applied the following are not live: mine-site management, organization settings, custom roles,
 rate limiting, the stock overview, the catalogue retirement guards, the module totals, the compliance
 recurrence fix, the scheduled alerts, and per-site access restriction.
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 499 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 513 tests pass. |
 
 ## What the tests actually prove
 
@@ -151,12 +151,41 @@ Full offline capture is not built and is not a small addition. Queuing writes ag
 that can reject them on arrival is a design problem in its own right — a shift entry accepted on a
 phone and refused an hour later is worse for an operator than one that never appeared to save.
 
+### Performance
+
+`tests/integration/query-plans.test.ts` seeds a year of production and a full stock matrix, then
+asserts on the **plans** the screens' own queries produce. Timings in WebAssembly are noise; plans
+are not. It covers list paging, the headline totals, and the cost of the site restriction.
+
+One real limit was found and is documented rather than papered over. The stock overview reads every
+balance in the organization and sorts it to return twenty-five, because the screen orders by item
+name — a column on the joined item — so there is nothing ordered on the balance table for the
+planner to walk:
+
+| balances | plan | time (WASM) |
+| --- | --- | --- |
+| 3,200 | Seq Scan + top-N heapsort | 14 ms |
+| 20,000 | Seq Scan + top-N heapsort | 47 ms |
+| 100,000 | Seq Scan + top-N heapsort | 232 ms |
+
+Indexing the balances does not help, and neither does putting the mine site on the balance row — in
+the ordinary case one site holds all of an organization's stock, so the site filter removes nothing.
+Both were tried and measured. The fix that would work is denormalising the item name onto the
+balance, and that is deliberately not done: it costs a trigger, makes renaming an item rewrite its
+balance rows, and creates a second place for the name to be wrong. 100,000 balances means roughly
+10,000 catalogue items across 10 stores, far beyond the operations this is built for, and these are
+WASM figures — real PostgreSQL is an order of magnitude quicker.
+
+**Revisit when** a pilot's stock overview passes about 100,000 balances. `npm run plan:probe`
+reproduces the measurement and the test holds the current shape so it cannot drift quietly.
+
 ### Still outstanding
 
-Performance testing under load, backup and recovery procedure, and pilot manual-QA signoff.
+Load testing against a real server with concurrent users, backup and recovery procedure, and pilot
+manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0019`–`0028`, then work the manual QA checklist against the live site. Everything below that
+Deploy `0019`–`0029`, then work the manual QA checklist against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

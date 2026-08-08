@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0028` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals, the compliance recurrence fix, the scheduled alerts and per-site access restriction are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
+**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0029` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals, the compliance recurrence fix, the scheduled alerts and per-site access restriction are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
 
 Every planned module exists:
 
@@ -32,10 +32,11 @@ Supporting work:
 - Role defaults live in `role_permission_defaults`, so new and existing organizations are granted from one source instead of two hand-maintained lists.
 - English and Kiswahili throughout, including the module data-entry forms. `useT()` gives client components the locale, which is what unblocked the forms — they had no way to read a cookie-based locale before, so they were stuck in English while the pages around them were bilingual.
 - Three static audits — accessibility, colour contrast, and translation coverage — each added after something got past a review.
+- A query-plan harness that seeds a realistic volume and asserts on the plans the screens produce, so a sequential scan fails a test rather than a pilot. It found one real ceiling in the stock overview, which is measured and documented rather than papered over.
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (499 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (513 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -140,7 +141,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0019`–`0028` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply migrations `0019`–`0029` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.

@@ -15,7 +15,7 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0018` are deployed. `0019`–`0028` are not.** Until they are applied, mine-site
+**Migrations `0001`–`0018` are deployed. `0019`–`0029` are not.** Until they are applied, mine-site
 management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals,
 the compliance recurrence fix, the scheduled alerts and per-site access restriction are not live. Document storage (`0020`) additionally stays hidden
 behind `DOCUMENTS_ENABLED`.
@@ -27,7 +27,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0028_site_restriction.sql`, using the Supabase CLI or the SQL editor.
+   `0029_stock_overview_ordering.sql`, using the Supabase CLI or the SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
@@ -135,6 +135,11 @@ Each of these exists because something got past a review once:
   it converts oklch to sRGB properly; reading the lightness number and guessing is what let a 1.58:1
   sidebar ship. `--border` is recorded as decorative and exempt, with the reasoning in the script.
 - `npm run i18n:report` — catalogue gaps and unreachable UI text.
+
+`tests/integration/query-plans.test.ts` seeds a realistic volume and asserts on **query plans** for
+the reads the screens actually perform. Wall-clock timings in WebAssembly are noise; a sequential
+scan is a sequential scan on any hardware. `npm run plan:probe` reproduces the same measurement at
+larger volumes when you need to see how something scales rather than whether it regressed.
 
 ## Operating the deployment
 

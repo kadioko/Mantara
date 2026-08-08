@@ -251,6 +251,19 @@ Each of these has already caused a defect in this codebase:
    whole either pages through (`features/reports/fetch-all.ts`) or aggregates in the database
    (`0025_module_totals.sql`).
 
+### Measuring, not guessing
+
+`tests/integration/query-plans.test.ts` seeds a realistic volume and asserts on **query plans**, not
+timings — PGlite is WebAssembly, so a millisecond figure is noise dressed up as evidence, while a
+sequential scan is a sequential scan on any hardware. `scripts/plan-probe.mjs` runs the same query
+at several volumes and prints the plans, for answering "does this scale" empirically instead of by
+assertion.
+
+That distinction earned its keep immediately: an index added on the assumption that it would flip
+the stock overview's plan turned out to change nothing at any volume, and the probe is what said so.
+The migration comment records what was tried and why it failed, so the next person does not spend
+the same afternoon.
+
 ### Static audits
 
 `npm run audit:all` runs the type check, lint, and three project-specific audits: accessibility
