@@ -112,3 +112,27 @@ export const stockAdjustmentSchema = z.object({
   adjustedOn: z.string().date(),
   notes: z.string().trim().max(500).optional(),
 });
+
+/** Opens a count session for one store. Lines are added to it afterwards. */
+export const stockCountSchema = z.object({
+  locationId: z.string().uuid(),
+  reference: z.string().trim().max(120).optional(),
+  countedOn: z.string().date(),
+  notes: z.string().trim().max(500).optional(),
+});
+
+/**
+ * One counted item.
+ *
+ * There is no field for the book quantity or the variance. Both are established by the database when
+ * the count is applied — reading the book figure at entry time would turn an issue made later the
+ * same afternoon into a phantom shortfall.
+ */
+export const stockCountLineSchema = z.object({
+  stockCountId: z.string().uuid(),
+  itemId: z.string().uuid(),
+  countedQuantity: z.coerce.number().min(0, "A counted quantity cannot be negative.").max(9_999_999),
+  notes: z.string().trim().max(200).optional(),
+});
+
+export const applyStockCountSchema = z.object({ stockCountId: z.string().uuid() });

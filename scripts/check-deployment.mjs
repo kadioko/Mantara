@@ -102,6 +102,7 @@ const markers = [
   ["0028", "site restriction", table("membership_sites")],
   ["0029", "stock overview ordering", null],
   ["0030", "fuel reconciliation", table("fuel_stock_takes")],
+  ["0031", "inventory stock counts", table("inventory_stock_counts")],
 ];
 
 console.log(`Project: ${new URL(url).host}\n`);

@@ -461,3 +461,27 @@ Apply `0030` before running these checks.
 - [ ] **The numbers are plausible to someone who knows the machines.** This is the check that matters
       most and only a site person can make it: an excavator at 20 L/h is credible, at 200 L/h it
       means the meter units or the readings are wrong.
+
+## Inventory stock counts
+
+Apply `0031` before running these checks.
+
+- [ ] Starting a count for a store creates it in draft with no lines.
+- [ ] Adding a counted quantity for an item saves it; entering the same item again **replaces** that
+      line rather than adding a second.
+- [ ] Applying the count reports how many items disagreed with the records, not how many were counted.
+- [ ] Each balance is corrected to what was counted, and an adjustment appears in the movement
+      history for every disagreement — and none for the items that matched.
+- [ ] **Counting an item the store has never held creates the balance** rather than failing. Finding
+      five of something the system does not know is there is exactly what a count is for.
+- [ ] The applied count shows each discrepancy with counted against book, shortfalls in red.
+- [ ] **A count cannot be applied twice**, and its lines cannot be edited afterwards.
+- [ ] An empty count cannot be applied.
+- [ ] A member with `inventory.read` but not `inventory.adjust` sees no count controls, and a
+      hand-crafted request is refused.
+- [ ] **(concurrency)** A stock issue recorded while a count is open is not reversed by applying it:
+      the correction is against the balance at apply time, so the issue still shows in the history and
+      the final balance reflects both.
+- [ ] Shrinkage totals an item short in two separate counts as short twice over.
+- [ ] **The findings are plausible to the storekeeper.** Only a person who knows the store can say
+      whether a shortfall is a loss, a miscount, or an issue nobody recorded.

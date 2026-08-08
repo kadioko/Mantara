@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireScope, rowInScope, rowInScopeHard, rpcMessage, type ActiveScope } from "@/lib/auth/scope";
 import {
+  applyStockCountSchema,
   inventoryCategorySchema,
   inventoryItemSchema,
   inventoryLocationSchema,
@@ -10,6 +11,8 @@ import {
   stockIssueSchema,
   stockReceiptSchema,
   stockTransferSchema,
+  stockCountLineSchema,
+  stockCountSchema,
   supplierSchema,
 } from "./schemas";
 
@@ -182,4 +185,80 @@ export async function recordStockAdjustment(_: InventoryState, formData: FormDat
   if (error) return { error: rpcMessage(error, "Unable to record the adjustment. Please try again.") };
   revalidatePath("/inventory");
   return { success: "Stock adjustment recorded." };
+}
+
+/**
+ * Stock counts: walking a store, and keeping what the walk found.
+ *
+ * Entering a count and applying it are separate on purpose. A store is counted over an hour or an
+ * afternoon, and the balances must not move until the whole thing is ready to be reconciled at once.
+ */
+export async function createStockCount(_: InventoryState, formData: FormData): Promise<InventoryState> {
+  const parsed = stockCountSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the stock count details." };
+  const scope = await requireScope("inventory.adjust", "You do not have permission to reconcile stock.");
+  if ("error" in scope) return scope;
+  if (!await locationInScope(scope, parsed.data.locationId)) return { error: "That store is not at this mine site." };
+
+  const { error } = await scope.workspace.supabase.from("inventory_stock_counts").insert({
+    organization_id: scope.organizationId,
+    mine_site_id: scope.siteId,
+    inventory_location_id: parsed.data.locationId,
+    reference: parsed.data.reference || null,
+    counted_on: parsed.data.countedOn,
+    notes: parsed.data.notes || null,
+    created_by: scope.workspace.user.id,
+    updated_by: scope.workspace.user.id,
+  });
+  if (error) return { error: rpcMessage(error, "Unable to start the stock count. Please try again.") };
+  revalidatePath("/inventory");
+  return { success: "Stock count started. Add each item you have counted, then apply it." };
+}
+
+export async function addStockCountLine(_: InventoryState, formData: FormData): Promise<InventoryState> {
+  const parsed = stockCountLineSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the counted quantity." };
+  const scope = await requireScope("inventory.adjust", "You do not have permission to reconcile stock.");
+  if ("error" in scope) return scope;
+  if (!await itemInScope(scope, parsed.data.itemId)) return { error: "That item is not in this organization." };
+
+  // Counting a shelf twice should correct the first line rather than adding a second that would
+  // silently double the correction, so a repeat replaces what was there.
+  const { error } = await scope.workspace.supabase
+    .from("inventory_stock_count_lines")
+    .upsert({
+      organization_id: scope.organizationId,
+      stock_count_id: parsed.data.stockCountId,
+      inventory_item_id: parsed.data.itemId,
+      counted_quantity: parsed.data.countedQuantity,
+      notes: parsed.data.notes || null,
+      created_by: scope.workspace.user.id,
+    }, { onConflict: "stock_count_id,inventory_item_id" });
+  if (error) return { error: rpcMessage(error, "Unable to save the counted line. Please try again.") };
+  revalidatePath("/inventory");
+  return { success: "Counted quantity saved." };
+}
+
+/**
+ * Applies a count. Leads with the number of disagreements, because that is the finding — "applied"
+ * alone would let a store that is nine items short read as a routine save.
+ */
+export async function applyStockCount(_: InventoryState, formData: FormData): Promise<InventoryState> {
+  const parsed = applyStockCountSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: "Check the stock count and try again." };
+  const scope = await requireScope("inventory.adjust", "You do not have permission to reconcile stock.");
+  if ("error" in scope) return scope;
+
+  const { data, error } = await scope.workspace.supabase.rpc("apply_inventory_stock_count", {
+    requested_count_id: parsed.data.stockCountId,
+  });
+  if (error) return { error: rpcMessage(error, "Unable to apply the stock count. Please try again.") };
+
+  revalidatePath("/inventory");
+  const findings = Number(data ?? 0);
+  return {
+    success: findings === 0
+      ? "Stock count applied. Every item matched the records."
+      : `Stock count applied. ${findings} item${findings === 1 ? "" : "s"} did not match the records; the balances have been corrected.`,
+  };
 }

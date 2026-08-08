@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0028` applied to Supabase. `0030` is not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
+**Database: migrations `0001`–`0028` applied to Supabase. `0030` and `0031` are not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -39,7 +39,7 @@ nobody is being told when a licence is about to expire.
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
 | Fuel | Tanks with transactional balances, deliveries, issues, adjustments, catalogue editing, reconciliation against a measured dip, and consumption per machine; balances cannot go negative and a tank holding fuel cannot be retired. |
 | Maintenance | Requests, work orders with an enforced lifecycle, parts, costs, service schedules that roll forward. |
-| Inventory | Catalogue with full editing, stores, suppliers, a stock ledger with non-negative balances and deadlock-safe transfers, and a paged site-scoped stock overview. |
+| Inventory | Catalogue with full editing, stores, suppliers, a stock ledger with non-negative balances and deadlock-safe transfers, a paged site-scoped stock overview, and stock counts that keep the shrinkage they find. |
 | Expenses | Categories with editing, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
 | Compliance | Licences with expiry tracking and editing, organization-authored requirements with editing and retirement, recurring tasks that stop when a requirement is retired. |
 | Safety | Incidents, inspections, corrective actions; personal and medical detail behind a granular permission, rate limited, and logged on every access. |
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 551 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 573 tests pass. |
 
 ## What the tests actually prove
 
@@ -117,9 +117,15 @@ asks nobody to record anything new. Litres are divided by meter distance across 
 weighted by distance rather than averaging per-fill rates — a small top-up over a short run must not
 count as much as a full tank over a long shift.
 
-- Inventory variance is still not measured. Stock adjustments carry a "stock take variance" reason
-  but there is no formal count, so the same finding is lost the same way fuel's used to be. This is
-  the obvious next piece.
+**Inventory variance is now measured too.** A stock count is a store walked shelf by shelf: many
+lines, entered over an afternoon, applied once. The book quantity is captured **when the count is
+applied, not when a line is entered** — stock keeps moving while somebody counts, and reading the
+book figure at entry time would silently reverse a legitimate issue made an hour later and report it
+as a shortfall that never happened.
+
+`inventory_shrinkage()` totals what the counts found per item. One negative variance is a miscount as
+often as a loss; the same item short in three counts running is the thing worth acting on, and that
+is only visible once the findings are kept as numbers.
 - Dashboard trends over time, rather than point-in-time figures.
 
 ### Administration
@@ -202,7 +208,7 @@ manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0019`–`0030` following [the runbook](deployment.md), then work the manual QA checklist
+Deploy `0030` and `0031` following [the runbook](deployment.md), then work the manual QA checklist
 against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

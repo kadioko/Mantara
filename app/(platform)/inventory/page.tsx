@@ -19,6 +19,12 @@ import {
   type Option,
 } from "@/features/inventory/inventory-forms";
 import {
+  AppliedStockCount,
+  OpenStockCount,
+  StartStockCountForm,
+  type StockCount,
+} from "@/features/inventory/stock-count-forms";
+import {
   CategoryRow,
   ItemRow,
   StoreRow,
@@ -71,7 +77,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     stockQuery = stockQuery.or(`item_name.ilike.${pattern},item_sku.ilike.${pattern},location_name.ilike.${pattern}`);
   }
 
-  const [stockResult, reorderResult, itemsResult, locationsResult, categoriesResult, suppliersResult] = await Promise.all([
+  const [stockResult, reorderResult, itemsResult, locationsResult, categoriesResult, suppliersResult, countsResult] = await Promise.all([
     stockQuery.order("item_name").order("location_name").range(paging.from, paging.to),
     // Counted separately, because the reorder figure is about the whole site rather than this page.
     workspace.supabase
@@ -86,6 +92,13 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     workspace.supabase.from("inventory_locations").select("id, name, notes, is_active").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("name"),
     workspace.supabase.from("inventory_categories").select("id, name").eq("organization_id", organization.id).order("name"),
     workspace.supabase.from("suppliers").select("id, name, contact_name, phone_number, email, notes, is_active").eq("organization_id", organization.id).order("name"),
+    workspace.supabase
+      .from("inventory_stock_counts")
+      .select("id, reference, status, counted_on, location:inventory_locations(name), lines:inventory_stock_count_lines(id, counted_quantity, book_quantity, variance_quantity, item:inventory_items(name, unit))")
+      .eq("organization_id", organization.id)
+      .eq("mine_site_id", site.id)
+      .order("counted_on", { ascending: false })
+      .limit(10),
   ]);
   if (itemsResult.error) throw new Error("Unable to load inventory items.");
 
@@ -103,6 +116,10 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
   const locationOptions: Option[] = activeStores.map((store) => ({ id: store.id, label: store.name }));
   const categoryOptions: Option[] = categories.map((category) => ({ id: category.id, label: category.name }));
   const supplierOptions: Option[] = suppliers.filter((supplier) => supplier.is_active).map((supplier) => ({ id: supplier.id, label: supplier.name }));
+
+  const counts = (countsResult.data ?? []) as StockCount[];
+  const openCounts = counts.filter((count) => count.status === "draft");
+  const appliedCounts = counts.filter((count) => count.status === "applied");
 
   const canMove = itemOptions.length > 0 && locationOptions.length > 0;
   const [workOrders, equipment, workers] = await Promise.all([
@@ -193,6 +210,21 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
           {canTransfer && locationOptions.length > 1 && <Panel title="Transfer between stores"><StockTransferForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
           {canAdjust && <Panel title="Adjust stock" description="Use a negative value for losses and a positive value for gains."><StockAdjustmentForm items={itemOptions} locations={locationOptions} today={today} /></Panel>}
         </>}
+
+    {canAdjust && locationOptions.length > 0 && <Panel
+      title="Stock counts"
+      description="Walk a store, enter what you find, then apply. The difference against the records is kept as a number rather than disappearing into an adjustment note.">
+      <StartStockCountForm stores={locationOptions} today={today} />
+      {openCounts.length > 0 && <div className="mt-6 space-y-4">
+        {openCounts.map((count) => <OpenStockCount key={count.id} count={count} items={itemOptions} />)}
+      </div>}
+      {appliedCounts.length > 0 && <div className="mt-6 rounded-xl border border-border">
+        <div className="border-b border-border px-5 py-3">
+          <h3 className="text-sm font-semibold text-muted-foreground">Recent counts</h3>
+        </div>
+        {appliedCounts.map((count) => <AppliedStockCount key={count.id} count={count} />)}
+      </div>}
+    </Panel>}
 
     <Panel title={t(locale, "reorderWatch")} description="Items at or below their reorder level in this site's stores.">
       {reorderRows.length
