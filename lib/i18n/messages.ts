@@ -133,6 +133,9 @@ const english = {
   create: "Create", update: "Update", cancel: "Cancel", edit: "Edit", remove: "Remove", confirm: "Confirm", actions: "Actions", status: "Status", date: "Date", quantity: "Quantity", unit: "Unit", amount: "Amount", reference: "Reference", description: "Description", required: "required", optional: "optional", all: "All", none: "None", yes: "Yes", no: "No", saving: "Saving...", saved: "Saved.", total: "Total", type: "Type",
   offline: "You are offline. Anything you save now will not reach the server — keep this page open and wait for the connection to return.",
   rateLimited: "That has been done too many times recently. Please wait a little and try again.", noPermission: "You do not have permission to do that.", checkTheForm: "Please check the highlighted fields and try again.",
+  // Says how long the window is, because "wait a little" leaves someone refreshing. The allowance
+  // itself is not named: how many are left is a useful thing to learn if you are probing.
+  rateLimitedMinutes: "That has been done too many times in the last {minutes} minutes. Please wait a little and try again.",
   language: "Language", english: "English", swahili: "Kiswahili", save: "Save", switch: "Switch", signOut: "Sign out", collapseSidebar: "Hide sidebar", expandSidebar: "Show sidebar",
   email: "Email", password: "Password", pleaseWait: "Please wait...", signIn: "Sign in", createAccount: "Create account",
   welcomeBack: "Welcome back", signInDescription: "Sign in to manage your mining operations.", newToMantara: "New to Mantara?", alreadyHaveAccount: "Already have an account?",
@@ -279,6 +282,7 @@ const swahili: Partial<Record<MessageKey, string>> = {
   create: "Unda", update: "Sasisha", cancel: "Ghairi", edit: "Hariri", remove: "Ondoa", confirm: "Thibitisha", actions: "Vitendo", status: "Hali", date: "Tarehe", quantity: "Kiasi", unit: "Kipimo", amount: "Kiasi cha fedha", reference: "Kumbukumbu", description: "Maelezo", required: "lazima", optional: "si lazima", all: "Zote", none: "Hakuna", yes: "Ndiyo", no: "Hapana", saving: "Inahifadhi...", saved: "Imehifadhiwa.", total: "Jumla", type: "Aina",
   offline: "Hauko mtandaoni. Chochote utakachohifadhi sasa hakitafika kwenye seva — acha ukurasa huu wazi na subiri muunganisho urudi.",
   rateLimited: "Jambo hilo limefanyika mara nyingi mno hivi karibuni. Tafadhali subiri kidogo kisha ujaribu tena.", noPermission: "Huna ruhusa ya kufanya hivyo.", checkTheForm: "Tafadhali angalia sehemu zilizoangaziwa kisha ujaribu tena.",
+  rateLimitedMinutes: "Jambo hilo limefanyika mara nyingi mno katika dakika {minutes} zilizopita. Tafadhali subiri kidogo kisha ujaribu tena.",
   language: "Lugha", english: "English", swahili: "Kiswahili", save: "Hifadhi", switch: "Badilisha", signOut: "Ondoka", collapseSidebar: "Ficha utepe wa pembeni", expandSidebar: "Onyesha utepe wa pembeni",
   email: "Barua pepe", password: "Nenosiri", pleaseWait: "Tafadhali subiri...", signIn: "Ingia", createAccount: "Fungua akaunti",
   welcomeBack: "Karibu tena", signInDescription: "Ingia ili kusimamia shughuli zako za uchimbaji.", newToMantara: "Mgeni Mantara?", alreadyHaveAccount: "Una akaunti tayari?",

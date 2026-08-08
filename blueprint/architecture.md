@@ -223,6 +223,11 @@ Cross-cutting helpers worth knowing about before adding a module:
   Returns null on failure so the screen can show a dash; a zero would be a claim.
 - `lib/observability/log.ts` — one JSON line per event on stdout, with personal and operational
   fields redacted by name.
+- `lib/security/headers.ts` — the whole browser-facing policy as pure functions, applied by
+  `proxy.ts` to every response including the redirects. It sits **in front of** the tenant boundary
+  and never overlaps it: RLS decides who may read a record, and these decide what a browser already
+  holding a valid session is allowed to do. The Content-Security-Policy is sent report-only until a
+  week of real traffic has been read; promoting it is one header name.
 - `lib/i18n/` — `messages.ts` holds the catalogue and the server-side `t()`; `client.tsx` provides
   `LocaleProvider` and `useT()` for client components, which is what lets the data-entry forms be
   bilingual at all.
@@ -230,7 +235,18 @@ Cross-cutting helpers worth knowing about before adding a module:
   `Pagination`, `CatalogueList`/`CatalogueRow`, and the `Alert`/`EmptyState`/`StatCard`/`PageHeader`
   set. Design tokens are declared in `app/globals.css` following shadcn/ui conventions.
 
-### Three database rules that are easy to get wrong
+### The proxy is a layer with no tests of its own until you write them
+
+`proxy.ts` runs in front of every request, and two live bugs have now come from that: `/api/health`
+was redirected to a login page that answers 200, so an uptime monitor would have reported the
+service healthy through a database outage; and `/manifest.webmanifest` was redirected the same way,
+so installing the app failed on the only screen a signed-out visitor sees. In both cases every test
+of the handler passed, because the handler was correct and was never reached.
+
+Anything that must answer without a session belongs in `publicPaths` **with the reason written next
+to it**, and `tests/unit/security-headers.test.ts` executes the proxy rather than reading it as text.
+
+### Four database rules that are easy to get wrong
 
 Each of these has already caused a defect in this codebase:
 

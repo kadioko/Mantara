@@ -87,7 +87,7 @@ export async function revealIncidentDetails(_: SensitiveDetailsState, formData: 
   const scope = await requireScope("safety.read_sensitive", "You do not have permission to view sensitive incident details.");
   if ("error" in scope) return scope;
   // Bulk-reading medical notes is exactly the pattern worth slowing down, audit trail or not.
-  if (!await withinRateLimit("safety.sensitive_read")) return { error: rateLimitMessage("safety.sensitive_read") };
+  if (!await withinRateLimit("safety.sensitive_read")) return { error: await rateLimitMessage("safety.sensitive_read") };
   const { data, error } = await scope.workspace.supabase.rpc("read_safety_incident_details", {
     requested_incident_id: incidentId,
   });

@@ -1,6 +1,6 @@
 # Mantara OS — project status
 
-**Audited: 8 August 2026**
+**Audited: 9 August 2026**
 **Database: every migration through `0032` applied; `0033` is new. `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside and need `supabase/verify-deployment.sql`.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
@@ -14,14 +14,17 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The gap between "built" and "in use" is deployment. **Twelve migrations are undeployed**, and until they
-are applied the following are not live: mine-site management, organization settings, custom roles,
-rate limiting, the stock overview, the catalogue retirement guards, the module totals, the compliance
-recurrence fix, the scheduled alerts, and per-site access restriction.
+The deployment gap that dominated this document has closed: everything through `0032` is applied, so
+mine-site management, organization settings, custom roles, rate limiting, the stock overview, the
+catalogue guards, the corrected module totals, the compliance recurrence fix, the scheduled alerts
+and per-site restriction are all live. **`0033` is the only migration still to apply**, and until it
+does, the actions that move value — a fuel adjustment, a stock adjustment, a production or expense
+approval, a retirement — leave no audit entry.
 
-Nothing in the running deployment is broken by their absence — but two things are worth being blunt
-about. Several headline figures on the live site are still computed the old, incorrect way. And
-nobody is being told when a licence is about to expire.
+*(Until 9 August this section still said twelve migrations were undeployed, which stopped being true
+several commits earlier. The header at the top of this file was right and the summary was stale —
+recorded here because a status document that contradicts itself is worse than one that is merely out
+of date.)*
 
 ## Delivered
 
@@ -46,8 +49,8 @@ nobody is being told when a licence is about to expire.
 | Insight | Dashboard with permission-gated figures, organization audit log, reports with CSV export that cannot silently truncate, and notifications including scheduled alerts for licence expiry and overdue work. |
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
-| Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 639 tests pass. |
+| Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 672 tests pass. |
 
 ## What the tests actually prove
 
@@ -193,7 +196,10 @@ data-entry form in the product was stuck in English while the pages around them 
 backwards for a product whose forms are filled in by supervisors at a mine site and whose landing
 pages are read by head office.
 
-- The catalogue is complete: 415 keys, 100% Kiswahili.
+- The catalogue is complete: 416 keys, 100% Kiswahili.
+- **The rate-limit refusal now speaks Kiswahili.** It was hard-coded English behind a bilingual
+  product, on one of the few screens where the reader is already being told no. It reads the locale
+  itself rather than taking one, so no call site can forget to pass it.
 - **The panel titles and descriptions on every module page are translated.** Those are the sentences
   somebody reads to work out what a screen is for, and they matter more to a supervisor navigating
   the product than any single field label does.
@@ -208,6 +214,54 @@ pages are read by head office.
 - The mechanical part is lifting them into the catalogue. **The part that needs a person is the
   Kiswahili for mining vocabulary** — grade, assay, headgear, stope, waybill. Machine-translating
   those would produce something a Tanzanian operator would not trust, which is worse than English.
+
+### The browser
+
+Until 9 August the product sent **no security headers at all**. Every response — pages, the CSV
+export, the redirect a signed-out visitor lands on — carried nothing. RLS decides who may read a
+record and does that well, but it runs in the database and has no view of what happens inside a
+browser that is already holding a valid session, and nothing was covering that.
+
+Now in place, enforcing, on every response including the redirects:
+
+| Header | Why this value |
+| --- | --- |
+| `X-Content-Type-Options: nosniff` | The CSV export is `text/csv` full of text an operator typed. A browser that sniffed it as HTML would run it on our origin. |
+| `X-Frame-Options: DENY` | A hostile page overlaying ours collects clicks that approve production or change a role. |
+| `Referrer-Policy: same-origin` | Not the usual `strict-origin-when-cross-origin`: URLs here name records, and that a particular record was open is not something an external site should learn. |
+| `Cross-Origin-Opener-Policy: same-origin` | No page we open keeps a handle on us. |
+| `Permissions-Policy` | Camera, microphone, geolocation, payment and the sensors, all denied. Nothing asks for them; a dependency that starts asking is refused by policy rather than by a prompt somebody clicks through. |
+| `Strict-Transport-Security` | Two years, subdomains included, **without `preload`** — preloading is a one-way door granted by browser vendors and applies to subdomains this project does not control. |
+
+**The Content-Security-Policy is real, strict, and deliberately not enforcing.** It is sent as
+`Content-Security-Policy-Report-Only`, so today it blocks nothing and reports everything to
+`/api/csp-report`, which writes `csp.violation` into the ordinary log stream. A strict policy added
+to an application that never had one will find something, and an enforcing policy that finds
+something is a blank screen with the explanation in a console nobody at a mine site is reading.
+
+The nonce works — this was checked against a production build, not assumed: all twelve script tags
+Next.js renders on the login screen carry it and every one matches the header. That mattered more
+than it sounds. Without it every hydration script would report a violation, the genuine findings
+would drown, and the policy would never be promoted out of report-only.
+
+Promoting it is one line: the header name in `securityHeaders`. **Not before a week of real use has
+produced no report you cannot explain.**
+
+Two smaller things found in the same area:
+
+- **`document.upload` had an allowance in the rate-limit table and nothing consuming it.** Every
+  rate-limit test passed, because they exercise the database function, which was being asked
+  nothing. The one call in the product that creates a storage object per request was unlimited.
+  `tests/unit/security-headers.test.ts` now fails if any declared bucket has no call site.
+- **`/manifest.webmanifest` was answering a 307 to the login page.** It is linked from the head of
+  every page including `/login`, and browsers fetch it without credentials, so installing the app
+  was broken on the only screen a signed-out visitor sees. Same shape as the `/api/health` bug: a
+  path that must answer anonymously, not named as one.
+
+And one caught only by running the thing: the report collector answered **500 to every report**,
+because `NextResponse.json` cannot build a 204. Its unit tests passed — they called the parser, and
+the parser was correct. A `curl` at a running server found it in one request. A report channel that
+silently 500s is worse than none, because the quiet reads as a clean policy.
 
 ### Accessibility
 
@@ -256,6 +310,10 @@ reproduces the measurement and the test holds the current shape so it cannot dri
 
 Load testing against a real server with concurrent users, backup and recovery procedure, and pilot
 manual-QA signoff.
+
+The Content-Security-Policy is outstanding in a specific sense: it is written, served and reporting,
+but it has never blocked anything and cannot be called proven until a week of real traffic has been
+read. Nobody should describe this product as having a CSP until that has happened.
 
 ## Recommended next task
 

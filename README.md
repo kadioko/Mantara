@@ -36,7 +36,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0030_fuel_reconciliation.sql`, using the Supabase CLI or the SQL editor. Migrations from
+   `0033_audit_coverage.sql`, using the Supabase CLI or the SQL editor. Migrations from
    `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
    again rather than by hand.
 3. Run `npm run dev`.
@@ -168,6 +168,11 @@ larger volumes when you need to see how something scales rather than whether it 
 - `/api/health` returns `200` when the instance can reach the database and `503` when it cannot. It
   is anonymous and deliberately says nothing else, so it cannot be used to learn the schema or which
   tenants exist. Point an uptime monitor at it.
+- Six paths answer without a session, and each one is named in `proxy.ts` with the reason:
+  `/login`, `/register`, `/auth/callback`, `/api/health`, `/api/csp-report` and
+  `/manifest.webmanifest`. Anything not listed is redirected — which is correct, and is also how the
+  health probe and the web manifest each shipped broken. Add to that set only with a reason written
+  down next to it.
 - Logs are one JSON line per event on stdout (`lib/observability/log.ts`). Any drain will collect
   them. Personal and operational fields are redacted by name, because logs are readable by more
   people than the database is.
@@ -176,6 +181,49 @@ larger volumes when you need to see how something scales rather than whether it 
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
+
+### Security headers
+
+`lib/security/headers.ts` holds the whole policy, and `proxy.ts` puts it on every response —
+including the redirect to `/login`, which is the branch that gets forgotten and the one a signed-out
+visitor always reaches. Row-level security decides who may read a record and does that job well, but
+it runs in the database and has no opinion about what happens inside a browser already holding a
+valid session. These headers cover that gap; they do not touch the tenant boundary.
+
+Three choices worth knowing about:
+
+- **`Referrer-Policy: same-origin`**, not the usual `strict-origin-when-cross-origin`. URLs here
+  name records — `/production/<uuid>` — and the fact that a particular record was open is not
+  something an external site should be told.
+- **`Strict-Transport-Security` without `preload`.** Preloading is granted by browser vendors, slow
+  to undo, and applies to every subdomain of the registered domain including ones this project does
+  not control. Deliberately not asked for.
+- **The CSP is sent report-only.** See below.
+
+### Content-Security-Policy
+
+The policy is real and strict — `script-src 'self' 'nonce-…' 'strict-dynamic'`, no inline scripts,
+`frame-ancestors 'none'`, `form-action 'self'` — and it is sent as
+`Content-Security-Policy-Report-Only`, so **it currently blocks nothing**.
+
+That is the point. A strict policy added to an application that has never had one will find
+something, and an enforcing policy that finds something renders a blank page with the explanation in
+a console nobody at a mine site is reading. Report-only sends the identical policy, breaks nothing,
+and posts each would-be violation to `/api/csp-report`, which logs it as `csp.violation` in the
+ordinary stream:
+
+```bash
+grep csp.violation
+```
+
+The nonce is issued in both modes, and it works: every script tag Next.js renders carries it, which
+was confirmed against a production build rather than assumed. Without that, every hydration script
+in the product would report a violation, the real findings would drown, and the policy would never
+be promoted.
+
+**To make it enforcing**, once a week of real use has produced no reports you cannot explain: change
+the header name in `securityHeaders` (`lib/security/headers.ts`) from
+`Content-Security-Policy-Report-Only` to `Content-Security-Policy`. That is the whole change.
 
 ### Email
 

@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!await withinRateLimit("report.export")) {
-    return NextResponse.json({ error: rateLimitMessage("report.export") }, { status: 429 });
+    return NextResponse.json({ error: await rateLimitMessage("report.export") }, { status: 429 });
   }
 
   const result = await runReport(kind, from, to);
@@ -28,6 +28,12 @@ export async function GET(request: NextRequest) {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="mantara-${kind}-${from}-to-${to}.csv"`,
       "Cache-Control": "no-store",
+      // The proxy sets this on every response, and it is set again here on purpose. This body is
+      // text an operator typed, served from our own origin; a browser that decided it looked like
+      // HTML would run it with the session attached. That is too much to rest on a header applied
+      // by a layer this route has no test coverage over — /api/health shipped broken for exactly
+      // that reason, because every test exercised the handler and none exercised the path in front.
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

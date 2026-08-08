@@ -97,6 +97,30 @@ Then work the [manual QA checklist](manual-qa-checklist.md). Its first items und
 are deliberately the "nothing should have changed" ones — particularly for `0028`, where every
 existing member must still see every site until somebody is explicitly restricted.
 
+## After the application deploy
+
+Unrelated to the migrations, and worth one look on the day the new build goes out:
+
+```bash
+curl -sD - -o /dev/null https://<your-host>/login
+```
+
+Every response should carry `x-content-type-options`, `x-frame-options`, `referrer-policy`,
+`permissions-policy`, `strict-transport-security` and `content-security-policy-report-only`. The
+redirect a signed-out visitor gets should carry them too — check `https://<your-host>/production`
+without a session, because that branch is the one that gets forgotten.
+
+Then leave it a week and read the reports:
+
+```bash
+grep csp.violation
+```
+
+Each line is something the policy *would* have blocked. Nothing today is blocked; the policy is
+report-only on purpose. Once the reports contain nothing you cannot explain, change the header name
+in `securityHeaders` (`lib/security/headers.ts`) from `Content-Security-Policy-Report-Only` to
+`Content-Security-Policy` and deploy that alone, so a problem has one obvious cause.
+
 ## Environment
 
 Nothing here requires a new environment variable. Two optional ones:
@@ -110,6 +134,10 @@ Nothing here requires a new environment variable. Two optional ones:
 Worth knowing before trusting the deployment:
 
 - Supabase Auth, Storage and PostgREST behaviour. The migration harness stubs all three.
+- Whether the Content-Security-Policy would actually hold. The nonce reaching every script tag was
+  confirmed against a production build, and the headers are asserted by running the proxy — but no
+  test can tell you what a real browser on a real page would have refused. That is what the
+  report-only week is for.
 - Real concurrency. The row locks are the right construction and the balance floors are proven, but
   genuine simultaneous writes need a multi-connection server.
 - Wall-clock performance. Query *plans* are asserted and those transfer; timings do not.

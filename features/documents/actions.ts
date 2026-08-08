@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { documentsEnabled } from "@/lib/features";
 import { requireScope, rowInScope, rowInScopeHard } from "@/lib/auth/scope";
+import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 
 export type DocumentState = { error?: string; success?: string };
 
@@ -52,6 +53,12 @@ export async function createDocumentUpload(_: DocumentState, formData: FormData)
 
   const scope = await requireScope(config.permission, "You do not have permission to attach documents here.");
   if ("error" in scope) return scope;
+
+  // After the permission check, so a caller who is not allowed to attach anything cannot spend
+  // somebody else's allowance by asking. Each call mints a signed upload URL and a storage path,
+  // which is a real object created in the bucket whether or not the upload that follows completes —
+  // the one place in the product where a loop costs storage rather than rows.
+  if (!await withinRateLimit("document.upload")) return { error: await rateLimitMessage("document.upload") };
 
   const owned = config.softDeleted
     ? await rowInScope(scope, config.table, parsed.data.ownerId, { siteScoped: config.siteScoped })

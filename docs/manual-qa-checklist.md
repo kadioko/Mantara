@@ -549,3 +549,42 @@ sending path has been exercised against a real provider** — everything below i
 - [ ] The message arrives in Kiswahili when the inviter's language is Kiswahili.
 - [ ] No email address appears in the application logs.
 - [ ] Inviting the same address twice does not send a duplicate storm — rate limiting applies.
+
+## Browser security headers and the Content-Security-Policy
+
+The headers are asserted by running the proxy, and the nonce reaching every script tag was confirmed
+against a production build. **What no test can tell you is what a real browser on a real page would
+have refused** — that is what the report-only period is for, and it needs somebody to use the product
+normally and then read what came back.
+
+- [ ] `curl -sD - -o /dev/null https://<host>/login` shows `x-content-type-options`,
+      `x-frame-options`, `referrer-policy`, `permissions-policy`, `strict-transport-security` and
+      `content-security-policy-report-only`.
+- [ ] The same headers are on the redirect a signed-out visitor gets — check `/production` without a
+      session. This is the branch that gets forgotten.
+- [ ] `content-security-policy` (without `-report-only`) is **absent**. If it is present, the policy
+      is enforcing before anyone has read a single report.
+- [ ] The CSV export downloads and opens in Excel and in Google Sheets, and carries
+      `x-content-type-options: nosniff`.
+- [ ] The app can still be installed from Chrome on Android — `/manifest.webmanifest` answers 200
+      while signed out, not a redirect.
+- [ ] **Work normally for a week**: sign in, record a shift, approve an entry, run a report, switch
+      language, use the dashboard. Then `grep csp.violation` in the logs.
+- [ ] Every violation reported is one you can explain. A report naming a script on our own origin
+      means the nonce is not reaching something — investigate before promoting.
+- [ ] No violation names Supabase. If one does, `connect-src` is missing an origin and enforcing the
+      policy would break sign-in entirely.
+- [ ] Only after all of the above: promote the policy by changing the header name, deploy that alone,
+      and confirm the product still loads on a phone browser as well as a desktop one.
+- [ ] Nothing in the log lines contains a search term, a filter value, or anything an operator typed.
+      The query string is stripped on purpose; confirm it with a real report.
+
+## Rate limiting on document upload
+
+Only reachable with `DOCUMENTS_ENABLED=true`, and the allowance had never applied to anything before.
+
+- [ ] Attaching documents at an ordinary pace is never refused.
+- [ ] Attaching many in quick succession is eventually refused with a readable message, and the
+      message says how long to wait.
+- [ ] The refusal appears in Kiswahili when the browser language is Kiswahili.
+- [ ] A refused attempt leaves no orphaned record on the equipment, licence or training row.

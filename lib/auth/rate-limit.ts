@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { logError, logWarn } from "@/lib/observability/log";
+import { getLocale } from "@/lib/i18n/locale";
+import { t } from "@/lib/i18n/messages";
 
 /**
  * Allowances for actions worth slowing down. Each is generous for real work and only bites on
@@ -41,8 +43,15 @@ export async function withinRateLimit(bucket: RateLimitBucket): Promise<boolean>
   return data !== false;
 }
 
-/** Wording that tells the reader what to do without exposing the exact allowance. */
-export function rateLimitMessage(bucket: RateLimitBucket) {
+/**
+ * Wording that tells the reader what to do without exposing the exact allowance.
+ *
+ * It reads the locale itself rather than taking one. Every caller is a server action or a route
+ * handler that already has cookies available, and a locale parameter is one more thing a call site
+ * can forget — which is how this ended up hard-coded in English behind a bilingual product in the
+ * first place, on the one screen where the reader is already being told no.
+ */
+export async function rateLimitMessage(bucket: RateLimitBucket): Promise<string> {
   const minutes = Math.round(rateLimits[bucket].windowSeconds / 60);
-  return `That has been done too many times in the last ${minutes} minutes. Please wait a little and try again.`;
+  return t(await getLocale(), "rateLimitedMinutes", { minutes: String(minutes) });
 }
