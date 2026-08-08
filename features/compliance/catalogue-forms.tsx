@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { CatalogueRow } from "@/components/ui/catalogue";
 import { Field, controlClass, fieldClass, selectClass, textareaClass } from "@/components/ui/form";
 import { setRequirementStatus, updateLicence, updateRequirement } from "./catalogue-actions";
@@ -32,6 +34,7 @@ export type CatalogueRequirement = {
  * form where the reader can see the dates that go with it.
  */
 export function LicenceRow({ licence, canManage }: { licence: CatalogueLicence; canManage: boolean }) {
+  const tr = useT();
   return (
     <CatalogueRow
       id={licence.id}
@@ -45,30 +48,30 @@ export function LicenceRow({ licence, canManage }: { licence: CatalogueLicence; 
       canManage={canManage}
       updateAction={updateLicence}
     >
-      <Field label="Licence number" required>
+      <Field label={tr("fLicenceNumber")} required>
         <input name="licenceNumber" required maxLength={120} defaultValue={licence.licence_number} className={fieldClass} />
       </Field>
-      <Field label="Licence type" required>
+      <Field label={tr("fLicenceType")} required>
         <input name="licenceType" required maxLength={120} defaultValue={licence.licence_type} className={fieldClass} />
       </Field>
-      <Field label="Status" required>
+      <Field label={tr("fStatus")} required>
         <select name="status" required defaultValue={licence.status} className={selectClass}>
           {licenceStatuses.map((value) => <option key={value} value={value}>{licenceStatusLabels[value]}</option>)}
         </select>
       </Field>
-      <Field label="Issuing authority">
+      <Field label={tr("fIssuingAuthority")}>
         <input name="issuingAuthority" maxLength={160} defaultValue={licence.issuing_authority ?? ""} className={fieldClass} />
       </Field>
-      <Field label="Holder">
+      <Field label={tr("fHolder")}>
         <input name="holderName" maxLength={160} defaultValue={licence.holder_name ?? ""} className={fieldClass} />
       </Field>
-      <Field label="Issued on">
+      <Field label={tr("fIssuedOn")}>
         <input name="issuedOn" type="date" defaultValue={licence.issued_on ?? ""} className={fieldClass} />
       </Field>
-      <Field label="Expires on" hint="This date drives the expiry warning, so it is worth getting right.">
+      <Field label={tr("fExpiresOn")} hint="This date drives the expiry warning, so it is worth getting right.">
         <input name="expiresOn" type="date" defaultValue={licence.expires_on ?? ""} className={fieldClass} />
       </Field>
-      <Field label="Notes" className="md:col-span-2">
+      <Field label={tr("fNotes")} className="md:col-span-2">
         <input name="notes" maxLength={2000} defaultValue={licence.notes ?? ""} className={controlClass} />
       </Field>
     </CatalogueRow>
@@ -82,6 +85,7 @@ export function RequirementRow({
   requirement: CatalogueRequirement;
   canManage: boolean;
 }) {
+  const tr = useT();
   return (
     <CatalogueRow
       id={requirement.id}
@@ -97,18 +101,18 @@ export function RequirementRow({
       retireLabel="Retire"
       restoreLabel="Reinstate"
     >
-      <Field label="Requirement" required className="md:col-span-2">
+      <Field label={tr("fRequirement")} required className="md:col-span-2">
         <input name="name" required maxLength={160} defaultValue={requirement.name} className={fieldClass} />
       </Field>
-      <Field label="Recurrence" required hint="Completing a task schedules the next one this far ahead.">
+      <Field label={tr("fRecurrence")} required hint="Completing a task schedules the next one this far ahead.">
         <select name="recurrence" required defaultValue={requirement.recurrence} className={selectClass}>
           {recurrenceIntervals.map((value) => <option key={value} value={value}>{recurrenceLabels[value]}</option>)}
         </select>
       </Field>
-      <Field label="Category">
+      <Field label={tr("fCategory")}>
         <input name="category" maxLength={120} defaultValue={requirement.category ?? ""} className={fieldClass} />
       </Field>
-      <Field label="Description" className="md:col-span-2">
+      <Field label={tr("fDescription")} className="md:col-span-2">
         <textarea name="description" maxLength={2000} rows={2} defaultValue={requirement.description ?? ""} className={textareaClass} />
       </Field>
     </CatalogueRow>

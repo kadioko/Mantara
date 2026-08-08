@@ -1,6 +1,6 @@
 # Manual QA checklist
 
-Apply every migration `0001`–`0026` to the linked Supabase project before working through this. Track wider
+Apply every migration `0001`–`0027` to the linked Supabase project before working through this. Track wider
 progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
@@ -374,3 +374,25 @@ Apply `0022` before running these checks.
 - [ ] Disconnecting the network shows the offline banner within a moment, in the active language.
 - [ ] Reconnecting removes it without a reload.
 - [ ] The banner is announced to a screen reader politely, not as an interruption.
+
+## Scheduled alerts
+
+Apply `0027` before running these checks. Run the job by hand with `select public.generate_alerts();`
+rather than waiting for the schedule.
+
+- [ ] `select jobname, schedule, active from cron.job where jobname = 'mantara-daily-alerts';` returns
+      an active row. If `pg_cron` is unavailable on the project, confirm the migration said so and
+      schedule the function by other means.
+- [ ] A licence expiring in under 60 days produces a notification naming the licence and its date.
+- [ ] **Running the job a second time produces nothing.** This is the property the whole design rests
+      on; a job that re-sends the same alert daily teaches people to ignore notifications.
+- [ ] Moving that licence closer, past the next threshold, produces exactly one further alert.
+- [ ] A licence already expired produces nothing new.
+- [ ] An overdue compliance task alerts people holding `compliance.read`.
+- [ ] An overdue corrective action alerts people holding `safety.read` and **not** the compliance-only
+      reader, and vice versa.
+- [ ] Notifications link to the right screen: compliance alerts to `/compliance`, safety to `/safety`.
+- [ ] **No alert about one organization reaches a member of another.**
+- [ ] A suspended organization generates no alerts.
+- [ ] `select has_function_privilege('authenticated', 'public.generate_alerts()', 'execute');` is
+      false — no client may write notifications for other people.

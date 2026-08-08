@@ -10,9 +10,16 @@ import { markAllNotificationsRead, markNotificationRead } from "@/features/notif
 export const metadata = { title: "Notifications" };
 
 /** Where each kind of notification should take the reader to act on it. */
+/**
+ * Where each kind of notification leads. An unmapped type still renders — it simply is not a link —
+ * so a notification added by a later migration is never invisible to the person it was written for.
+ */
 const destinations: Record<string, string> = {
   "production.submitted": "/production",
   "expense.submitted": "/expenses",
+  "compliance.licence_expiring": "/compliance",
+  "compliance.task_overdue": "/compliance",
+  "safety.action_overdue": "/safety",
 };
 
 export default async function NotificationsPage() {

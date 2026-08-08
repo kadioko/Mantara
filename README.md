@@ -15,9 +15,9 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0018` are deployed. `0019`–`0026` are not.** Until they are applied, mine-site
-management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals
-and the compliance recurrence fix are not live. Document storage (`0020`) additionally stays hidden
+**Migrations `0001`–`0018` are deployed. `0019`–`0027` are not.** Until they are applied, mine-site
+management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals,
+the compliance recurrence fix and the scheduled alerts are not live. Document storage (`0020`) additionally stays hidden
 behind `DOCUMENTS_ENABLED`.
 
 See the [project status](docs/project-status.md) for what is verified and what is not, and the
@@ -27,7 +27,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0026_compliance_recurrence.sql`, using the Supabase CLI or the SQL editor.
+   `0027_scheduled_alerts.sql`, using the Supabase CLI or the SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
@@ -144,3 +144,26 @@ Each of these exists because something got past a review once:
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
+
+### Alerts
+
+`generate_alerts()` creates the notifications nobody would otherwise see in time — a licence
+approaching expiry, an overdue compliance task, an overdue corrective action. `0027` schedules it
+daily under `pg_cron`. Confirm it is scheduled:
+
+```sql
+select jobname, schedule, active from cron.job where jobname = 'mantara-daily-alerts';
+```
+
+If the project cannot use `pg_cron`, the migration says so in a notice and the function still exists;
+schedule `select public.generate_alerts();` daily by whatever means the deployment has.
+
+It runs **inside the database on purpose**. The alternative — an HTTP endpoint a scheduler calls —
+needs a service-role key in the application, which bypasses RLS entirely. In a product whose whole
+promise is that one organization cannot see another's data, that credential is not worth creating for
+a cron job.
+
+Running it twice creates nothing the second time. Every alert carries a `subject_key` naming exactly
+what it is about, unique per user, so re-running after an outage is safe. That matters more than it
+sounds: a job that re-sends "licence expires in 21 days" every morning teaches people to ignore
+notifications, which leaves them worse off than no alerting at all.

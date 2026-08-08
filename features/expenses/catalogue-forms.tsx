@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { CatalogueRow } from "@/components/ui/catalogue";
 import { Field, fieldClass } from "@/components/ui/form";
 import { setExpenseCategoryStatus, updateExpenseCategory } from "./catalogue-actions";
@@ -18,6 +20,7 @@ export function ExpenseCategoryRow({
   category: CatalogueExpenseCategory;
   canManage: boolean;
 }) {
+  const tr = useT();
   return (
     <CatalogueRow
       id={category.id}
@@ -28,7 +31,7 @@ export function ExpenseCategoryRow({
       statusAction={setExpenseCategoryStatus}
       restoreLabel="Reinstate"
     >
-      <Field label="Name" required className="md:col-span-3">
+      <Field label={tr("fName")} required className="md:col-span-3">
         <input name="name" required maxLength={120} defaultValue={category.name} className={fieldClass} />
       </Field>
     </CatalogueRow>

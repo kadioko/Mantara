@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import { createAssignment, createTraining, issuePpe, updateWorkerStatus, type WorkerState } from "./actions";
@@ -28,37 +29,40 @@ export function WorkerStatusForm({ workerId, status }: { workerId: string; statu
 }
 
 export function AssignmentForm({ workerId, today }: { workerId: string; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createAssignment, {} as WorkerState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <input name="workerId" type="hidden" value={workerId} />
-    <label className="text-sm font-semibold md:col-span-3">Assignment *<input required name="assignmentName" maxLength={160} placeholder="Night shift — pit 2" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Starts on *<input required name="startsOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Ends on<input name="endsOn" type="date" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-3">{tr("fAssignment")} *<input required name="assignmentName" maxLength={160} placeholder="Night shift — pit 2" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fStartsOn")} *<input required name="startsOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fEndsOn")}<input name="endsOn" type="date" className={fieldClass} /></label>
     <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add assignment"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
 
 export function TrainingForm({ workerId, today }: { workerId: string; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createTraining, {} as WorkerState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <input name="workerId" type="hidden" value={workerId} />
     <label className="text-sm font-semibold md:col-span-3">Training *<input required name="trainingName" maxLength={160} placeholder="Underground safety induction" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Completed on *<input required name="completedOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Expires on<input name="expiresOn" type="date" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fCompletedOn")} *<input required name="completedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fExpiresOn")}<input name="expiresOn" type="date" className={fieldClass} /></label>
     <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add training"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
 
 export function PpeForm({ workerId, today }: { workerId: string; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(issuePpe, {} as WorkerState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <input name="workerId" type="hidden" value={workerId} />
-    <label className="text-sm font-semibold md:col-span-2">Item *<input required name="itemName" maxLength={160} placeholder="Safety boots" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Issued on *<input required name="issuedOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold md:col-span-2">Notes<input name="notes" maxLength={2000} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fItem")} *<input required name="itemName" maxLength={160} placeholder="Safety boots" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fIssuedOn")} *<input required name="issuedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Record issue"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;

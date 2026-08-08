@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { CatalogueRow } from "@/components/ui/catalogue";
 import { Field, controlClass, fieldClass, selectClass } from "@/components/ui/form";
 import { setFuelLocationStatus, updateFuelLocation } from "./catalogue-actions";
@@ -21,6 +23,7 @@ export type CatalogueTank = {
  * balance is what a fuel adjustment is for, and that leaves a reason and an author behind it.
  */
 export function TankRow({ tank, canManage }: { tank: CatalogueTank; canManage: boolean }) {
+  const tr = useT();
   const capacity = tank.capacity_litres === null ? "" : String(tank.capacity_litres);
   return (
     <CatalogueRow
@@ -38,8 +41,8 @@ export function TankRow({ tank, canManage }: { tank: CatalogueTank; canManage: b
       retireLabel="Take out of service"
       restoreLabel="Return to service"
     >
-      <Field label="Name" required><input name="name" required maxLength={120} defaultValue={tank.name} className={fieldClass} /></Field>
-      <Field label="Fuel type" required>
+      <Field label={tr("fName")} required><input name="name" required maxLength={120} defaultValue={tank.name} className={fieldClass} /></Field>
+      <Field label={tr("fFuelType")} required>
         <select name="fuelType" required defaultValue={tank.fuel_type} className={selectClass}>
           {fuelTypes.map((value) => <option key={value} value={value}>{fuelTypeLabels[value]}</option>)}
         </select>
@@ -47,7 +50,7 @@ export function TankRow({ tank, canManage }: { tank: CatalogueTank; canManage: b
       <Field label="Capacity (litres)" hint="Leave blank if the tank has no stated capacity.">
         <input name="capacityLitres" type="number" min="0" step="0.001" defaultValue={capacity} className={fieldClass} />
       </Field>
-      <Field label="Notes" className="md:col-span-3">
+      <Field label={tr("fNotes")} className="md:col-span-3">
         <input name="notes" maxLength={2000} defaultValue={tank.notes ?? ""} className={controlClass} />
       </Field>
     </CatalogueRow>

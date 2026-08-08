@@ -47,7 +47,7 @@ export function MaintenanceRequestForm({ equipment, workers, today }: { equipmen
   const [state, action, pending] = useActionState(createMaintenanceRequest, {} as MaintenanceState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Raise a request</h2><p className="mt-1 text-sm text-muted-foreground">Report a fault or a job that needs planning.</p></div>
-    <label className="text-sm font-semibold md:col-span-2">Title *<input required name="title" maxLength={160} placeholder="Hydraulic leak on boom" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder="Hydraulic leak on boom" className={fieldClass} /></label>
     <PrioritySelect />
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
     <OptionSelect name="reportedByWorkerId" label="Reported by" options={workers} placeholder={tr("optNotRecorded")} />
@@ -63,7 +63,7 @@ export function WorkOrderForm({ equipment, workers, requests }: { equipment: Opt
   const [state, action, pending] = useActionState(createWorkOrder, {} as MaintenanceState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Create a work order</h2><p className="mt-1 text-sm text-muted-foreground">Work orders start as planned and move through the lifecycle.</p></div>
-    <label className="text-sm font-semibold md:col-span-2">Title *<input required name="title" maxLength={160} placeholder="500 hour service" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder="500 hour service" className={fieldClass} /></label>
     <PrioritySelect />
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
     <OptionSelect name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
@@ -123,7 +123,7 @@ export function MaintenanceCostForm({ workOrderId, today }: { workOrderId: strin
       <select required name="costType" defaultValue="parts" className={selectClass}>{costTypes.map((value) => <option key={value} value={value}>{costTypeLabels[value]}</option>)}</select>
     </label>
     <label className="text-sm font-semibold">{tr("fAmount")} *<input required name="amount" type="number" min="0" step="0.01" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Incurred on *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fIncurredOn")} *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fDescription")}<input name="description" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Add cost"}</Button></div>

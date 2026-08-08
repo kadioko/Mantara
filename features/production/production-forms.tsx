@@ -72,15 +72,15 @@ export function OreLotForm({ shifts, today }: { shifts: Option[]; today: string 
   const [state, action, pending] = useActionState(createOreLot, {} as ProductionState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Bagged ore lot</h2><p className="mt-1 text-sm text-muted-foreground">Record the ore as it leaves the mine area. PPM is the assay grade; for gold, 1 PPM is approximately 1 g/t.</p></div>
-    <label className="text-sm font-semibold">Lot number *<input required name="lotNumber" maxLength={80} placeholder="ORE-20260807-01" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fLotNumber")} *<input required name="lotNumber" maxLength={80} placeholder="ORE-20260807-01" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Produced on *<input required name="producedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <OptionSelect name="shiftId" label={tr("fShift")} options={shifts} placeholder={tr("optNoShift")} />
-    <label className="text-sm font-semibold">Ore tonnes *<input required name="oreTonnes" type="number" min="0.001" step="0.001" placeholder="12.500" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fOreTonnes")} *<input required name="oreTonnes" type="number" min="0.001" step="0.001" placeholder="12.500" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Grade (PPM) *<input required name="gradePpm" type="number" min="0" step="0.0001" placeholder="3.2500" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Assay / grade method<input name="gradeMethod" maxLength={120} placeholder="Lab assay" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Bags *<input required name="bagCount" type="number" min="1" step="1" placeholder="250" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Weight per bag (kg) *<input required name="bagWeightKg" type="number" min="0.001" step="0.001" placeholder="50" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Source location<input name="sourceLocation" maxLength={120} placeholder="Pit 2 stockpile" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fSourceLocation")}<input name="sourceLocation" maxLength={120} placeholder="Pit 2 stockpile" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} placeholder="Sampling ticket or bag seal range" className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Savingâ€¦" : "Record bagged ore"}</Button></div>
@@ -93,7 +93,7 @@ export function OreDispatchForm({ lots, today }: { lots: Option[]; today: string
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Dispatch to processing plant</h2><p className="mt-1 text-sm text-muted-foreground">A dispatch cannot exceed the tonnes or bags recorded for its ore lot.</p></div>
     <OptionSelect name="lotId" label="Bagged ore lot" options={lots} placeholder="Select a lot" />
-    <label className="text-sm font-semibold">Processing plant *<input required name="processingPlant" maxLength={160} placeholder="Kahama Processing Plant" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fProcessingPlant")} *<input required name="processingPlant" maxLength={160} placeholder="Kahama Processing Plant" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Dispatch date *<input required name="dispatchedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">Dispatched tonnes *<input required name="dispatchedTonnes" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Dispatched bags *<input required name="dispatchedBags" type="number" min="1" step="1" className={fieldClass} /></label>

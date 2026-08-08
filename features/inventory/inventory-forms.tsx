@@ -74,9 +74,9 @@ export function SupplierForm() {
   const [state, action, pending] = useActionState(createSupplier, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <label className="text-sm font-semibold">{tr("fSupplier")} *<input required name="name" maxLength={160} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Contact<input name="contactName" maxLength={160} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Phone<input name="phoneNumber" inputMode="tel" maxLength={40} className={fieldClass} /></label>
-    <label className="text-sm font-semibold md:col-span-2">Email<input name="email" type="email" maxLength={200} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fContact")}<input name="contactName" maxLength={160} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fPhone")}<input name="phoneNumber" inputMode="tel" maxLength={40} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fEmail")}<input name="email" type="email" maxLength={200} className={fieldClass} /></label>
     <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add supplier"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
@@ -91,7 +91,7 @@ export function StockReceiptForm({ items, locations, suppliers, today }: { items
     <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
     <Select name="supplierId" label={tr("fSupplier")} options={suppliers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Received on *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fReceivedOn")} *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fReference")}<input name="reference" maxLength={120} placeholder="Delivery note" className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Receive stock"}</Button></div>
@@ -144,7 +144,7 @@ export function StockAdjustmentForm({ items, locations, today }: { items: Option
       <select required name="reason" defaultValue="correction" className={selectClass}>{adjustmentReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
     </label>
     <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder="Stock take variance" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Adjusted on *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fAdjustedOn")} *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Adjust stock"}</Button></div>
   </form>;

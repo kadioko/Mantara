@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0026` written, tested, and not deployed.**
+**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0027` written, tested, and not deployed.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -14,12 +14,14 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The gap between "built" and "in use" is deployment. **Eight migrations are undeployed**, and until
-they are applied the following are not live: mine-site management, organization settings, custom
-roles, rate limiting, the stock overview, the catalogue retirement guards, the module totals, and the
-compliance recurrence fix. Nothing in the running deployment is broken by their absence; it simply
-does not have those capabilities yet, and several figures on the live site are still computed the old
-way and therefore still wrong.
+The gap between "built" and "in use" is deployment. **Nine migrations are undeployed**, and until they
+are applied the following are not live: mine-site management, organization settings, custom roles,
+rate limiting, the stock overview, the catalogue retirement guards, the module totals, the compliance
+recurrence fix, and the scheduled alerts.
+
+Nothing in the running deployment is broken by their absence — but two things are worth being blunt
+about. Several headline figures on the live site are still computed the old, incorrect way. And
+nobody is being told when a licence is about to expire.
 
 ## Delivered
 
@@ -41,11 +43,11 @@ way and therefore still wrong.
 | Expenses | Categories with editing, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
 | Compliance | Licences with expiry tracking and editing, organization-authored requirements with editing and retirement, recurring tasks that stop when a requirement is retired. |
 | Safety | Incidents, inspections, corrective actions; personal and medical detail behind a granular permission, rate limited, and logged on every access. |
-| Insight | Dashboard with permission-gated figures, organization audit log, reports with CSV export that cannot silently truncate, notifications. |
+| Insight | Dashboard with permission-gated figures, organization audit log, reports with CSV export that cannot silently truncate, and notifications including scheduled alerts for licence expiry and overdue work. |
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 455 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 475 tests pass. |
 
 ## What the tests actually prove
 
@@ -65,6 +67,9 @@ WebAssembly and assert what the database itself enforces:
 - Platform administrators reading no rows from any operational table.
 - Sensitive safety details unreadable without the granular permission, and every access audited.
 - Rate limiting keyed on the caller, with no way to spend someone else's allowance.
+- Alert generation being idempotent across repeated runs, escalating through expiry thresholds
+  without repeating one, routing compliance and safety work to different readers, and generating
+  nothing for a suspended organization or across a tenant boundary.
 
 **Not covered:** Supabase Auth, Storage and PostgREST behaviour, since the harness stubs them; and
 real concurrency, which needs a multi-connection server. Both remain in the manual QA checklist.
@@ -97,8 +102,6 @@ claim when the truth is that we could not find out.
 ### Insight
 
 - Dashboard trends over time, rather than point-in-time figures.
-- Notifications cover submitted production and expenses only. Expiring licences and overdue
-  corrective actions need a scheduled job, which has no home yet.
 
 ### Administration
 
@@ -121,9 +124,10 @@ data-entry form in the product was stuck in English while the pages around them 
 backwards for a product whose forms are filled in by supervisors at a mine site and whose landing
 pages are read by head office.
 
-- The catalogue is complete: 285 keys, 100% Kiswahili.
-- 486 phrases are still written directly into components and cannot be translated at all, down from
-  595. `npm run i18n:report` ranks them by file.
+- The catalogue is complete: 326 keys, 100% Kiswahili.
+- 422 phrases are still written directly into components and cannot be translated at all, down from
+  595. `npm run i18n:report` ranks them by file. Most of what remains is placeholder example text
+  ("CAT 320 excavator", "WAYBILL-001") and one-off headings rather than field labels.
 - The mechanical part is lifting them into the catalogue. **The part that needs a person is the
   Kiswahili for mining vocabulary** — grade, assay, headgear, stope, waybill. Machine-translating
   those would produce something a Tanzanian operator would not trust, which is worse than English.
@@ -149,6 +153,6 @@ Performance testing under load, backup and recovery procedure, and pilot manual-
 
 ## Recommended next task
 
-Deploy `0019`–`0026`, then work the manual QA checklist against the live site. Everything below that
+Deploy `0019`–`0027`, then work the manual QA checklist against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

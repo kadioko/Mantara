@@ -50,7 +50,7 @@ export function ExpenseForm({ categories, suppliers, workOrders, currency, today
     <label className="text-sm font-semibold md:col-span-2">{tr("fDescription")} *<input required name="description" maxLength={200} placeholder="Diesel delivery" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fAmount")} *<input required name="amount" type="number" min="0.01" step="0.01" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fCurrency")} *<input required name="currencyCode" maxLength={3} defaultValue={currency} className={`${fieldClass} uppercase`} /></label>
-    <label className="text-sm font-semibold">Incurred on *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fIncurredOn")} *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <OptionSelect name="categoryId" label={tr("fCategory")} options={categories} placeholder={tr("optUncategorised")} />
     <OptionSelect name="supplierId" label={tr("fSupplier")} options={suppliers} placeholder={tr("optNotRecorded")} />
     <OptionSelect name="workOrderId" label={tr("fWorkOrder")} options={workOrders} placeholder={tr("optNotForWorkOrder")} />
@@ -100,8 +100,8 @@ export function BudgetForm({ categories, currency, today }: { categories: Option
     <label className="text-sm font-semibold">{tr("fAmount")} *<input required name="amount" type="number" min="0.01" step="0.01" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fCurrency")} *<input required name="currencyCode" maxLength={3} defaultValue={currency} className={`${fieldClass} uppercase`} /></label>
     <OptionSelect name="categoryId" label={tr("fCategory")} options={categories} placeholder="All categories" />
-    <label className="text-sm font-semibold">Starts on *<input required name="startsOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Ends on *<input required name="endsOn" type="date" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fStartsOn")} *<input required name="startsOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fEndsOn")} *<input required name="endsOn" type="date" className={fieldClass} /></label>
     <label className="flex items-end gap-2 text-sm font-semibold">
       <input name="siteScoped" type="checkbox" value="true" className="mb-3 h-4 w-4" />
       <span className="mb-2.5">This mine site only</span>

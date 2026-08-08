@@ -59,7 +59,7 @@ export function FuelReceiptForm({ locations, today }: { locations: Option[]; tod
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <LocationSelect locations={locations} />
     <label className="text-sm font-semibold">{tr("fLitres")} *<input required name="litres" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Received on *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fReceivedOn")} *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fSupplier")}<input name="supplier" maxLength={160} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fReference")}<input name="reference" maxLength={120} placeholder="Delivery note number" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
@@ -91,7 +91,7 @@ export function FuelAdjustmentForm({ locations, today }: { locations: Option[]; 
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <LocationSelect locations={locations} />
     <label className="text-sm font-semibold">Litres (+/−) *<input required name="litresDelta" type="number" step="0.001" placeholder="-25" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Adjusted on *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fAdjustedOn")} *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fReason")} *<input required name="reason" maxLength={200} placeholder="Stock take variance" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>

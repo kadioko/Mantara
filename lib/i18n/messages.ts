@@ -8,6 +8,18 @@ export type Locale = (typeof supportedLocales)[number];
  * crash. translationGaps() below makes what is outstanding visible instead of silently forgotten.
  */
 const english = {
+  fTitle: "Title", fType: "Type", fEmail: "Email", fEmailAddress: "Email address", fPhone: "Phone",
+  fMake: "Make", fModel: "Model", fSerialNumber: "Serial number", fAssetCode: "Asset code",
+  fYearOfManufacture: "Year of manufacture", fMeterType: "Meter type", fAcquiredOn: "Acquired on",
+  fStartsOn: "Starts on", fEndsOn: "Ends on", fReceivedOn: "Received on", fIncurredOn: "Incurred on",
+  fAdjustedOn: "Adjusted on", fCompletedOn: "Completed on", fSiteName: "Site name", fRegion: "Region",
+  fDistrict: "District", fCountryCode: "Country code", fLicenceNumber: "Licence number",
+  fLicenceType: "Licence type", fIssuingAuthority: "Issuing authority", fHolder: "Holder",
+  fGradePpm: "Grade (PPM)", fCapacityLitres: "Capacity (litres)", fWeightPerBag: "Weight per bag (kg)",
+  fBagCount: "Number of bags", fOreTonnes: "Ore tonnes", fLotNumber: "Lot number", fAssignment: "Assignment",
+  fContact: "Contact", fRole: "Role", fWhatHappened: "What happened", fPeriod: "Period",
+  fStockTakeVariance: "Stock take variance", fSourceLocation: "Source location",
+  fProcessingPlant: "Processing plant", fVehicleReference: "Vehicle or truck reference",
   // Form vocabulary shared across the module forms. Adding these once is what makes a data-entry
   // screen bilingual without translating each form's labels separately.
   fName: "Name", fNotes: "Notes", fCategory: "Category", fDescription: "Description", fReference: "Reference",
@@ -55,6 +67,18 @@ const english = {
 } as const;
 
 const swahili: Partial<Record<MessageKey, string>> = {
+  fTitle: "Kichwa", fType: "Aina", fEmail: "Barua pepe", fEmailAddress: "Anwani ya barua pepe", fPhone: "Simu",
+  fMake: "Mtengenezaji", fModel: "Modeli", fSerialNumber: "Namba ya kutambulisha", fAssetCode: "Msimbo wa rasilimali",
+  fYearOfManufacture: "Mwaka wa kutengenezwa", fMeterType: "Aina ya mita", fAcquiredOn: "Ilinunuliwa tarehe",
+  fStartsOn: "Inaanza tarehe", fEndsOn: "Inaisha tarehe", fReceivedOn: "Ilipokelewa tarehe", fIncurredOn: "Ilitumika tarehe",
+  fAdjustedOn: "Ilirekebishwa tarehe", fCompletedOn: "Ilikamilika tarehe", fSiteName: "Jina la eneo", fRegion: "Mkoa",
+  fDistrict: "Wilaya", fCountryCode: "Msimbo wa nchi", fLicenceNumber: "Namba ya leseni",
+  fLicenceType: "Aina ya leseni", fIssuingAuthority: "Mamlaka iliyotoa", fHolder: "Mmiliki",
+  fGradePpm: "Kiwango cha madini (PPM)", fCapacityLitres: "Ujazo (lita)", fWeightPerBag: "Uzito wa kila mfuko (kg)",
+  fBagCount: "Idadi ya mifuko", fOreTonnes: "Tani za madini", fLotNumber: "Namba ya kundi", fAssignment: "Ugawaji",
+  fContact: "Mawasiliano", fRole: "Jukumu", fWhatHappened: "Kilichotokea", fPeriod: "Kipindi",
+  fStockTakeVariance: "Tofauti ya hesabu ya ghala", fSourceLocation: "Eneo lilikotoka",
+  fProcessingPlant: "Kiwanda cha uchakataji", fVehicleReference: "Kumbukumbu ya gari au lori",
   fName: "Jina", fNotes: "Maelezo", fCategory: "Kundi", fDescription: "Ufafanuzi", fReference: "Kumbukumbu",
   fDate: "Tarehe", fTime: "Saa", fStartDate: "Tarehe ya kuanza", fDueOn: "Inatakiwa ifikapo", fIssuedOn: "Ilitolewa tarehe", fExpiresOn: "Inaisha tarehe",
   fQuantity: "Kiasi", fUnit: "Kipimo", fUnitCost: "Bei ya kipimo", fAmount: "Kiasi cha fedha", fCurrency: "Sarafu", fLitres: "Lita",

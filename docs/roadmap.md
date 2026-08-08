@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0026` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals and the compliance recurrence fix are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
+**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0027` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals, the compliance recurrence fix and the scheduled alerts are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
 
 Every planned module exists:
 
@@ -22,7 +22,7 @@ Every planned module exists:
 - **Expenses** — an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
 - **Compliance** — licences with expiry tracking and editing, organization-authored requirements with editing and retirement, and tasks that reschedule themselves while the requirement is in service and stop when it is retired.
 - **Safety** — incidents, inspections, corrective actions, with personal and medical detail held separately behind a granular permission, rate limited, and logged on every access.
-- **Insight** — dashboard figures gated per module, an organization audit log, reports with CSV export that cannot silently truncate, and notifications.
+- **Insight** — dashboard figures gated per module, an organization audit log, reports with CSV export that cannot silently truncate, and notifications that now include a daily job alerting on licence expiry, overdue compliance tasks and overdue corrective actions, so nobody has to remember to look.
 - **Administration** — invitations, role changes, suspension, a custom-roles screen, mine-site management, organization settings, and `/admin` for the platform team.
 - **Operations** — `/api/health`, structured JSON logging with field redaction, and a Postgres-backed rate limiter.
 
@@ -35,7 +35,7 @@ Supporting work:
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (455 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (475 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -140,11 +140,11 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0019`–`0026` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply migrations `0019`–`0027` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.
-5. Lift the remaining 486 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). The lifting is mechanical; the Kiswahili for mining vocabulary — grade, assay, headgear, stope, waybill — needs a speaker, and faking it would produce something an operator would not trust.
+5. Lift the remaining 422 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). The lifting is mechanical; the Kiswahili for mining vocabulary — grade, assay, headgear, stope, waybill — needs a speaker, and faking it would produce something an operator would not trust.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules
