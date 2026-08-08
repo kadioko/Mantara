@@ -12,8 +12,29 @@ import {
   FuelIssueForm,
   FuelLocationForm,
   FuelReceiptForm,
+  FuelStockTakeForm,
   type Option,
 } from "@/features/fuel/fuel-forms";
+
+type StockTakeRow = {
+  id: string;
+  measured_litres: string;
+  book_litres: string;
+  variance_litres: string;
+  taken_on: string;
+  notes: string | null;
+  location: { name: string } | { name: string }[] | null;
+};
+
+type ConsumptionRow = {
+  equipment_id: string;
+  equipment_name: string;
+  meter_type: string;
+  issues: string;
+  litres_used: string;
+  meter_travelled: string;
+  litres_per_unit: string;
+};
 
 export const metadata = { title: "Fuel" };
 
@@ -45,10 +66,11 @@ export default async function FuelPage() {
   }));
 
   const needsMovementData = locationOptions.length > 0;
-  const [receipts, issues, adjustments, equipment, workers] = await Promise.all([
+  const [receipts, issues, adjustments, stockTakes, equipment, workers] = await Promise.all([
     workspace.supabase.from("fuel_receipts").select("id, litres, supplier, received_on, location:fuel_storage_locations(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("received_on", { ascending: false }).limit(10),
     workspace.supabase.from("fuel_issues").select("id, litres, issued_on, equipment:equipment!fuel_issues_equipment_id_fkey(name), worker:workers!fuel_issues_worker_id_fkey(full_name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("issued_on", { ascending: false }).limit(10),
     workspace.supabase.from("fuel_adjustments").select("id, litres_delta, reason, adjusted_on").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("adjusted_on", { ascending: false }).limit(10),
+    workspace.supabase.from("fuel_stock_takes").select("id, measured_litres, book_litres, variance_litres, taken_on, notes, location:fuel_storage_locations(name)").eq("organization_id", organization.id).eq("mine_site_id", site.id).order("taken_on", { ascending: false }).limit(12),
     needsMovementData && canIssue
       ? workspace.supabase.from("equipment").select("id, name").eq("organization_id", organization.id).eq("mine_site_id", site.id).is("deleted_at", null).order("name")
       : Promise.resolve({ data: [] as Array<{ id: string; name: string }> }),
@@ -61,6 +83,15 @@ export default async function FuelPage() {
   const equipmentOptions: Option[] = (equipment.data ?? []).map((item) => ({ id: item.id, label: item.name }));
   const workerOptions: Option[] = (workers.data ?? []).map((worker) => ({ id: worker.id, label: worker.full_name }));
   const totals = await fuelTotals(workspace.supabase, site.id);
+  // Consumption per machine over the last quarter, from the meter readings already on each issue.
+  // A machine that has drifted upwards is either developing a fault or not receiving all it is given.
+  // The 90-day window is the function's own default, so the period comes from the database's clock
+  // rather than this server's.
+  const { data: consumptionRows } = await workspace.supabase.rpc("equipment_fuel_consumption", {
+    requested_site_id: site.id,
+  });
+  const consumption = (consumptionRows ?? []) as ConsumptionRow[];
+  const takes = (stockTakes.data ?? []) as StockTakeRow[];
   const locale = await getLocale();
 
   return <div className="space-y-6">
@@ -81,6 +112,49 @@ export default async function FuelPage() {
         ? (locations as CatalogueTank[]).map((tank) => <TankRow key={tank.id} tank={tank} canManage={canManage} />)
         : <p className="px-5 py-6 text-sm text-muted-foreground">{t(locale, "noFuelStores")}</p>}
     </CatalogueList>
+
+    {canAdjust && locationOptions.length > 0 && <Panel
+      title="Fuel reconciliation"
+      description="Record what a tank actually holds. The difference against the records is kept as a number, and the balance is corrected for you.">
+      <FuelStockTakeForm locations={locationOptions} today={today} />
+      {takes.length > 0 && <ul className="mt-6 divide-y divide-border border-t border-border">
+        {takes.map((take) => {
+          const variance = Number(take.variance_litres);
+          const location = Array.isArray(take.location) ? take.location[0] : take.location;
+          return <li key={take.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+            <span className="text-sm">
+              <span className="font-medium">{location?.name ?? "Unknown store"}</span>
+              <span className="ml-2 text-muted-foreground">
+                {take.taken_on} · measured {Number(take.measured_litres).toLocaleString()} L against {Number(take.book_litres).toLocaleString()} L
+              </span>
+            </span>
+            <span className={`text-sm font-semibold ${variance < 0 ? "text-destructive" : variance > 0 ? "text-warning-foreground" : "text-muted-foreground"}`}>
+              {variance === 0 ? "Matched" : `${variance > 0 ? "+" : ""}${variance.toLocaleString()} L`}
+            </span>
+          </li>;
+        })}
+      </ul>}
+    </Panel>}
+
+    {consumption.length > 0 && <Panel
+      title="Consumption per machine"
+      description="Litres per meter unit over the last 90 days, worked out from the meter reading on each issue. Highest first.">
+      <ul className="divide-y divide-border">
+        {consumption.map((row) => (
+          <li key={row.equipment_id} className="flex flex-wrap items-center justify-between gap-2 py-3">
+            <span className="text-sm">
+              <span className="font-medium">{row.equipment_name}</span>
+              <span className="ml-2 text-muted-foreground">
+                {Number(row.litres_used).toLocaleString()} L over {Number(row.meter_travelled).toLocaleString()} {row.meter_type === "kilometres" ? "km" : "h"}
+              </span>
+            </span>
+            <span className="text-sm font-semibold">
+              {Number(row.litres_per_unit).toLocaleString(undefined, { maximumFractionDigits: 2 })} L/{row.meter_type === "kilometres" ? "km" : "h"}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Panel>}
 
     {locationOptions.length === 0
       ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Create an active fuel store before recording deliveries or issues.</p>

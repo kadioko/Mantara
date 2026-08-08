@@ -66,3 +66,20 @@ export const fuelAdjustmentSchema = z.object({
   adjustedOn: z.string().date(),
   notes: z.string().trim().max(500).optional(),
 });
+
+/**
+ * A dip or gauge reading of what a tank actually holds.
+ *
+ * There is deliberately no field for the variance. It is the difference between this measurement and
+ * what the system already believes, computed by the database at the moment of recording — asking a
+ * person to type it would invite the two figures to disagree.
+ */
+export const fuelStockTakeSchema = z.object({
+  locationId: z.string().uuid(),
+  measuredLitres: z.coerce
+    .number()
+    .min(0, "A measured level cannot be negative.")
+    .max(9_999_999),
+  takenOn: z.string().date(),
+  notes: z.string().trim().max(500).optional(),
+});

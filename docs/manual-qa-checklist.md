@@ -437,3 +437,27 @@ not, and concurrency is not exercised at all. These need the live project.
       stores do not deadlock.
 - [ ] `npm run plan:probe` after seeding a pilot's real volume: no plan has become an external sort,
       and the stock overview is still within the ceiling recorded in project-status.
+
+## Fuel reconciliation and consumption
+
+Apply `0030` before running these checks.
+
+- [ ] Recording a stock take equal to the current balance reports no variance and writes no
+      adjustment.
+- [ ] **Recording a lower measurement reports the shortfall in litres**, corrects the balance, and
+      leaves both the measured and book figures visible in the reconciliation list.
+- [ ] The correction appears in the movement history as an ordinary adjustment naming the stock take.
+- [ ] A higher measurement reports a surplus and corrects upwards.
+- [ ] A measurement above the tank's capacity is refused.
+- [ ] A member with `fuel.read` but not `fuel.adjust` sees no stock take form, and a hand-crafted
+      request is refused.
+- [ ] **(concurrency)** A fuel issue recorded at the same moment as a stock take does not vanish: the
+      balance afterwards reflects both, or one is cleanly refused.
+- [ ] Consumption per machine shows litres per hour or per kilometre for machines with at least two
+      metered issues in the window.
+- [ ] A machine with only one metered issue does not appear — nothing has measured what happened to
+      that fuel yet.
+- [ ] An issue recorded with no meter reading does not distort any figure.
+- [ ] **The numbers are plausible to someone who knows the machines.** This is the check that matters
+      most and only a site person can make it: an excavator at 20 L/h is credible, at 200 L/h it
+      means the meter units or the readings are wrong.

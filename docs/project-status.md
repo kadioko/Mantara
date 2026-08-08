@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0029` written, tested, and not deployed.**
+**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0030` written, tested, and not deployed.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -14,7 +14,7 @@ Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of das
 reports, notifications and an audit log, and self-administration for organizations and for the
 platform team.
 
-The gap between "built" and "in use" is deployment. **Eleven migrations are undeployed**, and until they
+The gap between "built" and "in use" is deployment. **Twelve migrations are undeployed**, and until they
 are applied the following are not live: mine-site management, organization settings, custom roles,
 rate limiting, the stock overview, the catalogue retirement guards, the module totals, the compliance
 recurrence fix, the scheduled alerts, and per-site access restriction.
@@ -37,7 +37,7 @@ nobody is being told when a licence is about to expire.
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
-| Fuel | Tanks with transactional balances, deliveries, issues, adjustments, catalogue editing; balances cannot go negative and a tank holding fuel cannot be retired. |
+| Fuel | Tanks with transactional balances, deliveries, issues, adjustments, catalogue editing, reconciliation against a measured dip, and consumption per machine; balances cannot go negative and a tank holding fuel cannot be retired. |
 | Maintenance | Requests, work orders with an enforced lifecycle, parts, costs, service schedules that roll forward. |
 | Inventory | Catalogue with full editing, stores, suppliers, a stock ledger with non-negative balances and deadlock-safe transfers, and a paged site-scoped stock overview. |
 | Expenses | Categories with editing, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 529 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 551 tests pass. |
 
 ## What the tests actually prove
 
@@ -106,6 +106,20 @@ claim when the truth is that we could not find out.
 
 ### Insight
 
+**Fuel variance is now measured**, which one of the pilot success criteria asks for and nothing
+addressed. A stock take records the measured level against the book level, keeps the difference as a
+number, and corrects the balance through the ordinary adjustment path. Previously that discrepancy
+was entered as an adjustment with a free-text reason: the balance was fixed and the finding was
+destroyed, because "400" and "shortfall after dip" read the same to a database.
+
+Consumption per machine comes from the meter reading already captured on every fuel issue, so it
+asks nobody to record anything new. Litres are divided by meter distance across consecutive issues,
+weighted by distance rather than averaging per-fill rates — a small top-up over a short run must not
+count as much as a full tank over a long shift.
+
+- Inventory variance is still not measured. Stock adjustments carry a "stock take variance" reason
+  but there is no formal count, so the same finding is lost the same way fuel's used to be. This is
+  the obvious next piece.
 - Dashboard trends over time, rather than point-in-time figures.
 
 ### Administration
@@ -188,7 +202,7 @@ manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0019`–`0029` following [the runbook](deployment.md), then work the manual QA checklist
+Deploy `0019`–`0030` following [the runbook](deployment.md), then work the manual QA checklist
 against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

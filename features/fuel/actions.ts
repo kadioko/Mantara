@@ -2,7 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { requireScope, rowInScopeHard, rpcMessage, type ActiveScope } from "@/lib/auth/scope";
-import { fuelAdjustmentSchema, fuelIssueSchema, fuelLocationSchema, fuelReceiptSchema } from "./schemas";
+import {
+  fuelAdjustmentSchema,
+  fuelIssueSchema,
+  fuelLocationSchema,
+  fuelReceiptSchema,
+  fuelStockTakeSchema,
+} from "./schemas";
 
 export type FuelState = { error?: string; success?: string };
 
@@ -99,4 +105,36 @@ export async function recordFuelAdjustment(_: FuelState, formData: FormData): Pr
   if (error) return { error: rpcMessage(error, "Unable to record the adjustment. Please try again.") };
   revalidatePath("/fuel");
   return { success: "Fuel adjustment recorded." };
+}
+
+/**
+ * Records a measured tank level, and reports the variance rather than hiding it.
+ *
+ * The success message leads with the shortfall or surplus because that is the finding. "Recorded"
+ * alone would let a 400-litre discrepancy pass as a routine save.
+ */
+export async function recordFuelStockTake(_: FuelState, formData: FormData): Promise<FuelState> {
+  const parsed = fuelStockTakeSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Check the stock take details." };
+  const scope = await requireScope("fuel.adjust", "You do not have permission to reconcile fuel stock.");
+  if ("error" in scope) return scope;
+  if (!await locationInScope(scope, parsed.data.locationId)) return { error: "That fuel store is not at the active mine site." };
+
+  const { data, error } = await scope.workspace.supabase.rpc("record_fuel_stock_take", {
+    requested_location_id: parsed.data.locationId,
+    measured: parsed.data.measuredLitres,
+    taken_date: parsed.data.takenOn,
+    take_notes: parsed.data.notes || null,
+  });
+  if (error) return { error: rpcMessage(error, "Unable to record the stock take. Please try again.") };
+
+  revalidatePath("/fuel");
+  const variance = Number(data ?? 0);
+  if (variance === 0) return { success: "Stock take recorded. The tank matches the records exactly." };
+  const litres = Math.abs(variance).toLocaleString();
+  return {
+    success: variance < 0
+      ? `Stock take recorded. ${litres} litres short of the records — the balance has been corrected.`
+      : `Stock take recorded. ${litres} litres more than the records — the balance has been corrected.`,
+  };
 }

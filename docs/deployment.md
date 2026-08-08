@@ -1,13 +1,13 @@
-# Deploying migrations `0019`–`0029`
+# Deploying migrations `0019`–`0030`
 
-Eleven migrations are written, tested and not applied. Until they are, the live site is missing
+Twelve migrations are written, tested and not applied. Until they are, the live site is missing
 mine-site management, organization settings, custom roles, rate limiting, the stock overview, the
 catalogue retirement guards, the module totals, the compliance recurrence fix, per-site access
-restriction and the scheduled alerts — **and it is still computing several headline figures the old,
+restriction, the scheduled alerts and fuel reconciliation — **and it is still computing several headline figures the old,
 incorrect way, and telling nobody when a licence is about to expire.**
 
 This is the largest single risk in the project. Not because the migrations are dangerous, but
-because eleven applied in one sitting is where mistakes happen.
+because twelve applied in one sitting is where mistakes happen.
 
 ## Before you start
 
@@ -40,6 +40,7 @@ Apply in filename order. Several depend on earlier ones — `0029` needs the vie
 | `0027` | Scheduled alerts | Schedules a daily job under `pg_cron` |
 | `0028` | Per-site access restriction | Adds a restrictive policy to ~29 tables; inert until used |
 | `0029` | Inventory indexes | |
+| `0030` | Fuel reconciliation and consumption analysis | New table written only through `record_fuel_stock_take()` |
 
 ## Locks
 

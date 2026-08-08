@@ -15,7 +15,7 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0018` are deployed. `0019`–`0029` are not.** Until they are applied, mine-site
+**Migrations `0001`–`0018` are deployed. `0019`–`0030` are not.** Until they are applied, mine-site
 management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals,
 the compliance recurrence fix, the scheduled alerts and per-site access restriction are not live. Document storage (`0020`) additionally stays hidden
 behind `DOCUMENTS_ENABLED`.
@@ -31,7 +31,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0029_stock_overview_ordering.sql`, using the Supabase CLI or the SQL editor. Migrations from
+   `0030_fuel_reconciliation.sql`, using the Supabase CLI or the SQL editor. Migrations from
    `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
    again rather than by hand.
 3. Run `npm run dev`.

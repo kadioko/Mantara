@@ -7,6 +7,7 @@ import { fieldClass, selectClass } from "@/components/ui/form";
 import {
   createFuelLocation,
   recordFuelAdjustment,
+  recordFuelStockTake,
   recordFuelIssue,
   recordFuelReceipt,
   type FuelState,
@@ -96,5 +97,35 @@ export function FuelAdjustmentForm({ locations, today }: { locations: Option[]; 
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Record adjustment"}</Button></div>
+  </form>;
+}
+
+/**
+ * Records what a tank actually holds.
+ *
+ * There is no field for the variance, deliberately. It is the difference between this measurement
+ * and what the system already believes, computed at the moment of recording. Asking someone to type
+ * it would invite the two figures to disagree, and the whole point is that they cannot.
+ */
+export function FuelStockTakeForm({ locations, today }: { locations: Option[]; today: string }) {
+  const tr = useT();
+  const [state, action, pending] = useActionState(recordFuelStockTake, {} as FuelState);
+  return <form action={action} className="grid gap-3 md:grid-cols-4">
+    <label className="text-sm font-semibold">{tr("fStore")} *
+      <select required name="locationId" defaultValue={locations[0]?.id ?? ""} className={selectClass}>
+        {locations.map((location) => <option key={location.id} value={location.id}>{location.label}</option>)}
+      </select>
+    </label>
+    <label className="text-sm font-semibold">Measured litres *
+      <input required name="measuredLitres" type="number" min="0" step="0.001" placeholder="3600" className={fieldClass} />
+    </label>
+    <label className="text-sm font-semibold">{tr("fDate")} *
+      <input required name="takenOn" type="date" defaultValue={today} className={fieldClass} />
+    </label>
+    <label className="text-sm font-semibold md:col-span-4">{tr("fNotes")}
+      <input name="notes" maxLength={500} placeholder="Monthly dip, measured by the storekeeper" className={fieldClass} />
+    </label>
+    <div className="md:col-span-4"><Feedback state={state} /></div>
+    <div><Button disabled={pending}>{pending ? "Saving…" : "Record stock take"}</Button></div>
   </form>;
 }
