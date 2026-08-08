@@ -106,7 +106,7 @@ All UUID-keyed tables use UTC timestamps. Mutable primary records include `creat
 | Compliance | `mineral_licences`, `compliance_requirements`, `compliance_tasks`, `compliance_documents` | Deadlines indexed by organization, site, and due date. |
 | Safety | `safety_incidents`, `safety_inspections`, `corrective_actions` | Sensitive details use granular permissions and audit logging. |
 
-The foundation migration introduces the tenancy and authorization tables, timestamp trigger, RLS helper functions, policies, and indexes. Subsequent domain migrations will add their tables only when their module begins.
+The foundation migration introduces the tenancy and authorization tables, timestamp trigger, RLS helper functions, policies, and indexes. Each domain migration adds its tables when its module begins. There are 26 migrations; they are numbered in application order and are never rewritten once deployed, so later migrations correct earlier ones in place rather than editing them.
 
 ## 5. Initial permission matrix
 
@@ -200,23 +200,66 @@ Phases 1 to 11 are implemented. Phase 12 is in progress.
 
 ## 9. Implemented structure
 
-Domain code lives under `features/<domain>/` as `schemas.ts` (Zod), `actions.ts` (server actions), and
-one or more `*-forms.tsx` client components. Pages under `app/(platform)/<domain>/` compose those with
-shared primitives from `components/ui/`.
+Domain code lives under `features/<domain>/` as `schemas.ts` (Zod), `actions.ts` (server actions),
+`catalogue-actions.ts` where reference data can be corrected, and one or more `*-forms.tsx` client
+components. Pages under `app/(platform)/<domain>/` compose those with shared primitives from
+`components/ui/`.
 
 Cross-cutting helpers worth knowing about before adding a module:
 
 - `lib/auth/scope.ts` — `requireScope()` resolves the active organization and site and checks a
-  permission; `rowInScope()` confirms a related row belongs to that scope before writing; `rpcMessage()`
-  maps a raised PostgreSQL error onto something an operator can act on.
-- `lib/paging.ts` — page and search parsing for list screens, including escaping search terms.
+  permission; `rowInScope()` confirms a related row belongs to that scope before writing;
+  `rpcMessage()` maps a raised PostgreSQL error onto something an operator can act on. Where the
+  database raises a useful message — "this store still holds 40 of stock" — `rpcMessage` passes it
+  through rather than replacing it with a generic failure.
+- `lib/auth/permissions.ts` — `hasPermission()` reads the caller's whole permission set once through
+  `my_permissions()` and caches it per request. It previously issued one Supabase request per check,
+  which raced token refresh and produced *different navigation on identical page loads*.
+- `lib/auth/rate-limit.ts` — allowances for sensitive actions. Fails open on limiter error, because
+  RLS is the real protection and an unreachable limiter must not stop production being recorded.
+- `lib/paging.ts` — page and search parsing for list screens, including escaping search terms so a
+  typed `%` does not match everything.
+- `lib/totals.ts` — module headline figures, read from the database rather than computed from a page.
+  Returns null on failure so the screen can show a dash; a zero would be a claim.
+- `lib/observability/log.ts` — one JSON line per event on stdout, with personal and operational
+  fields redacted by name.
+- `lib/i18n/` — `messages.ts` holds the catalogue and the server-side `t()`; `client.tsx` provides
+  `LocaleProvider` and `useT()` for client components, which is what lets the data-entry forms be
+  bilingual at all.
 - `components/ui/` — `Button`, `Card`/`Panel`, `Table`, `Input`, `Select`, `Field`, `Badge`,
-  `Pagination`, and the `Alert`/`EmptyState`/`StatCard`/`PageHeader` set. Design tokens are declared in
-  `app/globals.css` following shadcn/ui conventions, so components from registries such as 21st.dev
-  compose with them.
-- `lib/i18n/` — the English and Kiswahili catalog and the `t()` helper.
+  `Pagination`, `CatalogueList`/`CatalogueRow`, and the `Alert`/`EmptyState`/`StatCard`/`PageHeader`
+  set. Design tokens are declared in `app/globals.css` following shadcn/ui conventions.
 
-Tests are split between `tests/unit/` for schema and helper behaviour and `tests/integration/`, which
-applies the real migration files to PostgreSQL compiled to WebAssembly and asserts what the database
-enforces.
+### Three database rules that are easy to get wrong
 
+Each of these has already caused a defect in this codebase:
+
+1. **`SECURITY DEFINER` bypasses RLS**, so every such function re-checks permission itself. Revoking
+   from `PUBLIC` is not enough — Supabase grants `EXECUTE` to `anon` and `authenticated` by name, so
+   they must be revoked by name too. The test harness models those default grants deliberately;
+   without that, a leak of this kind passes every test.
+2. **A view runs as its owner unless declared `security_invoker`.** `inventory_stock_overview`
+   declares it. Without those five words the view reads past every policy underneath.
+3. **An unbounded query silently stops at 1000 rows.** PostgREST caps responses and says nothing, so
+   a list, a total or a report simply comes back short and looks complete. Anything that must be
+   whole either pages through (`features/reports/fetch-all.ts`) or aggregates in the database
+   (`0025_module_totals.sql`).
+
+### Static audits
+
+`npm run audit:all` runs the type check, lint, and three project-specific audits: accessibility
+(`scripts/a11y-audit.mjs`), colour contrast against WCAG AA in both themes
+(`scripts/contrast-audit.mjs`), and translation coverage (`scripts/i18n-report.mjs`). Each was added
+after a defect of that kind reached a running deployment.
+
+### Tests
+
+`tests/unit/` covers schemas, helpers, paging, CSV generation, logging and the message catalogue.
+`tests/integration/` applies the **real migration files** to PostgreSQL compiled to WebAssembly
+(PGlite) and asserts what the database enforces — no Docker, no remote project, runs in ordinary CI.
+
+Two tests exist to guard whole classes of silent failure rather than one behaviour:
+`tests/unit/permission-codes.test.ts` checks every permission code the application asks for against
+the migrations, because a nonexistent code denies everyone without erroring; and the placeholder
+parity check in `tests/unit/i18n.test.ts` catches a translation that drops a `{site}` and quietly
+renders a sentence with the site name missing.

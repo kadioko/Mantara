@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -42,31 +43,33 @@ function PrioritySelect() {
 }
 
 export function MaintenanceRequestForm({ equipment, workers, today }: { equipment: Option[]; workers: Option[]; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createMaintenanceRequest, {} as MaintenanceState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Raise a request</h2><p className="mt-1 text-sm text-muted-foreground">Report a fault or a job that needs planning.</p></div>
     <label className="text-sm font-semibold md:col-span-2">Title *<input required name="title" maxLength={160} placeholder="Hydraulic leak on boom" className={fieldClass} /></label>
     <PrioritySelect />
-    <OptionSelect name="equipmentId" label="Equipment" options={equipment} placeholder="Not equipment specific" />
-    <OptionSelect name="reportedByWorkerId" label="Reported by" options={workers} placeholder="Not recorded" />
+    <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
+    <OptionSelect name="reportedByWorkerId" label="Reported by" options={workers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">Reported on *<input required name="reportedOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold md:col-span-3">Description<textarea name="description" maxLength={2000} rows={2} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-3">{tr("fDescription")}<textarea name="description" maxLength={2000} rows={2} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Raise request"}</Button></div>
   </form>;
 }
 
 export function WorkOrderForm({ equipment, workers, requests }: { equipment: Option[]; workers: Option[]; requests: Option[] }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createWorkOrder, {} as MaintenanceState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Create a work order</h2><p className="mt-1 text-sm text-muted-foreground">Work orders start as planned and move through the lifecycle.</p></div>
     <label className="text-sm font-semibold md:col-span-2">Title *<input required name="title" maxLength={160} placeholder="500 hour service" className={fieldClass} /></label>
     <PrioritySelect />
-    <OptionSelect name="equipmentId" label="Equipment" options={equipment} placeholder="Not equipment specific" />
-    <OptionSelect name="assignedWorkerId" label="Assigned to" options={workers} placeholder="Unassigned" />
+    <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
+    <OptionSelect name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
     <label className="text-sm font-semibold">Scheduled for<input name="scheduledFor" type="date" className={fieldClass} /></label>
     <OptionSelect name="requestId" label="From request" options={requests} placeholder="Not from a request" />
-    <label className="text-sm font-semibold md:col-span-2">Description<input name="description" maxLength={2000} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fDescription")}<input name="description" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Create work order"}</Button></div>
   </form>;
@@ -99,36 +102,39 @@ export function CompleteWorkOrderForm({ workOrderId }: { workOrderId: string }) 
 }
 
 export function MaintenancePartForm({ workOrderId }: { workOrderId: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(addMaintenancePart, {} as MaintenanceState);
   return <form action={action} className="grid gap-3 md:grid-cols-4">
     <input name="workOrderId" type="hidden" value={workOrderId} />
     <label className="text-sm font-semibold md:col-span-2">Part *<input required name="partName" maxLength={160} placeholder="Hydraulic hose" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Quantity *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Unit cost<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Add part"}</Button></div>
   </form>;
 }
 
 export function MaintenanceCostForm({ workOrderId, today }: { workOrderId: string; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(addMaintenanceCost, {} as MaintenanceState);
   return <form action={action} className="grid gap-3 md:grid-cols-4">
     <input name="workOrderId" type="hidden" value={workOrderId} />
     <label className="text-sm font-semibold">Type *
       <select required name="costType" defaultValue="parts" className={selectClass}>{costTypes.map((value) => <option key={value} value={value}>{costTypeLabels[value]}</option>)}</select>
     </label>
-    <label className="text-sm font-semibold">Amount *<input required name="amount" type="number" min="0" step="0.01" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fAmount")} *<input required name="amount" type="number" min="0" step="0.01" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Incurred on *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Description<input name="description" maxLength={500} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fDescription")}<input name="description" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Add cost"}</Button></div>
   </form>;
 }
 
 export function MaintenanceScheduleForm({ equipment }: { equipment: Option[] }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createMaintenanceSchedule, {} as MaintenanceState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <OptionSelect name="equipmentId" label="Equipment" options={equipment} placeholder="Select equipment" required />
+    <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optSelectEquipment")} required />
     <label className="text-sm font-semibold md:col-span-2">Schedule name *<input required name="name" maxLength={160} placeholder="250 hour service" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Every (meter)<input name="intervalMeter" type="number" min="0" step="0.01" placeholder="250" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Every (days)<input name="intervalDays" type="number" min="1" step="1" placeholder="90" className={fieldClass} /></label>

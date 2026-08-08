@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import { selectClass } from "@/components/ui/form";
 import { Eye, Lock, ShieldAlert } from "lucide-react";
@@ -42,18 +43,19 @@ function Select({ name, label, options, placeholder, required, defaultValue }: {
 }
 
 export function IncidentForm({ workers, equipment, today }: { workers: Option[]; equipment: Option[]; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createIncident, {} as SafetyState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div className="md:col-span-2"><Label htmlFor="title">What happened *</Label><Input id="title" name="title" required maxLength={160} placeholder="Operator struck by falling rock" className="mt-1" /></div>
     <div><Label htmlFor="reference">Reference</Label><Input id="reference" name="reference" maxLength={80} className="mt-1" /></div>
-    <Select name="category" label="Category" required defaultValue="other" options={incidentCategories.map((value) => ({ id: value, label: categoryLabels[value] }))} />
-    <Select name="severity" label="Severity" required defaultValue="low" options={incidentSeverities.map((value) => ({ id: value, label: severityLabels[value] }))} />
+    <Select name="category" label={tr("fCategory")} required defaultValue="other" options={incidentCategories.map((value) => ({ id: value, label: categoryLabels[value] }))} />
+    <Select name="severity" label={tr("fSeverity")} required defaultValue="low" options={incidentSeverities.map((value) => ({ id: value, label: severityLabels[value] }))} />
     <div><Label htmlFor="location">Location</Label><Input id="location" name="location" maxLength={160} placeholder="Pit 2 bench 4" className="mt-1" /></div>
     <div><Label htmlFor="occurredOn">Date *</Label><Input id="occurredOn" name="occurredOn" type="date" required defaultValue={today} className="mt-1" /></div>
     <div><Label htmlFor="occurredTime">Time</Label><Input id="occurredTime" name="occurredTime" type="time" className="mt-1" /></div>
     <div><Label htmlFor="peopleInvolved">People involved</Label><Input id="peopleInvolved" name="peopleInvolved" type="number" min="0" step="1" className="mt-1" /></div>
-    <Select name="reportedByWorkerId" label="Reported by" options={workers} placeholder="Not recorded" />
-    <Select name="equipmentId" label="Equipment involved" options={equipment} placeholder="None" />
+    <Select name="reportedByWorkerId" label="Reported by" options={workers} placeholder={tr("optNotRecorded")} />
+    <Select name="equipmentId" label="Equipment involved" options={equipment} placeholder={tr("optNone")} />
     <div><Label htmlFor="lostTimeHours">Lost time (hours)</Label><Input id="lostTimeHours" name="lostTimeHours" type="number" min="0" step="0.5" className="mt-1" /></div>
     <div className="md:col-span-3">
       <Label htmlFor="summary">Summary</Label>
@@ -69,10 +71,11 @@ export function IncidentForm({ workers, equipment, today }: { workers: Option[];
 }
 
 export function IncidentStatusForm({ incidentId, status }: { incidentId: string; status: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(updateIncidentStatus, {} as SafetyState);
   return <form action={action} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
     <input name="incidentId" type="hidden" value={incidentId} />
-    <Select name="status" label="Status" defaultValue={status} options={incidentStatuses.map((value) => ({ id: value, label: statusLabels[value] }))} />
+    <Select name="status" label={tr("fStatus")} defaultValue={status} options={incidentStatuses.map((value) => ({ id: value, label: statusLabels[value] }))} />
     <Button disabled={pending}>{pending ? "Saving…" : "Update"}</Button>
     <div className="sm:col-span-2"><ActionFeedback state={state} /></div>
   </form>;
@@ -123,10 +126,11 @@ export function SensitiveDetailsPanel({ incidentId, hasDetails, canRead }: { inc
 }
 
 export function SensitiveDetailsForm({ incidentId, workers }: { incidentId: string; workers: Option[] }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(saveIncidentDetails, {} as SafetyState);
   return <form action={action} className="grid gap-4 md:grid-cols-2">
     <input name="incidentId" type="hidden" value={incidentId} />
-    <Select name="injuredWorkerId" label="Injured person" options={workers} placeholder="Not recorded" />
+    <Select name="injuredWorkerId" label="Injured person" options={workers} placeholder={tr("optNotRecorded")} />
     <div><Label htmlFor="injuryDescription">Injury</Label><Input id="injuryDescription" name="injuryDescription" maxLength={2000} className="mt-1" /></div>
     <div><Label htmlFor="medicalNotes">Medical notes</Label><Textarea id="medicalNotes" name="medicalNotes" maxLength={2000} rows={2} className="mt-1" /></div>
     <div><Label htmlFor="personalDetails">Personal details</Label><Textarea id="personalDetails" name="personalDetails" maxLength={2000} rows={2} className="mt-1" /></div>
@@ -136,12 +140,13 @@ export function SensitiveDetailsForm({ incidentId, workers }: { incidentId: stri
 }
 
 export function InspectionForm({ workers, today }: { workers: Option[]; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createInspection, {} as SafetyState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div className="md:col-span-2"><Label htmlFor="inspection-title">Inspection *</Label><Input id="inspection-title" name="title" required maxLength={160} placeholder="Weekly plant walkaround" className="mt-1" /></div>
     <div><Label htmlFor="inspectedOn">Date *</Label><Input id="inspectedOn" name="inspectedOn" type="date" required defaultValue={today} className="mt-1" /></div>
     <div><Label htmlFor="area">Area</Label><Input id="area" name="area" maxLength={160} className="mt-1" /></div>
-    <Select name="inspectorWorkerId" label="Inspector" options={workers} placeholder="Not recorded" />
+    <Select name="inspectorWorkerId" label="Inspector" options={workers} placeholder={tr("optNotRecorded")} />
     <Select name="isSatisfactory" label="Outcome" placeholder="Not assessed" options={[{ id: "yes", label: "Satisfactory" }, { id: "no", label: "Not satisfactory" }]} />
     <div className="md:col-span-3"><Label htmlFor="findings">Findings</Label><Textarea id="findings" name="findings" maxLength={4000} rows={2} className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
@@ -150,12 +155,13 @@ export function InspectionForm({ workers, today }: { workers: Option[]; today: s
 }
 
 export function CorrectiveActionForm({ incidents, inspections, workers }: { incidents: Option[]; inspections: Option[]; workers: Option[] }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createCorrectiveAction, {} as SafetyState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div className="md:col-span-3"><Label htmlFor="description">Action *</Label><Input id="description" name="description" required maxLength={300} placeholder="Install edge protection on bench 4" className="mt-1" /></div>
     <Select name="incidentId" label="From incident" options={incidents} placeholder="Not from an incident" />
     <Select name="inspectionId" label="From inspection" options={inspections} placeholder="Not from an inspection" />
-    <Select name="assignedWorkerId" label="Assigned to" options={workers} placeholder="Unassigned" />
+    <Select name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
     <div><Label htmlFor="dueOn">Due on</Label><Input id="dueOn" name="dueOn" type="date" className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Raise action"}</Button></div>

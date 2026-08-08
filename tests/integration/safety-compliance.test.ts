@@ -260,6 +260,44 @@ describe("compliance recurrence", () => {
     expect(next[0].status).toBe("open");
   });
 
+  it("stops recurring once the requirement is retired", async () => {
+    // Retiring a requirement is how an organization drops an obligation. Before 0026 the recurrence
+    // was read without checking is_active, so a retired requirement kept scheduling its next task
+    // forever, and the only way to stop it was to cancel each occurrence by hand.
+    await actAs(db, acme.userId);
+    const requirementId = await newRequirement("Monthly dust return", "monthly");
+    await db.query("update public.compliance_requirements set is_active = false where id = $1", [requirementId]);
+    const taskId = await newTask("March dust return", "2026-03-31", requirementId);
+
+    const { rows } = await db.query<{ complete_compliance_task: string | null }>(
+      "select public.complete_compliance_task($1)", [taskId]);
+    expect(rows[0].complete_compliance_task).toBeNull();
+  });
+
+  it("resumes recurring when the requirement is reinstated", async () => {
+    await actAs(db, acme.userId);
+    const requirementId = await newRequirement("Monthly water return", "monthly");
+    await db.query("update public.compliance_requirements set is_active = false where id = $1", [requirementId]);
+    await db.query("update public.compliance_requirements set is_active = true where id = $1", [requirementId]);
+    const taskId = await newTask("March water return", "2026-03-31", requirementId);
+
+    const { rows } = await db.query<{ complete_compliance_task: string | null }>(
+      "select public.complete_compliance_task($1)", [taskId]);
+    expect(rows[0].complete_compliance_task).not.toBeNull();
+  });
+
+  it("leaves an already-open task alone when the requirement is retired", async () => {
+    // Retiring stops new work being scheduled; it does not erase work already on someone's list.
+    await actAs(db, acme.userId);
+    const requirementId = await newRequirement("Monthly noise return", "monthly");
+    const taskId = await newTask("March noise return", "2026-03-31", requirementId);
+    await db.query("update public.compliance_requirements set is_active = false where id = $1", [requirementId]);
+
+    const { rows } = await db.query<{ status: string }>(
+      "select status from public.compliance_tasks where id = $1", [taskId]);
+    expect(rows[0].status).toBe("open");
+  });
+
   it("schedules nothing for a one-off task", async () => {
     await actAs(db, acme.userId);
     const requirementId = await newRequirement("One off survey", "none");

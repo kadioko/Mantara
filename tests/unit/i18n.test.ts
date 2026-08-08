@@ -41,6 +41,35 @@ describe("locale fallback", () => {
   });
 });
 
+describe("placeholders survive translation", () => {
+  // A translation that drops a placeholder does not fail — it just renders a sentence with the site
+  // name, the day count or the organization missing, and reads as though that information does not
+  // exist. Nothing else would catch it.
+  const placeholders = (text: string) => [...text.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort();
+
+  it("uses the same placeholders in every locale as in English", () => {
+    for (const locale of supportedLocales) {
+      for (const key of allMessageKeys()) {
+        const english = placeholders(t("en", key));
+        if (english.length === 0) continue;
+        expect(placeholders(t(locale, key)), `${locale}.${key}`).toEqual(english);
+      }
+    }
+  });
+
+  it("has no stray braces left in any message", () => {
+    // An unclosed or misspelled placeholder shows raw braces to the reader.
+    for (const locale of supportedLocales) {
+      for (const key of allMessageKeys()) {
+        const text = t(locale, key);
+        const opens = (text.match(/\{/g) ?? []).length;
+        const closes = (text.match(/\}/g) ?? []).length;
+        expect(opens, `${locale}.${key}`).toBe(closes);
+      }
+    }
+  });
+});
+
 describe("translation coverage", () => {
   it("reports English as complete by definition", () => {
     const { percent, total, translated } = translationCoverage("en");

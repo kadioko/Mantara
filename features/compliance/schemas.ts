@@ -26,21 +26,37 @@ export const taskStatusLabels: Record<(typeof complianceTaskStatuses)[number], s
   cancelled: "Cancelled",
 };
 
-export const licenceSchema = z
-  .object({
-    licenceNumber: z.string().trim().min(1, "Enter the licence number.").max(120),
-    licenceType: z.string().trim().min(2, "Describe the licence type.").max(120),
-    issuingAuthority: z.string().trim().max(160).optional(),
-    holderName: z.string().trim().max(160).optional(),
-    issuedOn: z.string().date().optional().or(z.literal("")),
-    expiresOn: z.string().date().optional().or(z.literal("")),
-    status: z.enum(licenceStatuses),
-    siteScoped: z.coerce.boolean().optional(),
-    notes: z.string().trim().max(2_000).optional(),
-  })
-  .refine((value) => !value.issuedOn || !value.expiresOn || value.expiresOn >= value.issuedOn, {
-    message: "A licence cannot expire before it was issued.",
-    path: ["expiresOn"],
+/** The licence fields, before the cross-field rule. Kept separate so the edit form can extend it. */
+const licenceFields = z.object({
+  licenceNumber: z.string().trim().min(1, "Enter the licence number.").max(120),
+  licenceType: z.string().trim().min(2, "Describe the licence type.").max(120),
+  issuingAuthority: z.string().trim().max(160).optional(),
+  holderName: z.string().trim().max(160).optional(),
+  issuedOn: z.string().date().optional().or(z.literal("")),
+  expiresOn: z.string().date().optional().or(z.literal("")),
+  status: z.enum(licenceStatuses),
+  siteScoped: z.coerce.boolean().optional(),
+  notes: z.string().trim().max(2_000).optional(),
+});
+
+/** A licence cannot expire before it was issued. Applied to both the create and the edit shape. */
+const notExpiredBeforeIssued = {
+  check: (value: { issuedOn?: string; expiresOn?: string }) =>
+    !value.issuedOn || !value.expiresOn || value.expiresOn >= value.issuedOn,
+  message: "A licence cannot expire before it was issued.",
+  path: ["expiresOn"] as const,
+};
+
+export const licenceSchema = licenceFields.refine(notExpiredBeforeIssued.check, {
+  message: notExpiredBeforeIssued.message,
+  path: [...notExpiredBeforeIssued.path],
+});
+
+export const licenceEditSchema = licenceFields
+  .extend({ id: z.string().uuid() })
+  .refine(notExpiredBeforeIssued.check, {
+    message: notExpiredBeforeIssued.message,
+    path: [...notExpiredBeforeIssued.path],
   });
 
 export const requirementSchema = z.object({
@@ -48,6 +64,14 @@ export const requirementSchema = z.object({
   description: z.string().trim().max(2_000).optional(),
   category: z.string().trim().max(120).optional(),
   recurrence: z.enum(recurrenceIntervals),
+});
+
+export const requirementEditSchema = requirementSchema.extend({ id: z.string().uuid() });
+
+/** Retiring and restoring share one shape; the action decides which way it goes. */
+export const requirementStatusSchema = z.object({
+  id: z.string().uuid(),
+  isActive: z.enum(["true", "false"]).transform((value) => value === "true"),
 });
 
 export const complianceTaskSchema = z.object({

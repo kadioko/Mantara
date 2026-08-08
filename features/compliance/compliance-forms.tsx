@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useT } from "@/lib/i18n/client";
 import { Button } from "@/components/ui/button";
 import { selectClass } from "@/components/ui/form";
 import { CheckCircle2 } from "lucide-react";
@@ -29,11 +30,12 @@ function Select({ name, label, options, placeholder, required, defaultValue }: {
 }
 
 export function LicenceForm() {
+  const tr = useT();
   const [state, action, pending] = useActionState(createLicence, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div><Label htmlFor="licenceNumber">Licence number *</Label><Input id="licenceNumber" name="licenceNumber" required maxLength={120} className="mt-1" /></div>
     <div><Label htmlFor="licenceType">Licence type *</Label><Input id="licenceType" name="licenceType" required maxLength={120} placeholder="Primary mining licence" className="mt-1" /></div>
-    <Select name="status" label="Status" required defaultValue="active" options={licenceStatuses.map((value) => ({ id: value, label: licenceStatusLabels[value] }))} />
+    <Select name="status" label={tr("fStatus")} required defaultValue="active" options={licenceStatuses.map((value) => ({ id: value, label: licenceStatusLabels[value] }))} />
     <div><Label htmlFor="issuingAuthority">Issuing authority</Label><Input id="issuingAuthority" name="issuingAuthority" maxLength={160} className="mt-1" /></div>
     <div><Label htmlFor="holderName">Holder</Label><Input id="holderName" name="holderName" maxLength={160} className="mt-1" /></div>
     <div />
@@ -50,10 +52,11 @@ export function LicenceForm() {
 }
 
 export function RequirementForm() {
+  const tr = useT();
   const [state, action, pending] = useActionState(createRequirement, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div className="md:col-span-2"><Label htmlFor="name">Requirement *</Label><Input id="name" name="name" required maxLength={160} placeholder="Quarterly environmental return" className="mt-1" /></div>
-    <Select name="recurrence" label="Recurrence" required defaultValue="none" options={recurrenceIntervals.map((value) => ({ id: value, label: recurrenceLabels[value] }))} />
+    <Select name="recurrence" label={tr("fRecurrence")} required defaultValue="none" options={recurrenceIntervals.map((value) => ({ id: value, label: recurrenceLabels[value] }))} />
     <div><Label htmlFor="category">Category</Label><Input id="category" name="category" maxLength={120} placeholder="Environmental" className="mt-1" /></div>
     <div className="md:col-span-2"><Label htmlFor="description">Description</Label><Input id="description" name="description" maxLength={2000} className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
@@ -62,13 +65,14 @@ export function RequirementForm() {
 }
 
 export function ComplianceTaskForm({ requirements, licences, workers, today }: { requirements: Option[]; licences: Option[]; workers: Option[]; today: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(createComplianceTask, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
     <div className="md:col-span-2"><Label htmlFor="title">Task *</Label><Input id="title" name="title" required maxLength={160} placeholder="Submit quarterly return" className="mt-1" /></div>
     <div><Label htmlFor="dueOn">Due on *</Label><Input id="dueOn" name="dueOn" type="date" required defaultValue={today} className="mt-1" /></div>
-    <Select name="requirementId" label="Requirement" options={requirements} placeholder="Not linked" />
-    <Select name="licenceId" label="Licence" options={licences} placeholder="Not linked" />
-    <Select name="assignedWorkerId" label="Assigned to" options={workers} placeholder="Unassigned" />
+    <Select name="requirementId" label={tr("fRequirement")} options={requirements} placeholder={tr("optNotLinked")} />
+    <Select name="licenceId" label={tr("fLicence")} options={licences} placeholder={tr("optNotLinked")} />
+    <Select name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
     <div className="md:col-span-2"><Label htmlFor="details">Details</Label><Input id="details" name="details" maxLength={2000} className="mt-1" /></div>
     <label className="flex items-center gap-2 self-end pb-2 text-sm font-medium">
       <input name="siteScoped" type="checkbox" value="true" className="size-4" />

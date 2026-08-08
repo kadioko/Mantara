@@ -4,6 +4,7 @@ import { hasPermission } from "@/lib/auth/permissions";
 import { isPlatformAdmin } from "@/lib/auth/platform";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
+import { LocaleProvider } from "@/lib/i18n/client";
 import { AppShell, type NavItem } from "@/components/shell/app-shell";
 
 export default async function PlatformLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -59,5 +60,11 @@ export default async function PlatformLayout({ children }: Readonly<{ children: 
     ...(canViewAuditLog ? [{ href: "/settings/audit-logs", label: t(locale, "auditLog") }] : []),
     ...(platformAdmin ? [{ href: "/admin", label: t(locale, "platformAdmin") }] : []),
   ];
-  return <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems} locale={locale}>{children}</AppShell>;
+  // The provider wraps the whole workspace so every client form below can read the locale without
+  // it being threaded through as a prop.
+  return (
+    <LocaleProvider locale={locale}>
+      <AppShell organizations={workspace.organizations} activeOrganization={workspace.activeOrganization} sites={workspace.sites} activeSite={workspace.activeSite} navItems={navItems} locale={locale}>{children}</AppShell>
+    </LocaleProvider>
+  );
 }

@@ -1,63 +1,105 @@
 # Mantara
 
-Mantara OS is a secure, multi-tenant mining operations platform for artisanal, small-scale, and medium-sized mining companies.
+Mantara OS is a secure, multi-tenant mining operations platform for artisanal, small-scale, and
+medium-sized mining companies, built first for Tanzania.
 
-The interface supports English and Kiswahili. Further African languages can be added through the central translation catalog in `lib/i18n/`.
+The interface is bilingual in English and Kiswahili. Further African languages can be added through
+the central catalogue in `lib/i18n/messages.ts` — English is the source of truth and anything a
+locale has not translated falls back to it, so a new screen ships the day its English copy is
+written rather than waiting on a translator.
 
 ## Project status
 
-The multi-tenant foundation, Mantara brand, English/Kiswahili UI, and the Workforce, Equipment, Production, Fuel,
-Maintenance, Inventory, Expenses, Compliance, and Safety modules are implemented, along with platform administration.
-Reports, notifications, and the audit-log UI remain.
+Every planned module is built: Workforce, Equipment, Production and ore handling, Fuel, Maintenance,
+Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications, the audit-log UI,
+mine sites, organization settings, custom roles, members and invitations, and platform
+administration.
 
-Migrations `0001`–`0003` are deployed to the Supabase project and the Vercel build is live. **Migrations `0004`
-onwards have not been deployed yet**, so the newer modules cannot be exercised against the live project until they
-are applied.
+**Migrations `0001`–`0018` are deployed. `0019`–`0026` are not.** Until they are applied, mine-site
+management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals
+and the compliance recurrence fix are not live. Document storage (`0020`) additionally stays hidden
+behind `DOCUMENTS_ENABLED`.
 
-See the [project-status audit](docs/project-status.md) for the delivered scope and gaps, and the
-[roadmap and journey](docs/roadmap.md) for progress, product phases, and the parallel business plan.
+See the [project status](docs/project-status.md) for what is verified and what is not, and the
+[roadmap](docs/roadmap.md) for the product phases and the business plan alongside them.
 
 ## Local setup
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
-2. Apply every migration in `supabase/migrations/` in filename order (`0001_foundation.sql` through `0014_members_and_notifications.sql`) using the Supabase CLI or SQL editor.
+2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
+   `0026_compliance_recurrence.sql`, using the Supabase CLI or the SQL editor.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
 
-See [the architecture blueprint](blueprint/architecture.md) for the MVP plan and implementation sequence, and the [manual QA checklist](docs/manual-qa-checklist.md) for foundation verification.
+See [the architecture blueprint](blueprint/architecture.md) for how the pieces fit together, and the
+[manual QA checklist](docs/manual-qa-checklist.md) for what only a person can verify.
+
+## How the tenant boundary works
+
+Row-level security is the boundary, not a convenience. Every table carries `organization_id`, every
+policy resolves permission through `has_permission()`, and the application's own checks exist only to
+produce a readable message — remove them all and no tenant could still reach another's data.
+
+Three consequences worth knowing before changing anything:
+
+- **`SECURITY DEFINER` functions bypass RLS by design**, so each one re-checks permission itself and
+  is revoked from `anon` explicitly. Revoking from `PUBLIC` alone is not enough: Supabase grants
+  `EXECUTE` to `anon` and `authenticated` by name.
+- **Views run as their owner unless told otherwise.** `inventory_stock_overview` is declared
+  `with (security_invoker = true)`. Deleting those five words would hand one mining company its
+  competitor's stock levels. `tests/integration/stock-overview.test.ts` fails five ways if anyone does.
+- **A permission code that does not exist denies everyone silently.** `has_permission()` returns
+  false for a code nobody holds, so a typo reads like a deliberate decision and nothing throws.
+  `tests/unit/permission-codes.test.ts` checks every code the app asks for against the migrations.
 
 ## Platform administration
 
-`/admin` is the support and operations area for the team running Mantara itself. It shows organization
-metadata and grants **no access to any tenant's operational records** — see
+`/admin` is the support area for the team running Mantara itself. It shows organization metadata and
+grants **no access to any tenant's operational records** — see
 [the roadmap](docs/roadmap.md#platform-administration-what-the-role-can-and-cannot-do) for where that
 boundary sits and why.
 
-There is no self-service route into the role. Create the first administrator once, in the Supabase SQL
-editor:
+There is no self-service route into the role. Create the first administrator once, in the Supabase
+SQL editor:
 
 ```sql
 insert into public.platform_admins (user_id, note)
 select id, 'Founding administrator' from auth.users where email = 'you@example.com';
 ```
 
-An earlier `platform_administrators` table shipped in migration `0003`. Migration `0012` carries its rows into
-`platform_admins` and removes it, so existing administrators keep their access and there is one source of truth.
+An earlier `platform_administrators` table shipped in migration `0003`. Migration `0013` carries its
+rows into `platform_admins` and removes it, so existing administrators keep access and there is one
+source of truth.
 
 ## User interface
 
 Shared components live in `components/ui/` and follow shadcn/ui conventions on Tailwind v4: a `cn`
-helper in `lib/utils.ts`, `class-variance-authority` for variants, and design tokens declared in
+helper in `lib/utils.ts`, `class-variance-authority` for variants, and design tokens in
 `app/globals.css`. Components from registries such as [21st.dev](https://21st.dev) ship as
 shadcn-format source, so they compose with these tokens and can be added directly.
 
 Screens are built from these primitives rather than hand-written Tailwind: `Panel` for a titled
-section, `Table` for lists, `Field`/`Input`/`Select` for forms, `Pagination` and `SearchField` for list
-controls, and `Alert`/`EmptyState`/`StatCard`/`PageHeader` for page furniture. **Colours come from the
-tokens, not the stock palette** — `bg-card`, `text-muted-foreground`, `border-border` and so on — so the
-brand can change in one file and dark mode works everywhere. The only deliberate exception is the
-workspace sidebar, which carries the Mantara brand colour directly.
+section, `Table` for lists, `Field`/`Input`/`Select` for forms, `CatalogueList`/`CatalogueRow` for
+editable reference data, `Pagination` and `SearchField` for list controls, and
+`Alert`/`EmptyState`/`StatCard`/`PageHeader` for page furniture.
+
+**Colours come from the tokens, not the stock palette** — `bg-card`, `text-muted-foreground`,
+`border-border` — so the brand changes in one file and dark mode works everywhere. The one deliberate
+exception is the workspace sidebar, which carries the Mantara brand colour directly.
+
+Forms use enclosing `<label>` elements rather than `id`/`htmlFor`. Lists render one editor per row,
+and repeated ids would point every label at the first row's control.
+
+## Translation
+
+`t(locale, key)` on the server; `useT()` from `lib/i18n/client.tsx` in client components. The client
+hook exists because `getLocale()` reads a cookie, which only a server component can do — without it
+every data-entry form in the product was stuck in English while the pages around them were bilingual,
+which is precisely backwards for an operator at a mine site.
+
+`npm run i18n:report` shows two numbers. Catalogue coverage is the easy one. The number that matters
+is text written directly into components, which no translator can reach at all.
 
 ## Tests
 
@@ -65,10 +107,14 @@ workspace sidebar, which carries the Mantara brand colour directly.
 npm run test
 ```
 
-Unit tests cover form and schema validation. The integration tests in `tests/integration/` apply the real migration
-files to a PostgreSQL database compiled to WebAssembly, then assert the rules the application relies on the database
-to enforce — balance floors, approval lifecycles, and tenant isolation under RLS. They need no Docker and no Supabase
-project, so they run anywhere `npm test` does.
+Unit tests cover schemas, validation, paging, CSV generation, logging and the message catalogue. The
+integration tests in `tests/integration/` apply the **real migration files** to a PostgreSQL database
+compiled to WebAssembly, then assert the rules the application relies on the database to enforce:
+balance floors, approval lifecycles, deadlock-safe transfers, and tenant isolation under RLS. They
+need no Docker and no Supabase project, so they run anywhere `npm test` does.
+
+The harness models Supabase's default privileges deliberately. A helper revoked only from `PUBLIC`
+would still be callable by `authenticated`, and without that modelling the tests would not notice.
 
 ## Audits
 
@@ -76,36 +122,25 @@ project, so they run anywhere `npm test` does.
 npm run audit:all
 ```
 
-Three static checks, each of which exists because something got past a review once:
+Each of these exists because something got past a review once:
 
-- `npm run a11y` — labelling, heading order, icon-only controls, keyboard reachability. It catches
-  the mechanical failures only. Whether a label is meaningful and whether a focus order makes sense
-  still need a person.
-- `npm run contrast` — every design token pair against WCAG AA, in both themes. Tokens are written
-  in oklch, so it converts oklch to sRGB properly; reading the lightness number and guessing is what
-  let a 1.58:1 sidebar ship. `--border` is recorded as decorative and exempt, with the reasoning in
-  the script.
-- `npm run i18n:report` — untranslated catalogue keys, and text written directly into components
-  that no translator can reach. The second number is the one that matters.
+- `npm run a11y` — labelling, heading order, icon-only controls, keyboard reachability. Mechanical
+  failures only. Whether a label is *meaningful* still needs a person.
+- `npm run contrast` — every design token pair against WCAG AA, in both themes. Tokens are oklch, so
+  it converts oklch to sRGB properly; reading the lightness number and guessing is what let a 1.58:1
+  sidebar ship. `--border` is recorded as decorative and exempt, with the reasoning in the script.
+- `npm run i18n:report` — catalogue gaps and unreachable UI text.
 
 ## Operating the deployment
 
 - `/api/health` returns `200` when the instance can reach the database and `503` when it cannot. It
   is anonymous and deliberately says nothing else, so it cannot be used to learn the schema or which
   tenants exist. Point an uptime monitor at it.
-- Logs are one JSON line per event on stdout (`lib/observability/log.ts`). Any log drain will collect
+- Logs are one JSON line per event on stdout (`lib/observability/log.ts`). Any drain will collect
   them. Personal and operational fields are redacted by name, because logs are readable by more
   people than the database is.
 - `LOG_LEVEL` (`debug`/`info`/`warn`/`error`, default `info`) trims volume without a redeploy.
-- `DOCUMENTS_ENABLED=true` switches on document storage. It is off until an upload and a download
+- `DOCUMENTS_ENABLED=true` switches on document storage. It stays off until an upload and a download
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
-
-## A note on the stock overview
-
-`inventory_stock_overview` is declared `with (security_invoker = true)`. That is not decoration. A
-PostgreSQL view runs with its *owner's* privileges by default, which on Supabase means it would read
-past every row-level policy on the tables underneath and hand one mining company another's stock
-levels. Deleting those five words is a tenant-isolation breach, not a style change, and
-`tests/integration/stock-overview.test.ts` fails five ways if anyone does.

@@ -1,6 +1,12 @@
 import { redirect } from "next/navigation";
 import { FileCheck2 } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
+import {
+  LicenceRow,
+  RequirementRow,
+  type CatalogueLicence,
+  type CatalogueRequirement,
+} from "@/features/compliance/catalogue-forms";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
 import { t } from "@/lib/i18n/messages";
@@ -15,7 +21,7 @@ import {
   RequirementForm,
   type Option,
 } from "@/features/compliance/compliance-forms";
-import { licenceStatusLabels, recurrenceLabels, taskStatusLabels } from "@/features/compliance/schemas";
+import { licenceStatusLabels, taskStatusLabels } from "@/features/compliance/schemas";
 
 export const metadata = { title: "Compliance" };
 
@@ -33,8 +39,8 @@ export default async function CompliancePage() {
   ]);
 
   const [licencesResult, requirementsResult, tasksResult, workersResult] = await Promise.all([
-    workspace.supabase.from("mineral_licences").select("id, licence_number, licence_type, issuing_authority, expires_on, status, mine_site_id").eq("organization_id", organization.id).is("deleted_at", null).order("expires_on", { nullsFirst: false }),
-    workspace.supabase.from("compliance_requirements").select("id, name, category, recurrence").eq("organization_id", organization.id).eq("is_active", true).order("name"),
+    workspace.supabase.from("mineral_licences").select("id, licence_number, licence_type, issuing_authority, holder_name, issued_on, expires_on, status, notes, mine_site_id").eq("organization_id", organization.id).is("deleted_at", null).order("expires_on", { nullsFirst: false }),
+    workspace.supabase.from("compliance_requirements").select("id, name, description, category, recurrence, is_active").eq("organization_id", organization.id).order("name"),
     workspace.supabase.from("compliance_tasks").select("id, title, due_on, status, completed_on, requirement:compliance_requirements(name, recurrence), assignee:workers(full_name)").eq("organization_id", organization.id).order("due_on"),
     canCreate
       ? workspace.supabase.from("workers").select("id, full_name").eq("organization_id", organization.id).eq("mine_site_id", site.id).eq("status", "active").is("deleted_at", null).order("full_name")
@@ -53,7 +59,7 @@ export default async function CompliancePage() {
   const openTasks = tasks.filter((task) => task.status === "open" || task.status === "in_progress");
   const overdueTasks = openTasks.filter((task) => task.due_on < today);
 
-  const requirementOptions: Option[] = requirements.map((row) => ({ id: row.id, label: row.name }));
+  const requirementOptions: Option[] = requirements.filter((row) => row.is_active).map((row) => ({ id: row.id, label: row.name }));
   const licenceOptions: Option[] = licences.map((row) => ({ id: row.id, label: `${row.licence_number} — ${row.licence_type}` }));
   const workerOptions: Option[] = (workersResult.data ?? []).map((row) => ({ id: row.id, label: row.full_name }));
   const locale = await getLocale();
@@ -118,6 +124,13 @@ export default async function CompliancePage() {
         ) : (
           <CardContent><EmptyState icon={<FileCheck2 className="size-6" aria-hidden />} title="No licences recorded" description="Add the permits this organization holds so their expiry can be tracked." /></CardContent>
         )}
+        {canUpdate && licences.length > 0 && (
+          <div className="border-t">
+            {(licences as CatalogueLicence[]).map((licence) => (
+              <LicenceRow key={licence.id} licence={licence} canManage={canUpdate} />
+            ))}
+          </div>
+        )}
         {canCreate && <CardContent className="border-t"><LicenceForm /></CardContent>}
       </Card>
 
@@ -126,21 +139,16 @@ export default async function CompliancePage() {
           <CardTitle>{t(locale, "obligations")}</CardTitle>
           <CardDescription>Recurring duties your organization has defined for itself.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {requirements.length ? (
-            <ul className="divide-y">
-              {requirements.map((requirement) => (
-                <li key={requirement.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
-                  <span className="font-medium">{requirement.name}{requirement.category && <span className="ml-2 text-sm font-normal text-muted-foreground">{requirement.category}</span>}</span>
-                  <Badge variant="secondary">{recurrenceLabels[requirement.recurrence as keyof typeof recurrenceLabels] ?? requirement.recurrence}</Badge>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-muted-foreground">No requirements defined yet.</p>
-          )}
-          {canCreate && <div className="border-t pt-4"><RequirementForm /></div>}
-        </CardContent>
+        {requirements.length ? (
+          <div className="border-t">
+            {(requirements as CatalogueRequirement[]).map((requirement) => (
+              <RequirementRow key={requirement.id} requirement={requirement} canManage={canCreate} />
+            ))}
+          </div>
+        ) : (
+          <CardContent><p className="text-sm text-muted-foreground">No requirements defined yet.</p></CardContent>
+        )}
+        {canCreate && <CardContent className="border-t"><RequirementForm /></CardContent>}
       </Card>
 
       <Card>

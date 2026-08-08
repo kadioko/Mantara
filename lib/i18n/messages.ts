@@ -8,6 +8,24 @@ export type Locale = (typeof supportedLocales)[number];
  * crash. translationGaps() below makes what is outstanding visible instead of silently forgotten.
  */
 const english = {
+  // Form vocabulary shared across the module forms. Adding these once is what makes a data-entry
+  // screen bilingual without translating each form's labels separately.
+  fName: "Name", fNotes: "Notes", fCategory: "Category", fDescription: "Description", fReference: "Reference",
+  fDate: "Date", fTime: "Time", fStartDate: "Start date", fDueOn: "Due on", fIssuedOn: "Issued on", fExpiresOn: "Expires on",
+  fQuantity: "Quantity", fUnit: "Unit", fUnitCost: "Unit cost", fAmount: "Amount", fCurrency: "Currency", fLitres: "Litres",
+  fStatus: "Status", fPriority: "Priority", fReason: "Reason", fSummary: "Summary", fSeverity: "Severity",
+  fItem: "Item", fStore: "Store", fSupplier: "Supplier", fEquipment: "Equipment", fWorker: "Worker", fShift: "Shift",
+  fWorkOrder: "Work order", fLocation: "Location", fMaterial: "Material", fGrade: "Grade", fMeter: "Meter reading",
+  fSku: "SKU", fReorderLevel: "Reorder level", fCapacity: "Capacity", fFuelType: "Fuel type", fBudget: "Budget",
+  fRecurrence: "Recurrence", fRequirement: "Requirement", fLicence: "Licence", fAssignedTo: "Assigned to",
+  fFrom: "From", fTo: "To", fOccurredOn: "Occurred on", fReportedOn: "Reported on", fScheduledFor: "Scheduled for",
+  optNotRecorded: "Not recorded", optUnassigned: "Unassigned", optNotLinked: "Not linked",
+  optUncategorised: "Uncategorised", optNoShift: "No shift", optNotEquipmentSpecific: "Not equipment specific",
+  optNotForWorkOrder: "Not for a work order", optSelectEquipment: "Select equipment", optNone: "None",
+  actAdd: "Add", actRecord: "Record", actSubmit: "Submit", actApprove: "Approve", actReject: "Reject",
+  actComplete: "Complete", actIssue: "Issue", actReceive: "Receive", actTransfer: "Transfer", actAdjust: "Adjust",
+  actSaveChanges: "Save changes", actDispatch: "Dispatch",
+  hintRequiredMark: "Fields marked with * are required.",
   showingRange: "Showing {first}–{last} of {total}", previous: "Previous", next: "Next", search: "Search", clear: "Clear", pageOfPages: "Page {page} of {pages}", pagination: "Pagination",
   create: "Create", update: "Update", cancel: "Cancel", edit: "Edit", remove: "Remove", confirm: "Confirm", actions: "Actions", status: "Status", date: "Date", quantity: "Quantity", unit: "Unit", amount: "Amount", reference: "Reference", description: "Description", required: "required", optional: "optional", all: "All", none: "None", yes: "Yes", no: "No", saving: "Saving...", saved: "Saved.", total: "Total", type: "Type",
   offline: "You are offline. Anything you save now will not reach the server — keep this page open and wait for the connection to return.",
@@ -37,6 +55,22 @@ const english = {
 } as const;
 
 const swahili: Partial<Record<MessageKey, string>> = {
+  fName: "Jina", fNotes: "Maelezo", fCategory: "Kundi", fDescription: "Ufafanuzi", fReference: "Kumbukumbu",
+  fDate: "Tarehe", fTime: "Saa", fStartDate: "Tarehe ya kuanza", fDueOn: "Inatakiwa ifikapo", fIssuedOn: "Ilitolewa tarehe", fExpiresOn: "Inaisha tarehe",
+  fQuantity: "Kiasi", fUnit: "Kipimo", fUnitCost: "Bei ya kipimo", fAmount: "Kiasi cha fedha", fCurrency: "Sarafu", fLitres: "Lita",
+  fStatus: "Hali", fPriority: "Kipaumbele", fReason: "Sababu", fSummary: "Muhtasari", fSeverity: "Ukubwa wa tukio",
+  fItem: "Bidhaa", fStore: "Ghala", fSupplier: "Msambazaji", fEquipment: "Kifaa", fWorker: "Mfanyakazi", fShift: "Zamu",
+  fWorkOrder: "Agizo la kazi", fLocation: "Eneo", fMaterial: "Malighafi", fGrade: "Kiwango cha madini", fMeter: "Usomaji wa mita",
+  fSku: "SKU", fReorderLevel: "Kiwango cha kuagiza tena", fCapacity: "Ujazo", fFuelType: "Aina ya mafuta", fBudget: "Bajeti",
+  fRecurrence: "Marudio", fRequirement: "Wajibu", fLicence: "Leseni", fAssignedTo: "Amepewa",
+  fFrom: "Kutoka", fTo: "Kwenda", fOccurredOn: "Lilitokea tarehe", fReportedOn: "Iliripotiwa tarehe", fScheduledFor: "Imepangwa tarehe",
+  optNotRecorded: "Haijarekodiwa", optUnassigned: "Hajapewa mtu", optNotLinked: "Haijaunganishwa",
+  optUncategorised: "Haina kundi", optNoShift: "Hakuna zamu", optNotEquipmentSpecific: "Si mahususi kwa kifaa",
+  optNotForWorkOrder: "Si kwa agizo la kazi", optSelectEquipment: "Chagua kifaa", optNone: "Hakuna",
+  actAdd: "Ongeza", actRecord: "Rekodi", actSubmit: "Wasilisha", actApprove: "Idhinisha", actReject: "Kataa",
+  actComplete: "Kamilisha", actIssue: "Toa", actReceive: "Pokea", actTransfer: "Hamisha", actAdjust: "Rekebisha",
+  actSaveChanges: "Hifadhi mabadiliko", actDispatch: "Safirisha",
+  hintRequiredMark: "Sehemu zenye alama ya * ni lazima.",
   showingRange: "Inaonyesha {first}–{last} kati ya {total}", previous: "Iliyotangulia", next: "Inayofuata", search: "Tafuta", clear: "Futa", pageOfPages: "Ukurasa {page} kati ya {pages}", pagination: "Kurasa",
   create: "Unda", update: "Sasisha", cancel: "Ghairi", edit: "Hariri", remove: "Ondoa", confirm: "Thibitisha", actions: "Vitendo", status: "Hali", date: "Tarehe", quantity: "Kiasi", unit: "Kipimo", amount: "Kiasi cha fedha", reference: "Kumbukumbu", description: "Maelezo", required: "lazima", optional: "si lazima", all: "Zote", none: "Hakuna", yes: "Ndiyo", no: "Hapana", saving: "Inahifadhi...", saved: "Imehifadhiwa.", total: "Jumla", type: "Aina",
   offline: "Hauko mtandaoni. Chochote utakachohifadhi sasa hakitafika kwenye seva — acha ukurasa huu wazi na subiri muunganisho urudi.",

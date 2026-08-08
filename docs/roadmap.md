@@ -1,41 +1,41 @@
 # Mantara roadmap and journey
 
-**Current position: Ore handling added to core operations; stage 8 in progress**  
-**Last updated: 7 August 2026**
+**Current position: every module built; eight migrations awaiting deployment**  
+**Last updated: 8 August 2026**
 
-For the audited feature-by-feature state, including what is not yet implemented, see [project status](project-status.md).
+For the audited feature-by-feature state, including what is not implemented, see [project status](project-status.md).
 
 Mantara is being built as the digital operating system for African mining: a trusted, mobile-first tool that gives mining operators a reliable view of production, people, equipment, fuel, maintenance, inventory, costs, safety, and compliance.
 
 ## Where we are today
 
-- **Deployment update (7 August 2026):** Supabase migrations `0001` through `0013` are applied. To preserve the already-deployed platform-administrators migration at `0003`, Equipment through Safety were safely renumbered as `0004` through `0012`, and platform-admin consolidation follows as `0013`.
-- English and Kiswahili headings, summaries, metrics, and primary sections are now translated on the operational module landing screens. Client-side forms and detail views remain the next localization pass.
-- Product vision and MVP scope are documented in [`blueprint/`](../blueprint/).
-- The GitHub repository is connected and the project builds successfully.
-- A Next.js, TypeScript, Tailwind, and Supabase foundation exists.
-- Authentication, onboarding, organizations, memberships, roles, permissions, mine sites, audit-log tables, and RLS migration are implemented locally.
-- The workforce module is complete: worker register and detail, daily attendance, assignments, training, and PPE issue history.
-- The equipment module is implemented: asset register and detail, transactional meter readings, status changes with automatic history, and operator assignments.
-- The production module is implemented: shifts, PPM-aware production capture, a database-enforced approval lifecycle, downtime, bagged ore lots, and processing-plant dispatch records.
-- Ore handling is the next operating wedge: each lot records tonnes, assay grade in PPM, bags and bag weight; a locked dispatch function prevents more tonnes or bags being sent to a processing plant than were recorded in the lot.
-- Fuel control is implemented: storage locations with transactionally maintained balances, deliveries, issues, and adjustments that cannot drive a store negative.
-- Maintenance is implemented: requests, work orders with a database-enforced lifecycle, parts, costs, and service schedules that roll forward when a work order is completed.
-- Inventory is implemented: catalogue, stores, suppliers, and a stock ledger whose balances cannot go negative; transfers lock both stores in a fixed order so opposing transfers cannot deadlock.
-- Expenses and budgets are implemented: an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
-- Platform administration is implemented at `/admin`: organization metadata, suspension, administrator management, and an append-only platform audit log.
-- A shared UI layer in `components/ui/` uses shadcn/ui conventions and design tokens, so components from registries such as [21st.dev](https://21st.dev) drop in unchanged. Every screen now draws from it: the eight duplicated panel components and twelve copies of the form control classes are gone, and colours come from tokens rather than the stock palette, so the brand changes in one file.
-- Compliance is implemented: licences with expiry tracking, organization-authored requirements, and tasks that reschedule themselves when a recurring obligation is completed.
-- Safety is implemented: incidents, inspections, and corrective actions, with personal and medical detail held separately behind a granular permission and logged on every access.
-- Role defaults now live in `role_permission_defaults`, so new organizations and existing ones are granted from one source instead of two hand-maintained lists.
-- English and Kiswahili are supported through a cookie-based translation layer in `lib/i18n/`, designed for future African-language additions. Navigation and the authentication, onboarding, and dashboard screens are translated; the module screens added since are still English only.
-- The Mantara brand mark and language switcher are in the workspace shell.
-- The local app is linked to the Mantara Supabase project and has publishable client configuration in ignored `.env.local`.
-- Migrations `0001`–`0003` are deployed to Supabase and the Vercel build is live. **Migrations `0004` onwards are not yet deployed**, so everything from Equipment forward cannot be exercised against the live project until they are applied.
+**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0026` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals and the compliance recurrence fix are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
+
+Every planned module exists:
+
+- **Workforce** — worker register and profile with editing and removal, daily attendance, assignments, training, PPE issue history.
+- **Equipment** — asset register and detail with editing and retirement, transactional meter readings that cannot move backwards, status changes with automatic history, operator assignments.
+- **Production and ore handling** — shifts, PPM-aware capture, a database-enforced approval lifecycle, downtime, bagged ore lots recording tonnes, assay grade, bags and bag weight, and a locked dispatch function that refuses to send more tonnes or bags to a plant than the lot recorded.
+- **Fuel** — tanks with transactionally maintained balances, deliveries, issues, adjustments that cannot drive a tank negative, and full catalogue editing.
+- **Maintenance** — requests, work orders with a database-enforced lifecycle, parts, costs, service schedules that roll forward on completion.
+- **Inventory** — catalogue with full editing, stores, suppliers, a stock ledger whose balances cannot go negative, transfers that lock both stores in a fixed order so opposing transfers cannot deadlock, and a paged site-scoped stock overview.
+- **Expenses** — an approval lifecycle mirroring production, and budget consumption computed by the database so drafts never count as spent.
+- **Compliance** — licences with expiry tracking and editing, organization-authored requirements with editing and retirement, and tasks that reschedule themselves while the requirement is in service and stop when it is retired.
+- **Safety** — incidents, inspections, corrective actions, with personal and medical detail held separately behind a granular permission, rate limited, and logged on every access.
+- **Insight** — dashboard figures gated per module, an organization audit log, reports with CSV export that cannot silently truncate, and notifications.
+- **Administration** — invitations, role changes, suspension, a custom-roles screen, mine-site management, organization settings, and `/admin` for the platform team.
+- **Operations** — `/api/health`, structured JSON logging with field redaction, and a Postgres-backed rate limiter.
+
+Supporting work:
+
+- A shared UI layer in `components/ui/` uses shadcn/ui conventions and design tokens, so components from registries such as [21st.dev](https://21st.dev) drop in unchanged. Every screen draws from it; colours come from tokens, so the brand changes in one file.
+- Role defaults live in `role_permission_defaults`, so new and existing organizations are granted from one source instead of two hand-maintained lists.
+- English and Kiswahili throughout, including the module data-entry forms. `useT()` gives client components the locale, which is what unblocked the forms — they had no way to read a cookie-based locale before, so they were stuck in English while the pages around them were bilingual.
+- Three static audits — accessibility, colour contrast, and translation coverage — each added after something got past a review.
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (310 tests), and `npm run build` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (455 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the
@@ -56,7 +56,16 @@ What the integration tests now cover:
   and cannot write tenant data; suspension makes an organization read-only without affecting any other.
 - Sensitive safety details cannot be read or written without the granular permission, cannot be reached by querying
   the table directly, and every access — but never a denied attempt — is written to the audit log.
-- Completing a recurring compliance obligation schedules the next one; a one-off task schedules nothing.
+- Completing a recurring compliance obligation schedules the next one; a one-off task schedules nothing; and a
+  retired requirement schedules nothing, so dropping an obligation actually drops it.
+- The stock overview enforces RLS **through the view**. Its `security_invoker` declaration is asserted directly,
+  because without it the view would run as its owner and hand one company its competitor's stock levels.
+- Module totals are gated on each module's own read permission, not merely on membership, so a headline number
+  cannot disclose a module the caller may not open.
+- A store or item holding stock, and a tank holding litres, cannot be retired; ordinary corrections still work.
+- Rate limiting is keyed on `auth.uid()` with no subject argument, so no caller can spend another's allowance.
+- Every permission code the application asks for exists in the migrations — a nonexistent one would deny
+  everyone silently, since `has_permission()` simply returns false for a code nobody holds.
 
 Two limits are worth stating plainly. The harness stubs Supabase's `auth` schema and API roles, so it models
 Supabase rather than being it — Auth, Storage, and PostgREST behaviour are still unverified. And concurrency is not
@@ -70,12 +79,12 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
 | 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Complete; deployed to Supabase |
 | 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Complete; deployed to Vercel |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | Code complete; awaiting migration deployment |
-| 4. Equipment | Register, assignments, meter readings, statuses, documents | Code complete; document upload deferred to storage work |
-| 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Code complete; ore migration `0018` awaiting deployment |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Code complete; awaiting migration deployment |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Code complete |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, editing, rate limiting, accessibility, and monitoring done; performance testing, offline capture, and pilot signoff outstanding |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | Complete; deployed |
+| 4. Equipment | Register, assignments, meter readings, statuses, documents | Complete; document upload stays behind `DOCUMENTS_ENABLED` |
+| 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Complete; deployed |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Complete; catalogue editing and stock overview await `0023`–`0025` |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Complete; recurrence fix awaits `0026` |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: paging, search, editing, rate limiting, accessibility, monitoring and bilingual forms done. Outstanding: deploy `0019`–`0026`, screen-reader pass, load testing, backup procedure, offline capture, pilot signoff |
 
 ## Platform administration: what the role can and cannot do
 
@@ -131,11 +140,11 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0019`–`0025` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply migrations `0019`–`0026` to Supabase. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.
-5. Lift the 571 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file) and find a Kiswahili speaker for the mining vocabulary.
+5. Lift the remaining 486 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). The lifting is mechanical; the Kiswahili for mining vocabulary — grade, assay, headgear, stope, waybill — needs a speaker, and faking it would produce something an operator would not trust.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Decision rules

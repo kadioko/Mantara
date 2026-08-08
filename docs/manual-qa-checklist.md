@@ -1,6 +1,7 @@
-# Manual QA checklist — Foundation
+# Manual QA checklist
 
-Before beginning this checklist, apply the foundation migration to the linked Supabase project. Track wider project progress in the [roadmap](roadmap.md).
+Apply every migration `0001`–`0026` to the linked Supabase project before working through this. Track wider
+progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
 > migrations to a real PostgreSQL and asserts them. Run `npm run test` first; treat the items here as confirmation
@@ -284,3 +285,92 @@ Apply `supabase/migrations/0021_role_permissions_management.sql` before running 
       and inventory.
 - [ ] An organization created **before** these migrations has the same permissions after the backfill ran.
 - [ ] A company owner holds every permission, including ones added by later migrations.
+
+## Catalogue editing and retirement
+
+Apply `0023`–`0026` before running these checks.
+
+- [ ] Every catalogue can be corrected after creation: inventory items, categories, stores, suppliers, fuel tanks,
+      expense categories, mineral licences, and compliance requirements. Correcting a name never requires the
+      record to be empty.
+- [ ] **A store still holding stock cannot be taken out of service**, and the error names the quantity in the way.
+- [ ] The same for an inventory item with stock anywhere, by both the retire and the delete route.
+- [ ] **A fuel tank with litres in it cannot be retired**, and the error names the litres.
+- [ ] Emptying the store, then retiring it, succeeds.
+- [ ] A retired store, item, supplier or category disappears from the movement and entry forms but is still listed
+      in its catalogue with a "Retired" badge, and can be restored.
+- [ ] **A retired compliance requirement stops recurring**: completing its open task schedules nothing. Tasks
+      already open stay open.
+- [ ] Reinstating the requirement makes completion schedule the next one again.
+- [ ] A member with the module's read permission but not its manage permission sees no edit or retire control, and
+      a hand-crafted request is refused.
+
+## Figures that must match the whole site, not the page
+
+Apply `0025` before running these checks. Each of these was previously computed from the page on screen.
+
+- [ ] With more than one page of work orders, **"Open work orders" does not change when you turn the page**, and
+      matches the count across every page.
+- [ ] The same for open maintenance requests and overdue service schedules.
+- [ ] Expenses: "Approved spend" is the site's total, not the visible page's, and "Awaiting approval" likewise.
+- [ ] Production: "Approved quantity" covers every approved entry. With more than 1000 approved entries it is
+      still correct — this is the case the old implementation got wrong silently.
+- [ ] **Weighted grade is weighted by tonnage.** With one 100 t lot at 3 PPM and one 1 t lot at 30 PPM it reads
+      about 3.27 PPM, not 16.5.
+- [ ] Dispatched lots are excluded from "Ready / in transit".
+- [ ] A maintenance officer opening the production screen is refused the production totals rather than shown zeros.
+- [ ] If the database is unreachable, figures render as "—" rather than "0".
+
+## Reports
+
+- [ ] A report covering more than 1000 rows returns **all** of them, in the table and in the CSV.
+- [ ] A report exceeding the row ceiling shows a warning on screen **and** carries a truncation line in the CSV.
+- [ ] The stock report for a multi-site organization shows only the active site's issues, and shows all of them.
+- [ ] A value beginning `=`, `+`, `-` or `@` opens in Excel as text, not as a formula.
+- [ ] **Negative amounts still open as numbers** and a column of them sums correctly.
+- [ ] A user without a module's read permission cannot run or download that report by URL.
+
+## Rate limiting
+
+Apply `0022` before running these checks.
+
+- [ ] Ordinary use never trips a limit: inviting a crew, changing a few roles, running several reports.
+- [ ] Repeated report exports beyond the allowance return a clear message and a `429`, not a crash.
+- [ ] **Another member's allowance is unaffected** by one member exhausting theirs.
+- [ ] `select public.prune_rate_limit_events();` removes old rows and leaves recent ones.
+
+## Localization
+
+- [ ] Switching to Kiswahili translates the **data-entry forms**, not only the page headings — production capture,
+      fuel issue, stock movement, expense entry, incident report.
+- [ ] The language choice survives a refresh and applies across every screen.
+- [ ] Pagination, search, and the offline banner are translated everywhere they appear.
+- [ ] No screen shows a blank where a label should be, and no screen shows raw `{braces}`.
+- [ ] **A Kiswahili speaker reviews the mining vocabulary** — grade, assay, ore lot, waybill, reorder level. This
+      is the item that cannot be signed off by anyone else.
+
+## Accessibility
+
+`npm run a11y` and `npm run contrast` cover the mechanical failures. These are the ones they cannot.
+
+- [ ] **A shift entry can be completed with the keyboard alone**, without a mouse, in a sensible order.
+- [ ] A screen reader announces each form control with a label that says what it is for, and announces the row a
+      per-row control belongs to rather than repeating "Edit" down the page.
+- [ ] Errors are announced when they appear, not only shown.
+- [ ] The workspace is usable at 200% browser zoom and on a 360px-wide phone.
+- [ ] Nothing important is conveyed by colour alone.
+
+## Health and logging
+
+- [ ] `/api/health` returns `200` with a `databaseMs` figure while the database is reachable.
+- [ ] With the database unreachable it returns `503` and reveals nothing else.
+- [ ] It is reachable without a session, and discloses no schema, version, or tenant information.
+- [ ] Application logs are one JSON line per event on stdout, and a log drain collects them.
+- [ ] **No worker name, phone number, email, or tonnage appears in any log line.**
+- [ ] Setting `LOG_LEVEL=warn` suppresses info lines without a redeploy.
+
+## Offline
+
+- [ ] Disconnecting the network shows the offline banner within a moment, in the active language.
+- [ ] Reconnecting removes it without a reload.
+- [ ] The banner is announced to a screen reader politely, not as an interruption.
