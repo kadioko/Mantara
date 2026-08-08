@@ -36,7 +36,7 @@ Supporting work:
 
 ### Verified locally
 
-`npm run typecheck`, `npm run lint`, `npm run test` (592 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
+`npm run typecheck`, `npm run lint`, `npm run test` (606 tests), `npm run build`, `npm run a11y` and `npm run contrast` all pass.
 
 The migrations are **executed, not just parsed**. `tests/integration/` boots a real PostgreSQL compiled to
 WebAssembly ([PGlite](https://pglite.dev)), applies every migration file in order, and asserts the behaviour the

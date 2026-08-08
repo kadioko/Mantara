@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 592 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 606 tests pass. |
 
 ## What the tests actually prove
 
@@ -75,6 +75,12 @@ WebAssembly and assert what the database itself enforces:
 - Alert generation being idempotent across repeated runs, escalating through expiry thresholds
   without repeating one, routing compliance and safety work to different readers, and generating
   nothing for a suspended organization or across a tenant boundary.
+
+Two static checks close a gap the type system cannot reach. The Supabase client is untyped, so 55
+table names, 41 function names, and every column and RPC argument in the application are unverified
+until runtime. `tests/unit/schema-contract.test.ts` reads the real schema out of the migrations and
+asserts every query matches it — the same shape as the permission-code check that caught
+`expense.manage`.
 
 **Not covered:** Supabase Auth, Storage and PostgREST behaviour, since the harness stubs them; and
 real concurrency, which needs a multi-connection server. Both remain in the manual QA checklist.

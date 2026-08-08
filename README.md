@@ -145,6 +145,13 @@ Each of these exists because something got past a review once:
   sidebar ship. `--border` is recorded as decorative and exempt, with the reasoning in the script.
 - `npm run i18n:report` — catalogue gaps and unreachable UI text.
 
+Two of the test files are checks of the same kind, run by `npm run test`:
+`tests/unit/permission-codes.test.ts` verifies every permission code the app asks for exists in the
+migrations, and `tests/unit/schema-contract.test.ts` does the same for every table, view, column and
+RPC argument. **The Supabase client here is untyped**, so none of that is checked at compile time —
+a renamed table or a misspelled RPC argument typechecks, lints, builds, and fails in front of an
+operator.
+
 `tests/integration/query-plans.test.ts` seeds a realistic volume and asserts on **query plans** for
 the reads the screens actually perform. Wall-clock timings in WebAssembly are noise; a sequential
 scan is a sequential scan on any hardware. `npm run plan:probe` reproduces the same measurement at
