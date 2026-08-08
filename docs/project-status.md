@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 513 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 529 tests pass. |
 
 ## What the tests actually prove
 
@@ -67,6 +67,8 @@ WebAssembly and assert what the database itself enforces:
 - Platform administrators reading no rows from any operational table.
 - Sensitive safety details unreadable without the granular permission, and every access audited.
 - Rate limiting keyed on the caller, with no way to spend someone else's allowance.
+- Every pending migration surviving being applied twice, since a half-finished apply through the SQL
+  editor is not wrapped in a transaction and the natural next move is to run it again.
 - Site restriction hiding another site's records and refusing writes to them, staying inert for
   members who have none, never applying to organization-wide records or to a company owner, and
   covering every table that carries a mine_site_id.
@@ -186,6 +188,7 @@ manual-QA signoff.
 
 ## Recommended next task
 
-Deploy `0019`–`0029`, then work the manual QA checklist against the live site. Everything below that
+Deploy `0019`–`0029` following [the runbook](deployment.md), then work the manual QA checklist
+against the live site. Everything below that
 line is verified only as far as PGlite and a static analyser reach: Storage, real concurrency,
 Supabase Auth and PostgREST behaviour are covered by no test here.

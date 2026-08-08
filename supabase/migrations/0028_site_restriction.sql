@@ -17,7 +17,7 @@
 -- It is also inert until used. A member with no restriction rows reaches every site, exactly as
 -- before, so applying this migration changes no existing behaviour at all.
 
-create table public.membership_sites (
+create table if not exists public.membership_sites (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id),
   user_id uuid not null references public.profiles(id),
@@ -32,11 +32,12 @@ comment on table public.membership_sites is
   'Optional per-member site restriction. No rows for a member means every site, not none.';
 
 -- The lookup happens once per row of every site-scoped query, so it has to be an index hit.
-create index membership_sites_lookup_idx
+create index if not exists membership_sites_lookup_idx
   on public.membership_sites (organization_id, user_id, mine_site_id);
 
 alter table public.membership_sites enable row level security;
 
+drop policy if exists "membership sites read permitted" on public.membership_sites;
 create policy "membership sites read permitted" on public.membership_sites
   for select using (
     -- Anyone who can see the member list can see who is restricted to what, and a member can always
@@ -112,6 +113,8 @@ begin
       and c.table_name <> 'membership_sites'
     order by c.table_name
   loop
+    -- Dropped first so a re-run replaces the policy rather than failing on it.
+    execute format('drop policy if exists %I on public.%I', 'site restriction', target.table_name);
     execute format(
       'create policy %I on public.%I as restrictive for all
          using (public.may_reach_site(organization_id, mine_site_id))
@@ -123,6 +126,7 @@ end $$;
 -- mine_sites itself is keyed on its own id rather than a mine_site_id column. Without this a
 -- restricted member still sees every site in the workspace switcher, which both leaks the shape of
 -- the organization and offers them a site whose records they would then find empty.
+drop policy if exists "site restriction" on public.mine_sites;
 create policy "site restriction" on public.mine_sites
   as restrictive for all
   using (public.may_reach_site(organization_id, id))
@@ -185,3 +189,7 @@ end; $$;
 
 revoke all on function public.set_member_sites(uuid, uuid, uuid[]) from public, anon;
 grant execute on function public.set_member_sites(uuid, uuid, uuid[]) to authenticated;
+
+-- Re-runnable on purpose. Applied through the Supabase SQL editor a migration is not wrapped in a
+-- transaction, so a failure part-way leaves it half applied and the natural next move is to run it
+-- again. Guarding every create means that works instead of needing a hand repair on a live database.

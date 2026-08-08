@@ -14,7 +14,8 @@
     "a11y": "node scripts/a11y-audit.mjs",
     "contrast": "node scripts/contrast-audit.mjs",
     "audit:all": "npm run typecheck && npm run lint && npm run a11y && npm run contrast && npm run i18n:report",
-    "plan:probe": "node scripts/plan-probe.mjs"
+    "plan:probe": "node scripts/plan-probe.mjs",
+    "migrations:rerun": "node scripts/migration-rerun-probe.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "latest",

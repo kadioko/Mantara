@@ -7,14 +7,14 @@
 -- and Supabase Auth applies its own limits there. This covers what happens after sign-in — inviting
 -- people, changing roles, opening medical details, and exporting data.
 
-create table public.rate_limit_events (
+create table if not exists public.rate_limit_events (
   id bigint generated always as identity primary key,
   bucket text not null check (char_length(bucket) between 1 and 60),
   subject uuid not null,
   occurred_at timestamptz not null default now()
 );
 
-create index rate_limit_lookup_idx on public.rate_limit_events(bucket, subject, occurred_at desc);
+create index if not exists rate_limit_lookup_idx on public.rate_limit_events(bucket, subject, occurred_at desc);
 
 alter table public.rate_limit_events enable row level security;
 -- No policy at all: only consume_rate_limit() touches this, and nothing should read another
@@ -63,3 +63,7 @@ end; $$;
 revoke all on function public.consume_rate_limit(text, integer, integer) from public, anon;
 grant execute on function public.consume_rate_limit(text, integer, integer) to authenticated;
 revoke all on function public.prune_rate_limit_events(integer) from public, anon, authenticated;
+
+-- Re-runnable on purpose. Applied through the Supabase SQL editor a migration is not wrapped in a
+-- transaction, so a failure part-way leaves it half applied and the natural next move is to run it
+-- again. Guarding every create means that works instead of needing a hand repair on a live database.

@@ -9,6 +9,7 @@
 -- screen with no site to write against — a self-inflicted lockout with no route back through the
 -- interface.
 
+drop policy if exists "organizations update permitted" on public.organizations;
 create policy "organizations update permitted" on public.organizations
   for update
   using (public.has_permission(id, 'organization.update'))
@@ -38,6 +39,7 @@ begin
   return new;
 end; $$;
 
+drop trigger if exists mine_sites_protect_last_active on public.mine_sites;
 create trigger mine_sites_protect_last_active
   before update on public.mine_sites
   for each row execute function public.protect_last_active_site();
@@ -54,5 +56,11 @@ set latitude = null, longitude = null
 where (latitude is null) <> (longitude is null);
 
 alter table public.mine_sites
+  drop constraint if exists mine_sites_coordinates_paired;
+alter table public.mine_sites
   add constraint mine_sites_coordinates_paired
   check ((latitude is null) = (longitude is null));
+
+-- Re-runnable on purpose. Applied through the Supabase SQL editor a migration is not wrapped in a
+-- transaction, so a failure part-way leaves it half applied and the natural next move is to run it
+-- again. Guarding every create means that works instead of needing a hand repair on a live database.

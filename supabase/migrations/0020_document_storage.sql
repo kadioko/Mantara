@@ -21,6 +21,7 @@ begin
   -- Objects are keyed <organization_id>/<rest>, so the first path segment decides who may touch them.
   -- Membership alone is not enough to read: the caller needs the permission for the owning module,
   -- and the second segment names that module.
+  execute $policy$ drop policy if exists "documents read permitted" on storage.objects $policy$;
   execute $policy$
     create policy "documents read permitted" on storage.objects for select
     using (
@@ -35,6 +36,7 @@ begin
     )
   $policy$;
 
+  execute $policy$ drop policy if exists "documents write permitted" on storage.objects $policy$;
   execute $policy$
     create policy "documents write permitted" on storage.objects for insert
     with check (
@@ -51,6 +53,7 @@ begin
   $policy$;
 
   -- Deleting a stored file is destructive and separate from editing the record that points at it.
+  execute $policy$ drop policy if exists "documents delete permitted" on storage.objects $policy$;
   execute $policy$
     create policy "documents delete permitted" on storage.objects for delete
     using (
@@ -65,3 +68,8 @@ begin
     )
   $policy$;
 end $$;
+
+-- Re-runnable on purpose. Applied through the Supabase SQL editor a migration is not wrapped in a
+-- transaction, so a failure part-way leaves it half applied and the natural next move is to run it
+-- again. These policies live on storage.objects, which the migration test harness does not have, so
+-- only the static check in tests/integration/migration-safety.test.ts covers them.

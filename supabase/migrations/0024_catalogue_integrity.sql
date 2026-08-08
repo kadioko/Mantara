@@ -24,6 +24,7 @@ begin
   return new;
 end; $$;
 
+drop trigger if exists protect_stocked_inventory_location on public.inventory_locations;
 create trigger protect_stocked_inventory_location
 before update on public.inventory_locations
 for each row execute function public.protect_stocked_inventory_location();
@@ -44,6 +45,7 @@ begin
   return new;
 end; $$;
 
+drop trigger if exists protect_stocked_inventory_item on public.inventory_items;
 create trigger protect_stocked_inventory_item
 before update on public.inventory_items
 for each row execute function public.protect_stocked_inventory_item();
@@ -58,6 +60,7 @@ begin
   return new;
 end; $$;
 
+drop trigger if exists protect_fuelled_storage_location on public.fuel_storage_locations;
 create trigger protect_fuelled_storage_location
 before update on public.fuel_storage_locations
 for each row execute function public.protect_fuelled_storage_location();
@@ -70,3 +73,7 @@ for each row execute function public.protect_fuelled_storage_location();
 revoke all on function public.protect_stocked_inventory_location() from public, anon, authenticated;
 revoke all on function public.protect_stocked_inventory_item() from public, anon, authenticated;
 revoke all on function public.protect_fuelled_storage_location() from public, anon, authenticated;
+
+-- Re-runnable on purpose. Applied through the Supabase SQL editor a migration is not wrapped in a
+-- transaction, so a failure part-way leaves it half applied and the natural next move is to run it
+-- again. Guarding every create means that works instead of needing a hand repair on a live database.

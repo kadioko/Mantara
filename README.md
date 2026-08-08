@@ -20,6 +20,10 @@ management, custom roles, rate limiting, the stock overview, the catalogue guard
 the compliance recurrence fix, the scheduled alerts and per-site access restriction are not live. Document storage (`0020`) additionally stays hidden
 behind `DOCUMENTS_ENABLED`.
 
+**[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
+locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards
+what is actually present.
+
 See the [project status](docs/project-status.md) for what is verified and what is not, and the
 [roadmap](docs/roadmap.md) for the product phases and the business plan alongside them.
 
@@ -27,7 +31,9 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0029_stock_overview_ordering.sql`, using the Supabase CLI or the SQL editor.
+   `0029_stock_overview_ordering.sql`, using the Supabase CLI or the SQL editor. Migrations from
+   `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
+   again rather than by hand.
 3. Run `npm run dev`.
 
 The first authenticated user creates their organization and initial mine site from `/onboarding`.
