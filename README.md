@@ -173,6 +173,22 @@ larger volumes when you need to see how something scales rather than whether it 
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
 
+### Email
+
+Off unless `RESEND_API_KEY`, `EMAIL_FROM` **and** `NEXT_PUBLIC_SITE_URL` are all set. The site URL
+counts because every message carries a link to it, and an invitation whose link goes nowhere is
+worse than one never sent — the sender believes the person was told, and the person cannot act on
+what arrived.
+
+With it off, inviting somebody still works and the screen says plainly to tell them directly. That
+is the whole design: **the invitation is the record, the email is a courtesy.** A provider outage
+must never turn a successful invitation into an error, so `sendEmail` reports whether it went and
+never throws.
+
+Swapping provider means changing `deliver` in `lib/email/send.ts` and nothing else. There is no SDK —
+one endpoint and a bearer token is not worth a dependency on the path that handles addresses people
+typed in.
+
 ### Alerts
 
 `generate_alerts()` creates the notifications nobody would otherwise see in time — a licence

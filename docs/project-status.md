@@ -47,7 +47,7 @@ nobody is being told when a licence is about to expire.
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 622 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 639 tests pass. |
 
 ## What the tests actually prove
 
@@ -169,7 +169,11 @@ is only visible once the findings are kept as numbers.
 
 ### Administration
 
-- Invitations are claimed on sign-in and no email is sent, so an invitee has to be told out of band.
+- **Invitations are now emailed**, behind a switch. Off unless the provider credentials and the site
+  URL are all configured, and with it off the screen says plainly to tell the person directly. The
+  invitation is the record and the email is a courtesy: a provider outage reports "could not be
+  sent" rather than losing the invitation. **The sending itself has never been exercised against a
+  real provider** — the message text, the switch, and every failure path are tested; delivery is not.
 - A table added to the schema after `0028` needs its own site-restriction policy. The migration
   generates them from the catalogue, so it cannot miss a table that existed when it ran, but it
   cannot reach forward either. This is recorded in the architecture blueprint.

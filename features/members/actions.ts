@@ -5,6 +5,9 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/context";
 import { rpcMessage } from "@/lib/auth/scope";
 import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
+import { getLocale } from "@/lib/i18n/locale";
+import { invitationMessage, invitationOutcome } from "@/lib/email/messages";
+import { emailEnabled, sendEmail } from "@/lib/email/send";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { systemRoleCodes } from "./schemas";
 
@@ -31,7 +34,14 @@ const revokeSchema = z.object({ invitationId: z.string().uuid() });
 async function activeOrganization() {
   const workspace = await getActiveWorkspace();
   if (!workspace.activeOrganization) return { error: "Select an active organization first." } as const;
-  return { supabase: workspace.supabase, organizationId: workspace.activeOrganization.id } as const;
+  return {
+    supabase: workspace.supabase,
+    organizationId: workspace.activeOrganization.id,
+    // Carried through so the invitation email can name the organization and the sender without a
+    // second lookup — and, more to the point, without reading anything the caller could not.
+    organizationName: workspace.activeOrganization.name,
+    userId: workspace.user.id,
+  } as const;
 }
 
 export async function inviteMember(_: MemberState, formData: FormData): Promise<MemberState> {
@@ -46,8 +56,53 @@ export async function inviteMember(_: MemberState, formData: FormData): Promise<
     role_code: parsed.data.roleCode,
   });
   if (error) return { error: rpcMessage(error, "Unable to send the invitation. Please try again.") };
+
+  // The invitation is recorded at this point, whatever happens next. Sending the email is a
+  // courtesy on top of it, so a provider outage must not turn a successful invitation into an
+  // error — that would lose the invitation and leave the operator thinking nothing happened.
+  const { sent } = await sendInvitationEmail(scope, parsed.data.email);
+
   revalidatePath("/settings/users");
-  return { success: `${parsed.data.email} will join when they next sign in.` };
+  const locale = await getLocale();
+  return {
+    success: emailEnabled()
+      ? `${invitationOutcome(locale, parsed.data.email, sent)} They will join when they next sign in.`
+      : `${parsed.data.email} will join when they next sign in. Tell them directly — Mantara is not configured to send email.`,
+  };
+}
+
+/**
+ * Sends the invitation, using only what the inviter can already see.
+ *
+ * The organization name and the inviter's own name come from the caller's session, not from a
+ * privileged lookup: an email must never carry something the person triggering it could not read
+ * themselves.
+ */
+async function sendInvitationEmail(scope: Awaited<ReturnType<typeof activeOrganization>>, email: string) {
+  if ("error" in scope || !emailEnabled()) return { sent: false };
+
+  const { data: profile } = await scope.supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", scope.userId)
+    .maybeSingle();
+
+  // emailEnabled() has already established this is set; the trailing slash is the only thing left
+  // to normalise, so the link does not come out with a double slash in it.
+  const origin = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/+$/, "");
+  const locale = await getLocale();
+
+  return sendEmail(
+    email,
+    invitationMessage({
+      organizationName: scope.organizationName,
+      invitedByName: (profile as { full_name: string | null } | null)?.full_name ?? null,
+      signInUrl: `${origin}/register`,
+      locale,
+    }),
+    // No address and no organization name in the log line; only which organization by id.
+    { organizationId: scope.organizationId, purpose: "member_invitation" },
+  );
 }
 
 export async function revokeInvitation(_: MemberState, formData: FormData): Promise<MemberState> {

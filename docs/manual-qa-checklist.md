@@ -528,3 +528,24 @@ Apply `0033` before running these checks. All of these are read from `/settings/
       with the REST API directly, not only through the app.
 - [ ] No entry belonging to one organization is visible to another.
 - [ ] Every entry names an actor; none show a blank.
+
+## Invitation email
+
+Needs `RESEND_API_KEY`, `EMAIL_FROM` and `NEXT_PUBLIC_SITE_URL` set on the deployment. **None of the
+sending path has been exercised against a real provider** — everything below is first-run.
+
+- [ ] With email unconfigured, inviting somebody still works, and the message says to tell them
+      directly rather than implying an email went.
+- [ ] With it configured, the invitee receives a message naming the organization and who invited them.
+- [ ] **The link in the email works from a phone**, not only a desktop — this is the one that matters
+      for a crew at a mine site.
+- [ ] Following the link and registering with that address joins the organization on first sign-in.
+- [ ] The email contains no operational detail — no site names, no figures, nothing about what the
+      company does. Confirm by reading the received message, not the template.
+- [ ] An organization whose name contains an apostrophe or angle brackets renders correctly rather
+      than showing escaped markup or breaking the layout.
+- [ ] **With a deliberately wrong API key, the invitation still succeeds** and the screen says the
+      email could not be sent. This is the failure that must not lose the invitation.
+- [ ] The message arrives in Kiswahili when the inviter's language is Kiswahili.
+- [ ] No email address appears in the application logs.
+- [ ] Inviting the same address twice does not send a duplicate storm — rate limiting applies.
