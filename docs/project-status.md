@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 8 August 2026**
-**Database: migrations `0001`–`0018` applied to Supabase. `0019`–`0030` written, tested, and not deployed.**
+**Database: migrations `0001`–`0028` applied to Supabase. `0030` is not; `0019`, `0020`, `0024`, `0026` and `0029` are unconfirmed from outside.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.

@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: migrations `0001`–`0018` are applied to Supabase and the Vercel build is live. `0019`–`0030` are written and tested but not deployed**, so mine-site management, organization settings, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals, the compliance recurrence fix, the scheduled alerts and per-site access restriction are not yet available on the live site — and several headline figures there are still computed the old, incorrect way.
+**Deployment: migrations `0001`–`0028` are applied to Supabase and the Vercel build is live**, confirmed with `npm run deploy:check`. `0030` is not applied, and `0019`, `0020`, `0024`, `0026` and `0029` cannot be confirmed from outside because they create only triggers, indexes and policies — run `supabase/verify-deployment.sql` to settle those.
 
 Every planned module exists:
 
@@ -141,7 +141,7 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Apply migrations `0019`–`0030` to Supabase, following [the deployment runbook](deployment.md). Every one of them can be run twice, so a half-finished apply is fixed by re-running the file. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
+1. Apply `0030`, and confirm `0019`, `0020`, `0024`, `0026` and `0029` with `supabase/verify-deployment.sql`. Every migration from `0019` can be run twice, so re-applying one to be sure costs nothing. `0020` creates the documents bucket but the surface stays hidden until `DOCUMENTS_ENABLED=true`.
 2. Work the manual QA checklist, concentrating on what the integration tests cannot reach: real concurrency, Supabase Auth and Storage, and end-to-end behaviour through PostgREST.
 3. Point a monitor at `/api/health` and a log drain at stdout. Both are ready and neither is wired to anything yet.
 4. Run a screen-reader pass. `npm run a11y` and `npm run contrast` catch the mechanical failures and both pass; they cannot judge whether a label is meaningful or a focus order sensible.

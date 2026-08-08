@@ -15,10 +15,13 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**Migrations `0001`–`0018` are deployed. `0019`–`0030` are not.** Until they are applied, mine-site
-management, custom roles, rate limiting, the stock overview, the catalogue guards, the module totals,
-the compliance recurrence fix, the scheduled alerts and per-site access restriction are not live. Document storage (`0020`) additionally stays hidden
-behind `DOCUMENTS_ENABLED`.
+**Migrations `0001`–`0028` are applied.** Confirmed against the live project with
+`npm run deploy:check`, which asks PostgREST what exists using only the publishable key. **`0030`
+(fuel reconciliation) is not applied.** Five — `0019`, `0020`, `0024`, `0026`, `0029` — create only
+triggers, indexes, policies or storage objects, which PostgREST cannot describe; run
+`supabase/verify-deployment.sql` in the SQL editor to settle those.
+
+Document storage (`0020`) stays hidden behind `DOCUMENTS_ENABLED` whether or not its migration ran.
 
 **[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
 locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards

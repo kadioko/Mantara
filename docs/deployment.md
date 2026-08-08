@@ -1,6 +1,23 @@
-# Deploying migrations `0019`–`0030`
+# Deploying migrations
 
-Twelve migrations are written, tested and not applied. Until they are, the live site is missing
+**Check what is applied before doing anything:**
+
+```bash
+npm run deploy:check
+```
+
+It asks the live project what exists, using only the publishable key from `.env.local` and reading
+no tenant data — row-level security gives an anonymous caller nothing, which is exactly why an empty
+answer still proves a table is there. It cannot see triggers, indexes, policies or storage objects,
+so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
+settles them in the SQL editor.
+
+As of the last check: `0001`–`0028` applied, `0030` not, and `0019`/`0020`/`0024`/`0026`/`0029`
+unconfirmed. Re-applying any of them is safe — see below — so when in doubt, run it again.
+
+## The original position
+
+Twelve migrations were written, tested and not applied. Until they are, the live site is missing
 mine-site management, organization settings, custom roles, rate limiting, the stock overview, the
 catalogue retirement guards, the module totals, the compliance recurrence fix, per-site access
 restriction, the scheduled alerts and fuel reconciliation — **and it is still computing several headline figures the old,
