@@ -9,7 +9,7 @@ import { rateLimitMessage, withinRateLimit } from "@/lib/auth/rate-limit";
 export type DocumentState = { error?: string; success?: string };
 export type DocumentUploadState = DocumentState & { uploadUrl?: string; path?: string; token?: string };
 
-export const documentScopes = ["equipment", "compliance", "training", "geology"] as const;
+const documentScopes = ["equipment", "compliance", "training", "geology"] as const;
 export type DocumentScope = (typeof documentScopes)[number];
 
 const BUCKET = "documents";
