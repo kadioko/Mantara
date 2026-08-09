@@ -94,10 +94,10 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
             <TableHeader>
               <TableRow>
                 <TableHead>Incident</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead>{t(locale,"fCategory")}</TableHead>
                 <TableHead>When</TableHead>
-                <TableHead>Severity</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t(locale,"fSeverity")}</TableHead>
+                <TableHead>{t(locale,"attendanceStatus")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,7 +136,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
                   <span className="flex items-center gap-3 text-sm text-muted-foreground">
                     {inspection.inspected_on}
                     {inspection.is_satisfactory === null
-                      ? <Badge variant="secondary">Not assessed</Badge>
+                      ? <Badge variant="secondary">{t(locale,"notAssessed")}</Badge>
                       : <Badge variant={inspection.is_satisfactory ? "success" : "destructive"}>{inspection.is_satisfactory ? "Satisfactory" : "Not satisfactory"}</Badge>}
                   </span>
                 </li>

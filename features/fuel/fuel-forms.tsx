@@ -47,7 +47,7 @@ export function FuelLocationForm() {
     <div className="md:col-span-3"><h2 className="text-lg font-bold">Add a fuel store</h2><p className="mt-1 text-sm text-muted-foreground">Tanks and bowsers held at this mine site.</p></div>
     <label className="text-sm font-semibold">{tr("fName")} *<input required name="name" maxLength={120} placeholder="Main diesel tank" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fFuelType")} *<select required name="fuelType" defaultValue="diesel" className={selectClass}>{fuelTypes.map((value) => <option key={value} value={value}>{fuelTypeLabels[value]}</option>)}</select></label>
-    <label className="text-sm font-semibold">Capacity (litres)<input name="capacityLitres" type="number" min="0" step="0.001" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("fCapacityLitres")}<input name="capacityLitres" type="number" min="0" step="0.001" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Add fuel store"}</Button></div>
@@ -93,7 +93,7 @@ export function FuelAdjustmentForm({ locations, today }: { locations: Option[]; 
     <LocationSelect locations={locations} />
     <label className="text-sm font-semibold">Litres (+/−) *<input required name="litresDelta" type="number" step="0.001" placeholder="-25" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fAdjustedOn")} *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold md:col-span-2">{tr("fReason")} *<input required name="reason" maxLength={200} placeholder="Stock take variance" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fReason")} *<input required name="reason" maxLength={200} placeholder={tr("fStockTakeVariance")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Record adjustment"}</Button></div>

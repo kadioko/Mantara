@@ -12,7 +12,7 @@ answer still proves a table is there. It cannot see triggers, indexes, policies 
 so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
 settles them in the SQL editor.
 
-As of 9 August 2026: **`0001`–`0033` are applied.** `0019`/`0020`/`0024`/`0026`/`0029` have also been checked directly because API-level checks cannot see triggers, indexes, policies, or Storage objects. Re-applying the idempotent migrations remains safe when recovering a partial SQL-editor run — see below.
+As of 9 August 2026: **`0001`–`0037` are applied.** The latest live QA also exercised authenticated PostgREST/RLS, concurrent writes and a private signed Storage download.
 
 ## The original position
 

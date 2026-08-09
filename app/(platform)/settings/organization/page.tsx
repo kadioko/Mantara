@@ -31,7 +31,7 @@ export default async function OrganizationSettingsPage() {
     <div className="space-y-6">
       <PageHeader
         eyebrow={t(locale, "settings")}
-        title="Organization"
+        title={t(locale,"organization")}
         description={t(locale, "pTheCompany")}
       />
 
@@ -43,7 +43,7 @@ export default async function OrganizationSettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Details</CardTitle>
+          <CardTitle>{t(locale,"pDetails")}</CardTitle>
           <CardDescription>The name shown throughout the workspace and on exports.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -65,9 +65,9 @@ export default async function OrganizationSettingsPage() {
           <CardDescription>Sites and people are managed on their own screens.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
-          <Link href="/sites" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Mine sites</Link>
-          <Link href="/settings/users" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>People</Link>
-          <Link href="/settings/audit-logs" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>Audit log</Link>
+          <Link href="/sites" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>{t(locale,"mineSites")}</Link>
+          <Link href="/settings/users" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>{t(locale,"people")}</Link>
+          <Link href="/settings/audit-logs" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>{t(locale,"auditLog")}</Link>
         </CardContent>
       </Card>
 

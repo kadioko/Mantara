@@ -79,8 +79,8 @@ export function ExpenseReviewForm({ expenseId }: { expenseId: string }) {
     <input name="expenseId" type="hidden" value={expenseId} />
     <label className="text-sm font-semibold">Decision *
       <select name="decision" defaultValue="approved" className={selectClass}>
-        <option value="approved">Approve</option>
-        <option value="rejected">Reject</option>
+        <option value="approved">{tr("actApprove")}</option>
+        <option value="rejected">{tr("actReject")}</option>
       </select>
     </label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<input name="notes" maxLength={500} placeholder="Checked against invoice" className={fieldClass} /></label>

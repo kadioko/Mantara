@@ -143,7 +143,7 @@ export function StockAdjustmentForm({ items, locations, today }: { items: Option
     <label className="text-sm font-semibold">Reason *
       <select required name="reason" defaultValue="correction" className={selectClass}>{adjustmentReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
     </label>
-    <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder="Stock take variance" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder={tr("fStockTakeVariance")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fAdjustedOn")} *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Adjust stock"}</Button></div>

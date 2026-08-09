@@ -47,7 +47,7 @@ export function TankRow({ tank, canManage }: { tank: CatalogueTank; canManage: b
           {fuelTypes.map((value) => <option key={value} value={value}>{fuelTypeLabels[value]}</option>)}
         </select>
       </Field>
-      <Field label="Capacity (litres)" hint="Leave blank if the tank has no stated capacity.">
+      <Field label={tr("fCapacityLitres")} hint="Leave blank if the tank has no stated capacity.">
         <input name="capacityLitres" type="number" min="0" step="0.001" defaultValue={capacity} className={fieldClass} />
       </Field>
       <Field label={tr("fNotes")} className="md:col-span-3">

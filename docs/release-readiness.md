@@ -4,7 +4,7 @@
 
 ## Evidence already available
 
-- Database migrations `0001`–`0033` are applied, including direct verification of policy/trigger/index-only migrations.
+- Database migrations `0001`–`0037` are applied, including forecasting/daily-summary, geology foundations, site restriction and audit alignment.
 - `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, accessibility scan and contrast scan pass.
 - `/api/health` checks database reachability without exposing tenant data; structured JSON logs redact common sensitive fields.
 
@@ -13,8 +13,8 @@
 | Area | Owner | Pass condition | Evidence |
 | --- | --- | --- | --- |
 | Auth | Pilot owner | Register, sign in/out, reset and invitation acceptance work with production email settings | Checklist initials + timestamp |
-| PostgREST/RLS | Security tester | Two organizations cannot read or mutate one another through the UI or API session | Test accounts and result notes |
-| Documents | Operations tester | Upload, signed download, expiry and role denials pass after `DOCUMENTS_ENABLED=true` | File name, role, screenshots |
+| PostgREST/RLS | Security tester | **Focused live case passed 2026-08-09:** two authenticated organizations could not read or mutate one another | `scripts/live-tenant-qa.mjs` output |
+| Documents | Operations tester | Upload and external signed download pass; expiry and role denials remain | File name, role, screenshots |
 | Concurrent writes | Two testers | Competing fuel, stock and meter writes preserve constraints and present useful errors | Timestamped test script |
 | Accessibility | Screen-reader user | Login, active-site selection, shift entry and document upload are understandable by keyboard and screen reader | Browser/device findings |
 | Performance | Technical owner | Health endpoint and core pages meet agreed pilot response targets under a documented load profile | Load report |

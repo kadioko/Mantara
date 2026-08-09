@@ -78,7 +78,7 @@ export function EquipmentAssignmentForm({ equipmentId, workers, today }: { equip
     <label className="text-sm font-semibold md:col-span-2">{tr("fAssignment")} *<input required name="assignmentName" maxLength={160} placeholder="Day shift — pit 2" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Operator
       <select name="workerId" defaultValue="" className={selectClass}>
-        <option value="">Unassigned</option>
+        <option value="">{tr("optUnassigned")}</option>
         {workers.map((worker) => <option key={worker.id} value={worker.id}>{worker.fullName}</option>)}
       </select>
     </label>

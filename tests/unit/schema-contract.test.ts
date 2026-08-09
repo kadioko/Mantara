@@ -33,9 +33,11 @@ function readSchema() {
   for (const match of migrationSql.matchAll(/create table (?:if not exists )?public\.(\w+)\s*\(([\s\S]*?)\n\);/g)) {
     const [, table, body] = match;
     const set = columns.get(table) ?? new Set<string>();
-    for (const line of body.split("\n")) {
-      const column = /^\s{2}(\w+)\s+(uuid|text|numeric|integer|bigint|boolean|date|timestamptz|jsonb|inet|char|public\.)/.exec(line);
-      if (column) set.add(column[1]);
+    // A compact migration may place more than one column on a line. A column begins either at the
+    // start of the body or immediately after a comma; constraints begin with a reserved word and do
+    // not match a supported SQL type here.
+    for (const column of body.matchAll(/(?:^\s*|,\s*)(\w+)\s+(uuid|text|numeric|integer|bigint|boolean|date|timestamptz|jsonb|inet|char|public\.)/gm)) {
+      set.add(column[1]);
     }
     columns.set(table, set);
   }

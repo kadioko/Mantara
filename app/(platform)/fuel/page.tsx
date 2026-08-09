@@ -173,7 +173,7 @@ export default async function FuelPage() {
                 const location = Array.isArray(row.location) ? row.location[0] : row.location;
                 return <li key={row.id} className="text-sm"><span className="font-medium">+{Number(row.litres).toLocaleString()} L</span> <span className="text-muted-foreground">{row.received_on}{location?.name ? ` · ${location.name}` : ""}{row.supplier ? ` · ${row.supplier}` : ""}</span></li>;
               })}</ul>
-            : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}
+            : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}
         </div>
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground">Issues</h2>
@@ -183,13 +183,13 @@ export default async function FuelPage() {
                 const workerRow = Array.isArray(row.worker) ? row.worker[0] : row.worker;
                 return <li key={row.id} className="text-sm"><span className="font-medium">−{Number(row.litres).toLocaleString()} L</span> <span className="text-muted-foreground">{row.issued_on}{equipmentRow?.name ? ` · ${equipmentRow.name}` : ""}{workerRow?.full_name ? ` · ${workerRow.full_name}` : ""}</span></li>;
               })}</ul>
-            : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}
+            : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}
         </div>
         <div>
           <h2 className="text-sm font-semibold text-muted-foreground">Adjustments</h2>
           {adjustments.data?.length
             ? <ul className="mt-2 space-y-2">{adjustments.data.map((row) => <li key={row.id} className="text-sm"><span className="font-medium">{Number(row.litres_delta) > 0 ? "+" : "−"}{Math.abs(Number(row.litres_delta)).toLocaleString()} L</span> <span className="text-muted-foreground">{row.adjusted_on} · {row.reason}</span></li>)}</ul>
-            : <p className="mt-2 text-sm text-muted-foreground">None recorded.</p>}
+            : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}
         </div>
       </div>
     </Panel>

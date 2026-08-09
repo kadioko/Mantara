@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 9 August 2026**
-**Database: every migration through `0035` applied. `0019`, `0020`, `0024`, `0026` and `0029` were directly verified for their triggers, indexes, policies and private Storage bucket.**
+**Database: every migration through `0037` applied. `0034` adds operational intelligence, `0035` geology, `0036` forecasts/daily summaries, and `0037` aligns site restriction and geology audit coverage.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -34,7 +34,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | Bilingual navigation, authentication, onboarding, dashboard, every module landing screen, the shared list primitives, and the module data-entry forms. |
+| Localization | 100% paired English/Kiswahili catalogue. Safety and production forms are fully lifted; the static report still identifies 268 older UI phrases in other screens. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -44,11 +44,12 @@ of date.)*
 | Expenses | Categories with editing, approval lifecycle, budgets whose consumption counts approved and paid spend only. |
 | Compliance | Licences with expiry tracking and editing, organization-authored requirements with editing and retirement, recurring tasks that stop when a requirement is retired. |
 | Safety | Incidents, inspections, corrective actions; personal and medical detail behind a granular permission, rate limited, and logged on every access. |
-| Insight | Dashboard with permission-gated figures, organization audit log, reports with CSV export that cannot silently truncate, and notifications including scheduled alerts for licence expiry and overdue work. |
+| Insight | Dashboard and `/intelligence` with cost/unit, budget, productivity, utilization, explicit recovery/price assumptions, revenue-backed cash-flow forecasts, daily source summaries and evidence-bounded Mantara Brain guidance. |
+| Geology | Samples, assays, drill collars and intervals, licence-boundary GeoJSON, private files, a boundary/point map and evidence-bounded GeoAI observations. |
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 672 tests pass. |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 677 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -87,8 +88,7 @@ until runtime. `tests/unit/schema-contract.test.ts` reads the real schema out of
 asserts every query matches it — the same shape as the permission-code check that caught
 `expense.manage`.
 
-**Not covered:** Supabase Auth, Storage and PostgREST behaviour, since the harness stubs them; and
-real concurrency, which needs a multi-connection server. Both remain in the manual QA checklist.
+The repository harness still stubs Auth/Storage/PostgREST, but the live QA harness covers them separately. On 9 August 2026 it passed authenticated owner access, bidirectional cross-tenant RLS, a rejected foreign-tenant write, real concurrent serialized meter writes, grounded forecast/daily-summary RPCs and an HTTP 200 signed private download outside the automated browser.
 
 ## Corrections made to figures that were wrong
 
@@ -179,9 +179,9 @@ is only visible once the findings are kept as numbers.
   generates them from the catalogue, so it cannot miss a table that existed when it ran, but it
   cannot reach forward either. This is recorded in the architecture blueprint.
 
-### Documents — UI built, switched off pending live QA
+### Documents — live upload and signed download verified
 
-The private bucket and its policies are applied. Equipment records now include an upload control and signed download link, but `DOCUMENTS_ENABLED` defaults to off and the surface stays hidden. Storage cannot be exercised by the migration harness or the test suite, so **none of the upload path has been run against a real bucket**. Deploy this UI, set `DOCUMENTS_ENABLED=true`, and confirm upload, download, expiry and permission denial end to end before relying on it.
+The private bucket and its policies are applied. A geology document was uploaded through the deployed UI and its signed URL was fetched outside the automated browser (HTTP 200, non-empty body). `DOCUMENTS_ENABLED` remains a deployment switch; expiry and denial for every role still belong in pilot signoff.
 
 ### Localization
 
@@ -190,14 +190,14 @@ data-entry form in the product was stuck in English while the pages around them 
 backwards for a product whose forms are filled in by supervisors at a mine site and whose landing
 pages are read by head office.
 
-- The catalogue is complete: 416 keys, 100% Kiswahili.
+- The catalogue is fully paired: every English key has Kiswahili.
 - **The rate-limit refusal now speaks Kiswahili.** It was hard-coded English behind a bilingual
   product, on one of the few screens where the reader is already being told no. It reads the locale
   itself rather than taking one, so no call site can forget to pass it.
 - **The panel titles and descriptions on every module page are translated.** Those are the sentences
   somebody reads to work out what a screen is for, and they matter more to a supervisor navigating
   the product than any single field label does.
-- 388 phrases remain. `npm run i18n:report` ranks them by file.
+- 268 older phrases remain after lifting 125 of the reported 393, including all phrases in the safety and production forms. `npm run i18n:report` ranks the remaining work by file.
 - **The report itself was understating the gap.** It never counted `description`, `hint` or
   `eyebrow`, which are exactly the explanatory sentences under a heading — the text a reader who is
   lost most needs. Fixed, so today's number is honest and slightly higher than a naive comparison
@@ -268,10 +268,9 @@ makes sense, and whether a screen reader can complete a shift entry are all stil
 `ConnectionStatus` warns the moment the connection drops, which prevents the failure that costs an
 afternoon at a site with patchy signal: filling in a long form and losing it to a browser error page.
 
-Phase A offline capture has started: shift plans and maintenance requests keep AES-GCM encrypted,
+Phase A offline capture now covers shift plans, maintenance requests, attendance rosters and ordinary safety inspections with AES-GCM encrypted,
 user/organization/site-bound drafts in IndexedDB and clear them only after a successful server save.
-Attendance and safety-observation drafts remain, while balance-sensitive and approval workflows
-intentionally stay online-only until their conflict behavior is designed and tested.
+Balance-sensitive, medical-detail and approval workflows intentionally stay online-only until their conflict and device-risk behavior is designed and tested.
 
 ### Performance
 
@@ -303,7 +302,7 @@ reproduces the measurement and the test holds the current shape so it cannot dri
 
 ### Still outstanding
 
-Live load testing with concurrent users, a backup-and-recovery drill, and pilot manual-QA signoff. The runbooks now exist in `docs/`; the executions need a selected monitoring/log destination and a designated pilot/test organization.
+Wider live load testing, a backup-and-recovery drill, screen-reader testing and pilot signoff remain. A two-tenant live RLS test and a same-record concurrent-write test now pass; these are security/concurrency proofs, not a capacity test.
 
 The Content-Security-Policy is outstanding in a specific sense: it is written, served and reporting,
 but it has never blocked anything and cannot be called proven until a week of real traffic has been
@@ -311,5 +310,4 @@ read. Nobody should describe this product as having a CSP until that has happene
 
 ## Recommended next task
 
-Deploy the document UI and work the manual QA checklist against the live site. Storage, real concurrency,
-Supabase Auth and PostgREST behaviour are covered by no automated test here.
+Finish the 268 remaining localization findings, then run the screen-reader, recovery and multi-user load sessions required for pilot signoff.

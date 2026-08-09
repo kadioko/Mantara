@@ -48,7 +48,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Risk and insight"
+        eyebrow={t(locale,"riskAndInsight")}
         title={t(locale, "pReports")}
         description={`Movements at ${site.name} between ${from} and ${to}.`}
         actions={

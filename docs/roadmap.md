@@ -1,6 +1,6 @@
 # Mantara roadmap and journey
 
-**Current position: MVP modules are built; migrations `0001`–`0035` are applied and verified**
+**Current position: MVP modules plus the first intelligence/geology slice are built; migrations `0001`–`0037` are applied and verified**
 **Last updated: 9 August 2026**
 
 For the audited feature-by-feature state, including what is not implemented, see [project status](project-status.md).
@@ -9,7 +9,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: every migration from `0001` through `0035` is applied to Supabase.** The five migrations that the API cannot describe (`0019`, `0020`, `0024`, `0026`, `0029`) were also checked directly for their policies, triggers, indexes and bucket. The Vercel build remains live; `npm run deploy:check` is the repeatable API-level confirmation.
+**Deployment: every migration from `0001` through `0037` is applied to Supabase.** Live authenticated QA also passed bidirectional tenant isolation, a rejected cross-tenant insert, same-record concurrent meter writes, forecast/daily-summary RPCs and a signed private download outside the automated browser.
 
 Every planned module exists:
 
@@ -85,7 +85,7 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Complete; deployed |
 | 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Complete; catalogue editing and stock overview are live |
 | 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Complete; audit coverage through `0033` is live |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: remaining work is live Auth/PostgREST/Storage QA, real concurrent writes, screen-reader pass, monitoring/log drain, recovery drill, offline design, and pilot sign-off |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: Auth/PostgREST/RLS/Storage and a focused concurrent-write case pass live; remaining work is screen-reader QA, monitoring/log drain, recovery drill, wider load tests and pilot signoff |
 
 ## Platform administration: what the role can and cannot do
 
@@ -141,19 +141,19 @@ Software is the immediate priority, but Mantara should be built alongside real m
 
 ## Immediate next actions
 
-1. Deploy the document UI, set `DOCUMENTS_ENABLED=true` only in the intended environment, then run the signed upload/download and authorization cases in the manual QA checklist. Roll the flag back if any case fails.
-2. Run the live QA cases that PGlite cannot prove: Supabase Auth, PostgREST/RLS, Storage, and simultaneous writes against a dedicated pilot/test organization.
+1. Complete role-denial and signed-URL-expiry document cases; live upload and a signed HTTP download already pass.
+2. Preserve `scripts/live-tenant-qa.mjs` as the repeatable Auth/PostgREST/RLS/Storage/concurrency smoke suite and run it before pilot releases.
 3. Point an external monitor at `/api/health` and connect Vercel stdout to a chosen log destination. The application is instrumented; alert ownership and the vendor destination still need to be selected.
-4. Complete the release-readiness artefacts: screen-reader session, recovery drill, offline-capture design review, and pilot sign-off. See [release readiness](release-readiness.md), [backup and recovery](backup-recovery.md), and [offline capture design](offline-capture-design.md).
-5. Lift the remaining 388 uncatalogued UI phrases into `lib/i18n/messages.ts` (`npm run i18n:report` ranks them by file). A Kiswahili mining-domain reviewer must approve terms such as grade, assay, headgear, stope, and waybill.
+4. Complete the screen-reader session, recovery drill, broader load test and pilot signoff. Phase-A offline drafts now cover shifts, maintenance requests, attendance and ordinary safety inspections.
+5. Lift the remaining 268 uncatalogued UI phrases into `lib/i18n/messages.ts`. The original 393 is down by 125, and safety/production forms now report zero findings. A Kiswahili mining-domain reviewer must still approve specialist terms.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Beyond the MVP: build order, not promises
 
 The following product phases are intentionally **not** part of the MVP. They should be funded and validated in this order, with a design-partner decision between phases.
 
-1. **Operational intelligence.** Cost per tonne/gram/ounce, budget consumption, worker productivity, recorded equipment utilization and transparent 30-day run rates are implemented in `0034` and `/intelligence`. Remaining: revenue/recovery assumptions, true cash-flow forecasts, scheduled daily summaries and Mantara Brain grounded in cited records.
-2. **GeoAI and geology.** `0035` and `/geology` provide controlled samples, assays, drill-hole collars, interval/boundary/file storage and a coordinate plot. Remaining: interval/boundary entry UI, richer spatial maps, exploration dashboards and evidence-bounded recommendations.
+1. **Operational intelligence.** `0034`/`0036` and `/intelligence` now provide cost per tonne/gram/ounce, budget consumption, productivity, utilization, explicit recovery/price assumptions, revenue-backed cash-flow forecasts, on-demand daily summaries and the first evidence-bounded Mantara Brain guidance. Remaining: scheduled delivery, scenario/version history and a conversational assistant with citation enforcement.
+2. **GeoAI and geology.** `0035` and `/geology` now provide samples, assays, drill collars, drill-interval and licence-boundary entry, GeoJSON/point mapping, private files and deterministic evidence-bounded observations. Remaining: PostGIS-scale layers, drill-section views, exploration dashboards and reviewed recommendation models.
 3. **Computer vision and drones.** Begin with consented image/video intake and auditable human review. PPE detection, vehicle counts, stockpile estimation and pit-progress models require field validation, retention rules, and clear false-positive handling.
 4. **Marketplace.** Build supplier verification, rental/service requests and quote comparison before reviews, payments or any trading workflow. Payments and marketplace dispute handling are a separate regulated operating capability.
 

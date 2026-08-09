@@ -2,7 +2,7 @@
 
 > This is the long-term product vision. For the active MVP position, delivery sequence, and business milestones, see the [Mantara roadmap and journey](../docs/roadmap.md).
 
-> **Current build scope:** multi-tenant foundation, organizations/sites, Workforce register, attendance, English/Kiswahili UI, and branding. The [project-status audit](../docs/project-status.md) identifies every remaining MVP module.
+> **Current build scope (9 August 2026):** the multi-tenant operational MVP is live through migration `0037`. Phase 2's first grounded intelligence slice and Phase 3's geology foundation are implemented; offline drafts cover four safe forms. The [project-status audit](../docs/project-status.md) records the remaining localization, release-readiness and advanced-product work.
 
 MANTARA
 
@@ -270,35 +270,35 @@ This version should be usable even without advanced AI.
 
 ⸻
 
-Phase 2: Financial and Operational Intelligence
+Phase 2: Financial and Operational Intelligence — first grounded slice delivered
 
 Add:
 
-* Cost per tonne
-* Cost per gram or ounce
-* Budget versus actual
+* Cost per tonne — delivered
+* Cost per gram or ounce — delivered
+* Budget versus actual — delivered
 * Fuel-consumption analysis
-* Equipment-utilization reports
-* Worker-productivity analysis
-* Production forecasts
-* Cash-flow forecasts
-* Automated daily summaries
-* Mantara Brain assistant
+* Equipment-utilization reports — delivered from recorded meters
+* Worker-productivity analysis — delivered
+* Production forecasts — transparent run rate delivered; richer scenarios remain
+* Cash-flow forecasts — revenue/recovery assumption model delivered
+* Automated daily summaries — on-demand grounded summary delivered; scheduling remains
+* Mantara Brain assistant — evidence-bounded guidance delivered; conversational assistant remains
 
 ⸻
 
-Phase 3: Geological Data
+Phase 3: Geological Data — foundation delivered
 
 Add:
 
-* Maps
-* Sample locations
-* Assay results
-* Drill-hole records
-* Licence boundaries
-* Geological file storage
-* Exploration dashboards
-* GeoAI recommendations
+* Maps — recorded points and GeoJSON boundaries delivered; richer spatial layers remain
+* Sample locations — delivered
+* Assay results — delivered
+* Drill-hole records and intervals — delivered
+* Licence boundaries — delivered
+* Geological file storage — delivered and live signed-download verified
+* Exploration dashboards — basic evidence view delivered; richer dashboards remain
+* GeoAI recommendations — deterministic evidence observations delivered; reviewed models remain
 
 ⸻
 

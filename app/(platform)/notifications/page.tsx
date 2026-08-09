@@ -40,7 +40,7 @@ export default async function NotificationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Notifications"
+        title={t(locale,"notifications")}
         description={unread.length ? `${unread.length} waiting for you.` : "Nothing needs your attention."}
         actions={unread.length > 0 ? (
           <form action={markAllNotificationsRead}>

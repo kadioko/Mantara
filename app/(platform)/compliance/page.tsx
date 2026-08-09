@@ -92,11 +92,11 @@ export default async function CompliancePage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Licence</TableHead>
+                <TableHead>{t(locale,"fLicence")}</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Authority</TableHead>
                 <TableHead>Expires</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t(locale,"attendanceStatus")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

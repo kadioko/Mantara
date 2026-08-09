@@ -6,6 +6,7 @@ import { selectClass } from "@/components/ui/form";
 import { Pencil, Trash2 } from "lucide-react";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { ActionFeedback, Alert } from "@/components/ui/feedback";
+import { useT } from "@/lib/i18n/client";
 import { removeWorker, updateWorker, type WorkerState } from "./actions";
 
 export type WorkerDetails = {
@@ -23,35 +24,36 @@ export type WorkerDetails = {
 
 
 export function EditWorkerForm({ worker }: { worker: WorkerDetails }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(updateWorker, {} as WorkerState);
   const [open, setOpen] = useState(false);
 
   if (!open) {
-    return <Button variant="outline" size="sm" onClick={() => setOpen(true)}><Pencil aria-hidden />Edit details</Button>;
+    return <Button variant="outline" size="sm" onClick={() => setOpen(true)}><Pencil aria-hidden />{tr("editDetails")}</Button>;
   }
 
   return <form action={action} className="grid gap-4 md:grid-cols-2">
     <input name="workerId" type="hidden" value={worker.id} />
-    <div><Label htmlFor="fullName">Full name *</Label><Input id="fullName" name="fullName" required maxLength={160} defaultValue={worker.full_name} className="mt-1" /></div>
-    <div><Label htmlFor="employeeNumber">Employee or contractor number</Label><Input id="employeeNumber" name="employeeNumber" maxLength={80} defaultValue={worker.employee_number ?? ""} className="mt-1" /></div>
-    <div><Label htmlFor="phoneNumber">Phone number</Label><Input id="phoneNumber" name="phoneNumber" inputMode="tel" maxLength={40} defaultValue={worker.phone_number ?? ""} className="mt-1" /></div>
-    <div><Label htmlFor="jobTitle">Job title</Label><Input id="jobTitle" name="jobTitle" maxLength={100} defaultValue={worker.job_title ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="fullName">{tr("fullName")} *</Label><Input id="fullName" name="fullName" required maxLength={160} defaultValue={worker.full_name} className="mt-1" /></div>
+    <div><Label htmlFor="employeeNumber">{tr("employeeNumber")}</Label><Input id="employeeNumber" name="employeeNumber" maxLength={80} defaultValue={worker.employee_number ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="phoneNumber">{tr("phoneNumber")}</Label><Input id="phoneNumber" name="phoneNumber" inputMode="tel" maxLength={40} defaultValue={worker.phone_number ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="jobTitle">{tr("jobTitle")}</Label><Input id="jobTitle" name="jobTitle" maxLength={100} defaultValue={worker.job_title ?? ""} className="mt-1" /></div>
     <div>
-      <Label htmlFor="employmentType">Employment type *</Label>
+      <Label htmlFor="employmentType">{tr("employmentType")} *</Label>
       <select id="employmentType" name="employmentType" required defaultValue={worker.employment_type} className={selectClass}>
-        <option value="employee">Employee</option>
-        <option value="contractor">Contractor</option>
-        <option value="casual">Casual</option>
+        <option value="employee">{tr("employee")}</option>
+        <option value="contractor">{tr("contractor")}</option>
+        <option value="casual">{tr("casual")}</option>
       </select>
     </div>
-    <div><Label htmlFor="startDate">Start date</Label><Input id="startDate" name="startDate" type="date" defaultValue={worker.start_date ?? ""} className="mt-1" /></div>
-    <div><Label htmlFor="emergencyContactName">Emergency contact name</Label><Input id="emergencyContactName" name="emergencyContactName" maxLength={160} defaultValue={worker.emergency_contact_name ?? ""} className="mt-1" /></div>
-    <div><Label htmlFor="emergencyContactPhone">Emergency contact phone</Label><Input id="emergencyContactPhone" name="emergencyContactPhone" inputMode="tel" maxLength={40} defaultValue={worker.emergency_contact_phone ?? ""} className="mt-1" /></div>
-    <div className="md:col-span-2"><Label htmlFor="notes">Notes</Label><Textarea id="notes" name="notes" maxLength={2000} rows={2} defaultValue={worker.notes ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="startDate">{tr("startDate")}</Label><Input id="startDate" name="startDate" type="date" defaultValue={worker.start_date ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="emergencyContactName">{tr("emergencyContactName")}</Label><Input id="emergencyContactName" name="emergencyContactName" maxLength={160} defaultValue={worker.emergency_contact_name ?? ""} className="mt-1" /></div>
+    <div><Label htmlFor="emergencyContactPhone">{tr("emergencyContactPhone")}</Label><Input id="emergencyContactPhone" name="emergencyContactPhone" inputMode="tel" maxLength={40} defaultValue={worker.emergency_contact_phone ?? ""} className="mt-1" /></div>
+    <div className="md:col-span-2"><Label htmlFor="notes">{tr("notes")}</Label><Textarea id="notes" name="notes" maxLength={2000} rows={2} defaultValue={worker.notes ?? ""} className="mt-1" /></div>
     <div className="md:col-span-2"><ActionFeedback state={state} /></div>
     <div className="flex gap-2 md:col-span-2">
-      <Button disabled={pending}>{pending ? "Saving…" : "Save changes"}</Button>
-      <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+      <Button disabled={pending}>{pending ? tr("saving") : tr("actSaveChanges")}</Button>
+      <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
   </form>;
 }
@@ -61,28 +63,29 @@ export function EditWorkerForm({ worker }: { worker: WorkerDetails }) {
  * plain button is too easy to hit by accident on a phone at a mine site.
  */
 export function RemoveWorkerForm({ workerId, workerName }: { workerId: string; workerName: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(removeWorker, {} as WorkerState);
   const [open, setOpen] = useState(false);
 
   if (!open) {
     return <Button variant="ghost" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => setOpen(true)}>
-      <Trash2 aria-hidden />Remove from register
+      <Trash2 aria-hidden />{tr("removeFromRegister")}
     </Button>;
   }
 
   return <form action={action} className="space-y-3">
     <input name="workerId" type="hidden" value={workerId} />
     <Alert variant="warning">
-      Removing takes this person off the register. Their attendance, assignments, training, and PPE history are kept.
+      {tr("removeWorkerWarning")}
     </Alert>
     <div>
-      <Label htmlFor="confirmName">Type <span className="font-semibold">{workerName}</span> to confirm</Label>
+      <Label htmlFor="confirmName">{tr("typeToConfirm")} <span className="font-semibold">{workerName}</span></Label>
       <Input id="confirmName" name="confirmName" required autoComplete="off" className="mt-1 max-w-sm" />
     </div>
     <ActionFeedback state={state} />
     <div className="flex gap-2">
-      <Button disabled={pending} variant="destructive">{pending ? "Removing…" : "Remove worker"}</Button>
-      <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+      <Button disabled={pending} variant="destructive">{pending ? tr("removing") : tr("removeWorker")}</Button>
+      <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
   </form>;
 }

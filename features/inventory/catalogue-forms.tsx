@@ -86,7 +86,7 @@ export function ItemRow({
       <Field label={tr("fUnit")} required><input name="unit" required maxLength={20} defaultValue={item.unit} className={fieldClass} /></Field>
       <Field label={tr("fCategory")}>
         <select name="categoryId" defaultValue={item.category_id ?? ""} className={selectClass}>
-          <option value="">Uncategorised</option>
+          <option value="">{tr("optUncategorised")}</option>
           {categories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}
         </select>
       </Field>

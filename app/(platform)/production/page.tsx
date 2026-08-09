@@ -62,7 +62,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity</p><p className="mt-1 text-2xl font-bold">{figure(totals?.approvedQuantity)}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Awaiting approval</p><p className="mt-1 text-2xl font-bold">{figure(totals?.submittedCount)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale,"awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.submittedCount)}</p></div>
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries recorded</p><p className="mt-1 text-2xl font-bold">{entriesInfo.total}</p></div>
     </div>
 

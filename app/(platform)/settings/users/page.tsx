@@ -103,8 +103,8 @@ export default async function UsersPage() {
               <TableRow>
                 <TableHead>Person</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Mine sites</TableHead>
+                <TableHead>{t(locale,"attendanceStatus")}</TableHead>
+                <TableHead>{t(locale,"mineSites")}</TableHead>
                 <TableHead className="text-right">Access</TableHead>
               </TableRow>
             </TableHeader>
@@ -163,10 +163,10 @@ export default async function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
+                <TableHead>{t(locale,"email")}</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Expires</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead className="text-right">{t(locale,"auditAction")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

@@ -1,6 +1,6 @@
 # Manual QA checklist
 
-Apply every migration `0001`–`0027` to the linked Supabase project before working through this. Track wider
+Apply every migration `0001`–`0037` to the linked Supabase project before working through this. Track wider
 progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
@@ -11,10 +11,10 @@ progress in the [roadmap](roadmap.md) and the [project status](project-status.md
 - [ ] **(Supabase only)** A new user can register, confirm email, sign in, and sign out.
 - [ ] An authenticated user without a membership is sent to onboarding.
 - [ ] Onboarding creates one organization, an active owner membership, default roles, and the first mine site.
-- [ ] A member can only see its own organization and sites.
+- [x] A member can only see its own organization and sites. **Live API proof 2026-08-09:** owner and isolated `x10think` tenant both returned zero rows for the other tenant.
 - [ ] User can change active organization and active mine-site context; each selection persists after a refresh.
 - [ ] **(Supabase only)** Direct URL requests without a session redirect to login.
-- [ ] Attempted cross-tenant reads and writes are denied by RLS.
+- [x] Attempted cross-tenant reads and writes are denied by RLS. Bidirectional reads and an explicit foreign-tenant forecast-assumption insert passed `scripts/live-tenant-qa.mjs`.
 - [ ] **(Supabase only)** Publishable key only is present in the browser; no service-role key is exposed.
 
 ## Workspace shell
@@ -270,11 +270,11 @@ Apply `supabase/migrations/0021_role_permissions_management.sql` before running 
 - [ ] A user with `role.read` but not `role.manage` sees the roles without an edit control.
 - [ ] Every change appears in the audit log as `role.permissions_changed`.
 
-## Documents (switched off)
+## Documents
 
 - [ ] With `DOCUMENTS_ENABLED` unset, no document panel or upload control appears anywhere.
-- [ ] After applying `0020_document_storage.sql` and setting `DOCUMENTS_ENABLED=true`: an upload succeeds and the file is listed.
-- [ ] A download link works and expires shortly afterwards.
+- [x] After applying `0020_document_storage.sql` and setting `DOCUMENTS_ENABLED=true`: a geology upload succeeded and was listed in the deployed UI.
+- [x] A signed private download returned HTTP 200 with a non-empty body outside the automated browser. Expiry still needs a timed manual check.
 - [ ] **A signed URL cannot be obtained for a path in another organization.**
 - [ ] A user without the module's update permission cannot upload; without its read permission cannot download.
 
@@ -588,3 +588,11 @@ Only reachable with `DOCUMENTS_ENABLED=true`, and the allowance had never applie
       message says how long to wait.
 - [ ] The refusal appears in Kiswahili when the browser language is Kiswahili.
 - [ ] A refused attempt leaves no orphaned record on the equipment, licence or training row.
+
+## Intelligence, geology and focused live concurrency
+
+- [x] Migration `0036` applies and an authenticated owner can read a revenue-backed forecast and daily summary with evidence sources.
+- [x] A second tenant cannot read the first tenant's site or insert its forecast assumptions.
+- [x] Two simultaneous meter writes serialize; the final value is the monotonic maximum and the lower late write is rejected.
+- [ ] Enter a drill interval and Polygon/MultiPolygon boundary in English and Kiswahili; confirm the map, table and evidence-bounded GeoAI text remain understandable on a phone.
+- [ ] Review the forecast assumptions with a finance/mining operator. Demo price is explicitly labelled as non-live and must be replaced before a real decision.
