@@ -865,6 +865,8 @@ The MVP will be successful when one mining operator can use Mantara to:
 
 Possible pricing structure:
 
+The working commercial packages, pilot offer, implementation services, pricing assumptions, and validation plan are maintained in [`docs/commercial-pricing.md`](../docs/commercial-pricing.md). Those prices remain internal hypotheses until Mantara completes paid pilots and approves a public rate card.
+
 Starter
 
 For one small mine site.

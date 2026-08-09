@@ -131,6 +131,8 @@ Software is the immediate priority, but Mantara should be built alongside real m
 4. Establish trusted expert relationships for mining operations, compliance, safety, and data protection. Mantara stores and organizes compliance information; it does not provide legal advice.
 5. Define a pilot offer: onboarding, data migration, team training, and a fixed pilot period with success measures.
 
+The current paid-pilot structure and provisional Starter, Growth, and Enterprise pricing are documented in [`commercial-pricing.md`](commercial-pricing.md). Validate those commercial hypotheses through paid pilots before publishing a public rate card.
+
 ### Pilot success measures
 
 - A mine can record daily production, fuel movements, equipment events, and attendance without spreadsheet duplication.
