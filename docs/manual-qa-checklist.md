@@ -11,7 +11,7 @@ progress in the [roadmap](roadmap.md) and the [project status](project-status.md
 - [ ] **(Supabase only)** A new user can register, confirm email, sign in, and sign out.
 - [ ] An authenticated user without a membership is sent to onboarding.
 - [ ] Onboarding creates one organization, an active owner membership, default roles, and the first mine site.
-- [x] A member can only see its own organization and sites. **Live API proof 2026-08-09:** owner and isolated `x10think` tenant both returned zero rows for the other tenant.
+- [x] A member can only see its own organization and sites. **Live API proof 2026-08-09:** owner and isolated `Mwangaza Mining QA` tenant both returned zero rows for the other tenant.
 - [ ] User can change active organization and active mine-site context; each selection persists after a refresh.
 - [ ] **(Supabase only)** Direct URL requests without a session redirect to login.
 - [x] Attempted cross-tenant reads and writes are denied by RLS. Bidirectional reads and an explicit foreign-tenant forecast-assumption insert passed `scripts/live-tenant-qa.mjs`.
