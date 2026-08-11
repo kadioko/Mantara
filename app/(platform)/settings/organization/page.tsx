@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Download } from "lucide-react";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
@@ -56,6 +57,33 @@ export default async function OrganizationSettingsPage() {
               <p className="pt-2 text-sm text-muted-foreground">Changing these needs the organization management permission.</p>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/*
+        The commercial answer to "can we get our data out?", which a mining company asks before it
+        puts a year of production into this. Kept on the organization screen rather than buried in
+        reports, because it is a statement about ownership rather than a reporting feature.
+
+        A plain link, not a form: the route answers with a file, and a server action cannot stream a
+        download. `download` is deliberate — without it a browser would render the JSON in a tab.
+      */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t(locale, "pYourData")}</CardTitle>
+          <CardDescription>{t(locale, "pYourDataDescription")}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <a
+            href="/settings/organization/export"
+            download
+            className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+          >
+            <Download aria-hidden />
+            {t(locale, "downloadYourData")}
+          </a>
+          <p className="text-sm text-muted-foreground">{t(locale, "pYourDataScope")}</p>
+          <p className="text-sm text-muted-foreground">{t(locale, "pYourDataAudited")}</p>
         </CardContent>
       </Card>
 

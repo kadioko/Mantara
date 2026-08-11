@@ -13,6 +13,11 @@ export const rateLimits = {
   "safety.sensitive_read": { max: 60, windowSeconds: 3600 },
   "report.export": { max: 30, windowSeconds: 3600 },
   "document.upload": { max: 60, windowSeconds: 3600 },
+  // Far tighter than the rest, and the only one an ordinary user could plausibly hit. One request
+  // returns sixty tables where every other read returns a page of twenty-five, so this is the most
+  // valuable thing in the product to take at speed. Nobody needs their whole dataset four times in
+  // an hour; somebody working through a list of stolen sessions does.
+  "organization.export": { max: 3, windowSeconds: 3600 },
 } as const;
 
 export type RateLimitBucket = keyof typeof rateLimits;

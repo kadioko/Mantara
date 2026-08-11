@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 9 August 2026**
-**Database: every migration through `0037` applied. `0034` adds operational intelligence, `0035` geology, `0036` forecasts/daily summaries, and `0037` aligns site restriction and geology audit coverage.**
+**Database: every migration through `0037` applied. `0034` adds operational intelligence, `0035` geology, `0036` forecasts/daily summaries, and `0037` aligns site restriction and geology audit coverage. `0038_export_audit.sql` is new and pending — until it is applied the data export refuses rather than producing an unaudited copy.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -49,7 +49,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 677 tests pass (1 skipped). |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 711 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -256,6 +256,45 @@ And one caught only by running the thing: the report collector answered **500 to
 because `NextResponse.json` cannot build a 204. Its unit tests passed — they called the parser, and
 the parser was correct. A `curl` at a running server found it in one request. A report channel that
 silently 500s is worse than none, because the quiet reads as a clean policy.
+
+### Data portability — the commercial question
+
+A mining company asks one thing before it puts a year of production into a product it has never
+used: **can we get it back out?** Until 11 August the honest answer was no. The four reports are
+date-ranged and scoped to a single mine site, so a company with two pits could not assemble its own
+records even by hand, and there was nothing that returned the other sixty tables at all.
+
+`/settings/organization/export` now returns everything the organization holds as one JSON file, with
+a manifest. Four decisions worth knowing:
+
+- **The table list is written out, not discovered.** Reading `information_schema` at runtime would be
+  shorter and would quietly ship whatever happened to be there, including operational telemetry.
+  Naming all 64 is a set of reviewable decisions, and `tests/unit/export-catalogue.test.ts` fails
+  when a table carrying `organization_id` is neither exported nor excluded — so the promise cannot
+  fall behind the schema in silence.
+- **The manifest states what is missing** — per table: rows, ceiling reached, withheld for want of
+  permission, or failed outright. A client handed 90% of their records with no indication is worse
+  off than one handed 90% and the list of the other 10%, because the first believes it is everything.
+  A complete-looking file run by a site-restricted member is the specific trap, so the manifest names
+  the sites it covered and says an owner would receive more.
+- **Site restriction is inherited, not reimplemented.** `0028`'s restrictive policies act on the
+  caller's own session. There is deliberately no site logic in the export to drift from the original.
+- **`safety_incident_details` is excluded, with the reason in the file.** Every read of it is audited
+  one record at a time; a bulk file would turn that into an unaudited copy of everything.
+
+The export is audited through `record_organization_export()` and rate limited to 3 an hour — the
+tightest allowance in the product, because one request returns sixty tables where every other read
+returns twenty-five rows. **If the audit entry cannot be written, the file is not produced.**
+
+Two real defects were found by writing the tests rather than by reading the code: three tables were
+catalogued with an `orderBy` column that does not exist on them (`equipment_status_history` uses
+`changed_at`, the two approval tables use `decided_at`), which would have failed those tables at
+runtime and reported them in the manifest as faults with no clue why.
+
+**Not yet verified:** the authenticated download itself. The route is proven to require a session,
+the manifest and catalogue are unit-tested, and the audit function and tenant boundary are tested
+against real policies — but nobody has yet signed in, clicked the button, and opened the file. It is
+on the QA checklist.
 
 ### Accessibility
 

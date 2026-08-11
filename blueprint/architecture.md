@@ -223,6 +223,12 @@ Cross-cutting helpers worth knowing about before adding a module:
   Returns null on failure so the screen can show a dash; a zero would be a claim.
 - `lib/observability/log.ts` — one JSON line per event on stdout, with personal and operational
   fields redacted by name.
+- `features/exports/` — the organization data export. `catalogue.ts` is a written-out list of every
+  tenant table and the permission gating it; `run.ts` reads them and builds the manifest. **A new
+  table must be added to that catalogue or explicitly excluded**, and a test fails until it is. The
+  export does no site filtering of its own on purpose: `0028`'s restrictive policies already act on
+  the caller's session, and a second implementation of the boundary would eventually disagree with
+  the first.
 - `lib/security/headers.ts` — the whole browser-facing policy as pure functions, applied by
   `proxy.ts` to every response including the redirects. It sits **in front of** the tenant boundary
   and never overlaps it: RLS decides who may read a record, and these decide what a browser already

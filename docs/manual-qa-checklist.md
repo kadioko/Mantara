@@ -596,3 +596,35 @@ Only reachable with `DOCUMENTS_ENABLED=true`, and the allowance had never applie
 - [x] Two simultaneous meter writes serialize; the final value is the monotonic maximum and the lower late write is rejected.
 - [ ] Enter a drill interval and Polygon/MultiPolygon boundary in English and Kiswahili; confirm the map, table and evidence-bounded GeoAI text remain understandable on a phone.
 - [ ] Review the forecast assumptions with a finance/mining operator. Demo price is explicitly labelled as non-live and must be replaced before a real decision.
+
+## Taking your data with you
+
+Needs `0038_export_audit.sql` applied. **Nobody has yet signed in and downloaded this file** — the
+route is proven to require a session, and the manifest, catalogue, audit function and tenant boundary
+are all tested, but the authenticated download itself is first-run.
+
+- [ ] Signed in as a company owner, `/settings/organization` shows the "Your data" panel, and the
+      button downloads a file rather than opening JSON in a browser tab.
+- [ ] The filename contains the organization name and today's date.
+- [ ] The file opens in a text editor and is valid JSON — check `manifest.complete` first.
+- [ ] `manifest.tables` lists every module: production, fuel, inventory, expenses, compliance,
+      safety, workers, equipment, maintenance, geology, audit log.
+- [ ] Row counts in the manifest match what the screens show. Pick two tables and count by hand.
+- [ ] `safety_incident_details` appears as withheld **with its reason**, not silently absent.
+- [ ] **As a site-restricted member**, the file contains only that member's sites, `manifest.sites`
+      lists only those sites, and the notes say an owner would receive everything. This is the trap:
+      a file that says complete but covers one pit of three.
+- [ ] **As a member without expense permission**, `expenses` is listed as withheld rather than
+      missing, and `manifest.complete` is false.
+- [ ] `/settings/audit-logs` shows an `organization.exported` entry for each download, naming the
+      person and the row count — and **containing none of the exported data itself**.
+- [ ] Requesting the export four times in an hour is refused on the fourth with a readable message.
+- [ ] The refusal appears in Kiswahili when the language is Kiswahili.
+- [ ] With `0038` **not** applied, the download refuses with "could not be recorded in the audit log"
+      rather than producing an unaudited file. Worth testing deliberately once.
+- [ ] The response carries `x-content-type-options: nosniff`.
+- [ ] Signed out, `/settings/organization/export` redirects to the login screen.
+- [ ] A member of another organization cannot obtain this organization's file by any URL.
+- [ ] **Re-import sanity**: hand the file to someone who has never seen the product and ask what the
+      company mined last month. If they cannot answer, the export is not the portability promise it
+      claims to be.

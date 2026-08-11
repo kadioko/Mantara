@@ -137,6 +137,13 @@ const english = {
   // Says how long the window is, because "wait a little" leaves someone refreshing. The allowance
   // itself is not named: how many are left is a useful thing to learn if you are probing.
   rateLimitedMinutes: "That has been done too many times in the last {minutes} minutes. Please wait a little and try again.",
+  // Taking your data with you. The wording matters commercially: this is the answer a company wants
+  // before it trusts the product, so it says plainly that the data is theirs and stays theirs.
+  pYourData: "Your data",
+  pYourDataDescription: "Download every record this organization holds, as one file. It is yours, and you can take it with you at any time.",
+  downloadYourData: "Download all data",
+  pYourDataScope: "The file covers only the mine sites you can reach, and only the modules you can read. It lists anything it left out and why. A company owner receives everything.",
+  pYourDataAudited: "Each download is recorded in the audit log, so an owner can see who took a copy and when.",
   language: "Language", english: "English", swahili: "Kiswahili", save: "Save", switch: "Switch", signOut: "Sign out", collapseSidebar: "Hide sidebar", expandSidebar: "Show sidebar",
   email: "Email", password: "Password", pleaseWait: "Please wait...", signIn: "Sign in", createAccount: "Create account",
   welcomeBack: "Welcome back", signInDescription: "Sign in to manage your mining operations.", newToMantara: "New to Mantara?", alreadyHaveAccount: "Already have an account?",
@@ -296,6 +303,11 @@ const swahili: Partial<Record<MessageKey, string>> = {
   offlineDraftSaved: "Rasimu iliyosimbwa imehifadhiwa kwenye kifaa hiki.", offlineDraftRestored: "Rasimu iliyosimbwa imerejeshwa kwa akaunti, shirika na eneo hili la mgodi.",
   rateLimited: "Jambo hilo limefanyika mara nyingi mno hivi karibuni. Tafadhali subiri kidogo kisha ujaribu tena.", noPermission: "Huna ruhusa ya kufanya hivyo.", checkTheForm: "Tafadhali angalia sehemu zilizoangaziwa kisha ujaribu tena.",
   rateLimitedMinutes: "Jambo hilo limefanyika mara nyingi mno katika dakika {minutes} zilizopita. Tafadhali subiri kidogo kisha ujaribu tena.",
+  pYourData: "Taarifa zako",
+  pYourDataDescription: "Pakua kila kumbukumbu ambayo shirika hili linamiliki, katika faili moja. Ni zako, na unaweza kuzichukua wakati wowote.",
+  downloadYourData: "Pakua taarifa zote",
+  pYourDataScope: "Faili hili linahusu migodi unayoweza kuifikia tu, na moduli unazoweza kuzisoma tu. Linaorodhesha chochote kilichoachwa na sababu yake. Mmiliki wa kampuni hupokea kila kitu.",
+  pYourDataAudited: "Kila upakuaji huandikwa katika kumbukumbu za ukaguzi, ili mmiliki aone nani alichukua nakala na lini.",
   language: "Lugha", english: "English", swahili: "Kiswahili", save: "Hifadhi", switch: "Badilisha", signOut: "Ondoka", collapseSidebar: "Ficha utepe wa pembeni", expandSidebar: "Onyesha utepe wa pembeni",
   email: "Barua pepe", password: "Nenosiri", pleaseWait: "Tafadhali subiri...", signIn: "Ingia", createAccount: "Fungua akaunti",
   welcomeBack: "Karibu tena", signInDescription: "Ingia ili kusimamia shughuli zako za uchimbaji.", newToMantara: "Mgeni Mantara?", alreadyHaveAccount: "Una akaunti tayari?",

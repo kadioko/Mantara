@@ -15,15 +15,13 @@ Inventory, Expenses, Compliance, Safety, Reports with CSV export, Notifications,
 mine sites, organization settings, custom roles, members and invitations, and platform
 administration.
 
-**`0033` is new and not yet applied.** Everything before it is.
+Plus geology, forecasting and daily intelligence, and an organization data export.
 
-**Every earlier migration is applied.** `npm run deploy:check` confirms all 24 that PostgREST can see, using
-only the publishable key and reading no tenant data. Five — `0019`, `0020`, `0024`, `0026`, `0029` —
-create only triggers, indexes, policies or storage objects, which PostgREST cannot describe; run
-`supabase/verify-deployment.sql` in the SQL editor to settle those.
-
-Document storage (`0020`) stays hidden behind `DOCUMENTS_ENABLED` whether or not its migration ran,
-and its bucket did not answer an anonymous probe — worth confirming before switching it on.
+**Every migration through `0037` is applied. `0038_export_audit.sql` is new and pending** — until it
+is applied the data export refuses rather than producing an unaudited copy, which is the intended
+failure. `npm run deploy:check` confirms what PostgREST can see using only the publishable key and
+reading no tenant data; migrations that create only triggers, indexes or policies cannot be described
+that way, so run `supabase/verify-deployment.sql` in the SQL editor to settle those.
 
 **[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
 locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards
@@ -36,7 +34,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0033_audit_coverage.sql`, using the Supabase CLI or the SQL editor. Migrations from
+   `0038_export_audit.sql`, using the Supabase CLI or the SQL editor. Migrations from
    `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
    again rather than by hand.
 3. Run `npm run dev`.
@@ -181,6 +179,35 @@ larger volumes when you need to see how something scales rather than whether it 
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
+
+### Taking your data with you
+
+`/settings/organization/export` returns every record an organization holds as one JSON file. It
+exists because a mining company asks one question before it puts a year of production into a
+product it has never used: **can we get it back out?** Until this, the honest answer was no — the
+four reports are date-ranged and scoped to a single mine site, so a company with two pits could not
+assemble its own records even by hand.
+
+- **The catalogue is written out, not discovered.** `features/exports/catalogue.ts` names all 64
+  tenant tables and the permission gating each. Reading `information_schema` at runtime would be
+  shorter and would quietly ship whatever happened to be there. `tests/unit/export-catalogue.test.ts`
+  fails when a table carrying `organization_id` is neither exported nor excluded, so the list cannot
+  fall behind the schema in silence.
+- **The manifest says what is missing.** Per table: rows, whether the row ceiling was hit, whether it
+  was withheld for want of permission, whether it failed. A client handed 90% of their records with
+  no indication is worse off than one handed 90% and the list of the other 10%.
+- **Site restriction is inherited, not reimplemented.** The restrictive policies from `0028` act on
+  the caller's own session, so a member limited to one pit exports one pit. There is no site logic in
+  the export to get wrong, and the manifest says which sites were covered.
+- **`safety_incident_details` is deliberately excluded**, with the reason carried in the file. Every
+  read of it is audited one record at a time; a bulk file would convert that into an unaudited copy
+  of everything, which is the protection the separate table exists to give.
+- **Each download is audited and rate limited** to 3 an hour — by far the tightest allowance in the
+  product, because one request returns sixty tables where every other read returns twenty-five rows.
+  If the audit entry cannot be written, the file is **not** produced.
+
+It doubles as a tenant-controlled backup: a scheduled `curl` of this endpoint is a company's own copy
+of its records, independent of Supabase's backups and of us.
 
 ### Security headers
 

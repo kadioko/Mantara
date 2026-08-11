@@ -60,6 +60,11 @@ Apply in filename order. Several depend on earlier ones — `0029` needs the vie
 | `0031` | Inventory stock counts and shrinkage | Applying a count is one atomic operation; lines are frozen afterwards |
 | `0032` | Dashboard period comparison | Read-only; adds indexes on the date columns each measure filters by |
 | `0033` | Audit trail coverage | Triggers only; no table or column changes |
+| `0034` | Operational intelligence | Read-only figures over existing tables |
+| `0035` | Geology foundation | Samples, assays, drill collars and intervals, boundaries, files |
+| `0036` | Forecasting and daily intelligence | Adds `site_forecast_assumptions` |
+| `0037` | Site restriction and geology audit alignment | Renames one policy so the invariant test can see it; adds two triggers |
+| `0038` | Organization export audit | One function. **Until it is applied the data export refuses**, rather than producing a copy of everything with no record that it was taken — which is the intended failure, not a bug |
 
 ## Locks
 
