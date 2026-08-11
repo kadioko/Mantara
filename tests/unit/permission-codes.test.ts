@@ -25,7 +25,7 @@ const migrationCodes = () => {
 };
 
 const sourceFiles = () => {
-  const skip = new Set(["node_modules", ".next", ".git", "supabase", "scripts"]);
+  const skip = new Set(["node_modules", ".next", ".git", ".claude", "supabase", "scripts"]);
   const files: string[] = [];
   const walk = (dir: string) => {
     for (const entry of readdirSync(dir)) {

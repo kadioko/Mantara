@@ -12,7 +12,10 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
 const root = process.cwd();
-const skip = new Set(["node_modules", ".next", ".git", "scripts", "tests"]);
+// ".claude" holds git worktrees — a full, often stale second copy of this codebase. Walking
+// into it reports findings against code that is not the code being audited, and doubles every
+// count. Two phantom accessibility failures were reported from there before it was excluded.
+const skip = new Set(["node_modules", ".next", ".git", ".claude", "scripts", "tests"]);
 const files = [];
 const walk = (dir) => {
   for (const entry of readdirSync(dir)) {

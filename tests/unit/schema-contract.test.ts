@@ -109,7 +109,7 @@ const schema = readSchema();
 const functions = readFunctions();
 
 const sourceFiles = (() => {
-  const skip = new Set(["node_modules", ".next", ".git", "supabase", "tests", "scripts"]);
+  const skip = new Set(["node_modules", ".next", ".git", ".claude", "supabase", "tests", "scripts"]);
   const found: string[] = [];
   const walk = (dir: string) => {
     for (const entry of readdirSync(dir)) {

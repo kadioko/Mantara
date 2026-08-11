@@ -221,7 +221,7 @@ describe("allowances that are declared but never spent", () => {
    * works perfectly and was being asked nothing. An allowance nobody consumes is a comment.
    */
   const source = () => {
-    const skip = new Set(["node_modules", ".next", ".git", "supabase", "tests"]);
+    const skip = new Set(["node_modules", ".next", ".git", ".claude", "supabase", "tests"]);
     const parts: string[] = [];
     const walk = (dir: string) => {
       for (const entry of readdirSync(dir)) {
