@@ -4,7 +4,8 @@
 
 ## Evidence already available
 
-- Database migrations `0001`–`0037` are applied, including forecasting/daily-summary, geology foundations, site restriction and audit alignment.
+- Database migrations `0001`–`0038` are applied, including forecasting/daily-summary, geology foundations, site restriction, audit alignment, and audited organization exports.
+- `supabase/verify-deployment.sql` was run live on 12 August 2026: all 22 expected objects were present, the stock view used caller security, no site-scoped table lacked its restriction policy, and the daily alert job was scheduled.
 - `npm run typecheck`, `npm run lint`, `npm run test`, `npm run build`, accessibility scan and contrast scan pass.
 - `/api/health` checks database reachability without exposing tenant data; structured JSON logs redact common sensitive fields.
 
@@ -12,9 +13,9 @@
 
 | Area | Owner | Pass condition | Evidence |
 | --- | --- | --- | --- |
-| Auth | Pilot owner | Register, sign in/out, reset and invitation acceptance work with production email settings | Checklist initials + timestamp |
+| Auth | Pilot owner | Register, sign in/out, reset and invitation acceptance work with production email settings; invitation delivery is blocked because the three required email variables were absent on 2026-08-12 | Checklist initials + timestamp |
 | PostgREST/RLS | Security tester | **Focused live case passed 2026-08-09:** two authenticated organizations could not read or mutate one another | `scripts/live-tenant-qa.mjs` output |
-| Documents | Operations tester | Upload and external signed download pass; expiry and role denials remain | File name, role, screenshots |
+| Documents | Operations tester | **Live UI upload and signed open passed 2026-08-12**; expiry and role denials remain | `Live upload QA 2026-08-12`, company owner |
 | Concurrent writes | Two testers | Competing fuel, stock and meter writes preserve constraints and present useful errors | Timestamped test script |
 | Accessibility | Screen-reader user | Login, active-site selection, shift entry and document upload are understandable by keyboard and screen reader | Browser/device findings |
 | Performance | Technical owner | Health endpoint and core pages meet agreed pilot response targets under a documented load profile | Load report |

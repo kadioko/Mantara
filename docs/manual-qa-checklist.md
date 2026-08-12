@@ -1,6 +1,6 @@
 # Manual QA checklist
 
-Apply every migration `0001`–`0037` to the linked Supabase project before working through this. Track wider
+Apply every migration `0001`–`0038` to the linked Supabase project before working through this. Track wider
 progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
@@ -273,8 +273,8 @@ Apply `supabase/migrations/0021_role_permissions_management.sql` before running 
 ## Documents
 
 - [ ] With `DOCUMENTS_ENABLED` unset, no document panel or upload control appears anywhere.
-- [x] After applying `0020_document_storage.sql` and setting `DOCUMENTS_ENABLED=true`: a geology upload succeeded and was listed in the deployed UI.
-- [x] A signed private download returned HTTP 200 with a non-empty body outside the automated browser. Expiry still needs a timed manual check.
+- [x] After applying `0020_document_storage.sql` and setting `DOCUMENTS_ENABLED=true`: geology uploads succeeded and were listed in the deployed UI, most recently `Live upload QA 2026-08-12` on 12 August 2026.
+- [x] A signed private download returned HTTP 200 with a non-empty body outside the automated browser on 9 August; on 12 August the newly uploaded file also opened through the deployed UI's short-lived signed URL and displayed its exact contents. Expiry still needs a timed manual check.
 - [ ] **A signed URL cannot be obtained for a path in another organization.**
 - [ ] A user without the module's update permission cannot upload; without its read permission cannot download.
 
@@ -531,8 +531,10 @@ Apply `0033` before running these checks. All of these are read from `/settings/
 
 ## Invitation email
 
-Needs `RESEND_API_KEY`, `EMAIL_FROM` and `NEXT_PUBLIC_SITE_URL` set on the deployment. **None of the
-sending path has been exercised against a real provider** — everything below is first-run.
+Needs `RESEND_API_KEY`, `EMAIL_FROM` and `NEXT_PUBLIC_SITE_URL` set on the deployment. A production
+environment inspection on 12 August 2026 confirmed that none of those three variables is present,
+so a real message cannot yet be sent. **None of the sending path has been exercised against a real
+provider** — everything below remains first-run.
 
 - [ ] With email unconfigured, inviting somebody still works, and the message says to tell them
       directly rather than implying an email went.
@@ -599,12 +601,14 @@ Only reachable with `DOCUMENTS_ENABLED=true`, and the allowance had never applie
 
 ## Taking your data with you
 
-Needs `0038_export_audit.sql` applied. **Nobody has yet signed in and downloaded this file** — the
-route is proven to require a session, and the manifest, catalogue, audit function and tenant boundary
-are all tested, but the authenticated download itself is first-run.
+Migration `0038_export_audit.sql` was applied on 12 August 2026. A company owner then used the
+deployed screen to request an export. Supabase recorded a complete export of 63 tables and 243 rows,
+and the deployed audit-log screen showed `organization.exported` for the correct actor. The browser
+automation did not retain the downloaded file, so filename, manifest contents and local-file checks
+remain deliberately unchecked below.
 
-- [ ] Signed in as a company owner, `/settings/organization` shows the "Your data" panel, and the
-      button downloads a file rather than opening JSON in a browser tab.
+- [x] Signed in as a company owner, `/settings/organization` showed the "Your data" panel and the
+      button completed an authenticated export; its required audit write recorded 63 tables and 243 rows.
 - [ ] The filename contains the organization name and today's date.
 - [ ] The file opens in a text editor and is valid JSON — check `manifest.complete` first.
 - [ ] `manifest.tables` lists every module: production, fuel, inventory, expenses, compliance,
@@ -617,7 +621,10 @@ are all tested, but the authenticated download itself is first-run.
 - [ ] **As a member without expense permission**, `expenses` is listed as withheld rather than
       missing, and `manifest.complete` is false.
 - [ ] `/settings/audit-logs` shows an `organization.exported` entry for each download, naming the
-      person and the row count — and **containing none of the exported data itself**.
+      person and the row count — and **containing none of the exported data itself**. On 12 August
+      the screen showed the action and actor, while the database metadata held `row_count: 243`,
+      `table_count: 63`, and `complete: true` without exported row data; the screen does not yet
+      display those counts, so this item is not fully signed off.
 - [ ] Requesting the export four times in an hour is refused on the fourth with a readable message.
 - [ ] The refusal appears in Kiswahili when the language is Kiswahili.
 - [ ] With `0038` **not** applied, the download refuses with "could not be recorded in the audit log"

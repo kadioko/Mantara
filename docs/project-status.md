@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
-**Audited: 9 August 2026**
-**Database: every migration through `0037` applied. `0034` adds operational intelligence, `0035` geology, `0036` forecasts/daily summaries, and `0037` aligns site restriction and geology audit coverage. `0038_export_audit.sql` is new and pending — until it is applied the data export refuses rather than producing an unaudited copy.**
+**Audited: 12 August 2026**
+**Database: every migration through `0038` is applied. `0038_export_audit.sql` records every organization export and refuses anonymous execution. The deployment verifier also confirmed all 22 expected objects from migrations `0019`–`0029`, caller-security on the stock view, complete site-restriction policy coverage, and the scheduled daily alert job.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -175,13 +175,15 @@ is only visible once the findings are kept as numbers.
   invitation is the record and the email is a courtesy: a provider outage reports "could not be
   sent" rather than losing the invitation. **The sending itself has never been exercised against a
   real provider** — the message text, the switch, and every failure path are tested; delivery is not.
+  Production was inspected on 12 August and currently lacks `RESEND_API_KEY`, `EMAIL_FROM`, and
+  `NEXT_PUBLIC_SITE_URL`, so it cannot send an invitation email until those values are configured.
 - A table added to the schema after `0028` needs its own site-restriction policy. The migration
   generates them from the catalogue, so it cannot miss a table that existed when it ran, but it
   cannot reach forward either. This is recorded in the architecture blueprint.
 
 ### Documents — live upload and signed download verified
 
-The private bucket and its policies are applied. A geology document was uploaded through the deployed UI and its signed URL was fetched outside the automated browser (HTTP 200, non-empty body). `DOCUMENTS_ENABLED` remains a deployment switch; expiry and denial for every role still belong in pilot signoff.
+The private bucket and its policies are applied. On 12 August, `Live upload QA 2026-08-12` was uploaded through the deployed Geology screen, appeared in the private list, and opened through a short-lived signed URL with its exact synthetic contents. An earlier signed URL was also fetched outside the automated browser (HTTP 200, non-empty body). `DOCUMENTS_ENABLED` remains a deployment switch; expiry and denial for every role still belong in pilot signoff.
 
 ### Localization
 
@@ -291,10 +293,12 @@ catalogued with an `orderBy` column that does not exist on them (`equipment_stat
 `changed_at`, the two approval tables use `decided_at`), which would have failed those tables at
 runtime and reported them in the manifest as faults with no clue why.
 
-**Not yet verified:** the authenticated download itself. The route is proven to require a session,
-the manifest and catalogue are unit-tested, and the audit function and tenant boundary are tested
-against real policies — but nobody has yet signed in, clicked the button, and opened the file. It is
-on the QA checklist.
+**Live path verified on 12 August 2026:** a company owner signed in, opened the organization screen,
+and clicked the data-download control. The audit function recorded a complete export covering 63
+tables and 243 rows, and the deployed audit-log screen showed `organization.exported` for Demo
+Company Owner. Browser automation did not retain the attachment, so filename, manifest inspection,
+manual table reconciliation, restricted-member exports, and re-import usability remain on the QA
+checklist rather than being inferred from the successful request.
 
 ### Accessibility
 
