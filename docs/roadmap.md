@@ -147,7 +147,7 @@ The current paid-pilot structure and provisional Starter, Growth, and Enterprise
 2. Preserve `scripts/live-tenant-qa.mjs` as the repeatable Auth/PostgREST/RLS/Storage/concurrency smoke suite and run it before pilot releases.
 3. Point an external monitor at `/api/health` and connect Vercel stdout to a chosen log destination. The application is instrumented; alert ownership and the vendor destination still need to be selected.
 4. Complete the screen-reader session, recovery drill, broader load test and pilot signoff. Phase-A offline drafts now cover shifts, maintenance requests, attendance and ordinary safety inspections.
-5. Lift the remaining 268 uncatalogued UI phrases into `lib/i18n/messages.ts`. The original 393 is down by 125, and safety/production forms now report zero findings. A Kiswahili mining-domain reviewer must still approve specialist terms.
+5. **Completed 12 August 2026:** all 268 remaining UI occurrences were lifted into `lib/i18n/messages.ts`. The catalogue now has 809 paired English/Kiswahili keys, and `npm run i18n:report` finds zero uncatalogued UI phrases. A Tanzanian Kiswahili mining-domain reviewer must still approve specialist terms before pilot sign-off.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Beyond the MVP: build order, not promises

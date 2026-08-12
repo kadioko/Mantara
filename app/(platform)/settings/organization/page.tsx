@@ -37,15 +37,15 @@ export default async function OrganizationSettingsPage() {
       />
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card><CardContent><p className="text-sm text-muted-foreground">Active mine sites</p><p className="mt-1 text-2xl font-bold tabular-nums">{siteCount ?? 0}</p></CardContent></Card>
-        <Card><CardContent><p className="text-sm text-muted-foreground">Active members</p><p className="mt-1 text-2xl font-bold tabular-nums">{memberCount ?? 0}</p></CardContent></Card>
-        <Card><CardContent><p className="text-sm text-muted-foreground">On Mantara since</p><p className="mt-1 text-2xl font-bold">{details?.created_at ? new Date(details.created_at).toISOString().slice(0, 10) : "—"}</p></CardContent></Card>
+        <Card><CardContent><p className="text-sm text-muted-foreground">{t(locale, "uiActiveMineSites")}</p><p className="mt-1 text-2xl font-bold tabular-nums">{siteCount ?? 0}</p></CardContent></Card>
+        <Card><CardContent><p className="text-sm text-muted-foreground">{t(locale, "uiActiveMembers")}</p><p className="mt-1 text-2xl font-bold tabular-nums">{memberCount ?? 0}</p></CardContent></Card>
+        <Card><CardContent><p className="text-sm text-muted-foreground">{t(locale, "uiOnMantaraSince")}</p><p className="mt-1 text-2xl font-bold">{details?.created_at ? new Date(details.created_at).toISOString().slice(0, 10) : "—"}</p></CardContent></Card>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>{t(locale,"pDetails")}</CardTitle>
-          <CardDescription>The name shown throughout the workspace and on exports.</CardDescription>
+          <CardDescription>{t(locale, "uiTheNameShownThroughoutTheWorkspaceAndOnExports")}</CardDescription>
         </CardHeader>
         <CardContent>
           {canUpdate ? (
@@ -54,7 +54,7 @@ export default async function OrganizationSettingsPage() {
             <div className="space-y-1">
               <p className="font-medium">{details?.name ?? organization.name}</p>
               <p className="text-sm text-muted-foreground">{details?.country_code ?? "—"}</p>
-              <p className="pt-2 text-sm text-muted-foreground">Changing these needs the organization management permission.</p>
+              <p className="pt-2 text-sm text-muted-foreground">{t(locale, "uiChangingTheseNeedsTheOrganizationManagementPermission")}</p>
             </div>
           )}
         </CardContent>
@@ -89,8 +89,8 @@ export default async function OrganizationSettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Elsewhere</CardTitle>
-          <CardDescription>Sites and people are managed on their own screens.</CardDescription>
+          <CardTitle>{t(locale, "uiElsewhere")}</CardTitle>
+          <CardDescription>{t(locale, "uiSitesAndPeopleAreManagedOnTheirOwnScreens")}</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
           <Link href="/sites" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>{t(locale,"mineSites")}</Link>

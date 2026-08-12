@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { useActionState, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,12 +25,13 @@ export function RolePermissionsForm({
   granted: string[];
   permissions: PermissionOption[];
 }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(setRolePermissions, {} as RoleState);
   const [open, setOpen] = useState(false);
   const grantedSet = new Set(granted);
 
   if (!open) {
-    return <Button variant="outline" size="sm" onClick={() => setOpen(true)}><ShieldCheck aria-hidden />Edit permissions</Button>;
+    return <Button variant="outline" size="sm" onClick={() => setOpen(true)}><ShieldCheck aria-hidden />{tr("uiEditPermissions")}</Button>;
   }
 
   const groups = new Map<string, PermissionOption[]>();
@@ -66,7 +69,7 @@ export function RolePermissionsForm({
       <ActionFeedback state={state} />
       <div className="flex gap-2">
         <Button disabled={pending}>{pending ? "Saving…" : `Save ${roleName}`}</Button>
-        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
       </div>
     </form>
   );

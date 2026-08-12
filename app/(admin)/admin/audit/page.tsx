@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import { ScrollText } from "lucide-react";
 import { requirePlatformAdmin } from "@/lib/auth/platform";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +17,7 @@ const actionTone: Record<string, "destructive" | "success" | "secondary"> = {
 };
 
 export default async function AdminAuditPage() {
+  const locale = await getLocale();
   const { supabase } = await requirePlatformAdmin();
   const { data } = await supabase
     .from("platform_audit_logs")
@@ -27,9 +30,9 @@ export default async function AdminAuditPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Platform"
-        title="Audit log"
-        description="Every platform administration action, written by the database and append only."
+        eyebrow={t(locale, "uiPlatform")}
+        title={t(locale, "auditLog")}
+        description={t(locale, "uiEveryPlatformAdministrationActionWrittenByTheDatabaseAndAppend")}
       />
 
       <Card>
@@ -38,8 +41,8 @@ export default async function AdminAuditPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>When</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead>Target</TableHead>
+                <TableHead>{t(locale, "auditAction")}</TableHead>
+                <TableHead>{t(locale, "uiTarget")}</TableHead>
                 <TableHead>By</TableHead>
               </TableRow>
             </TableHeader>
@@ -72,8 +75,8 @@ export default async function AdminAuditPage() {
           <div className="p-5">
             <EmptyState
               icon={<ScrollText className="size-6" aria-hidden />}
-              title="Nothing recorded yet"
-              description="Suspensions and administrator changes will appear here as they happen."
+              title={t(locale, "uiNothingRecordedYet")}
+              description={t(locale, "uiSuspensionsAndAdministratorChangesWillAppearHereAsTheyHappen")}
             />
           </div>
         )}

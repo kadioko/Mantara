@@ -157,7 +157,7 @@ export default async function FuelPage() {
     </Panel>}
 
     {locationOptions.length === 0
-      ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Create an active fuel store before recording deliveries or issues.</p>
+      ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">{t(locale, "uiCreateAnActiveFuelStoreBeforeRecordingDeliveriesOrIssues")}</p>
       : <>
           {canReceive && <Panel title={t(locale, "pRecordDelivery")} description={t(locale, "pAddsFuel")}><FuelReceiptForm locations={locationOptions} today={today} /></Panel>}
           {canIssue && <Panel title={t(locale, "pIssueFuel")} description={t(locale, "pIssueBelowZero")}><FuelIssueForm locations={locationOptions} equipment={equipmentOptions} workers={workerOptions} today={today} /></Panel>}
@@ -167,7 +167,7 @@ export default async function FuelPage() {
     <Panel title={t(locale, "pRecentMovements")}>
       <div className="grid gap-6 lg:grid-cols-3">
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground">Deliveries</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground">{t(locale, "uiDeliveries")}</h2>
           {receipts.data?.length
             ? <ul className="mt-2 space-y-2">{receipts.data.map((row) => {
                 const location = Array.isArray(row.location) ? row.location[0] : row.location;
@@ -176,7 +176,7 @@ export default async function FuelPage() {
             : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground">Issues</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground">{t(locale, "uiIssues")}</h2>
           {issues.data?.length
             ? <ul className="mt-2 space-y-2">{issues.data.map((row) => {
                 const equipmentRow = Array.isArray(row.equipment) ? row.equipment[0] : row.equipment;
@@ -186,7 +186,7 @@ export default async function FuelPage() {
             : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}
         </div>
         <div>
-          <h2 className="text-sm font-semibold text-muted-foreground">Adjustments</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground">{t(locale, "uiAdjustments")}</h2>
           {adjustments.data?.length
             ? <ul className="mt-2 space-y-2">{adjustments.data.map((row) => <li key={row.id} className="text-sm"><span className="font-medium">{Number(row.litres_delta) > 0 ? "+" : "−"}{Math.abs(Number(row.litres_delta)).toLocaleString()} L</span> <span className="text-muted-foreground">{row.adjusted_on} · {row.reason}</span></li>)}</ul>
             : <p className="mt-2 text-sm text-muted-foreground">{t(locale,"noneRecorded")}</p>}

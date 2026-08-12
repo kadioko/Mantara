@@ -80,14 +80,14 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
       {canManage && <div className="mb-5 border-b border-border pb-5"><MeterReadingForm equipmentId={item.id} meterType={item.meter_type} currentMeter={item.current_meter} today={today} /></div>}
       {readings.data?.length
         ? <ul className="divide-y divide-border">{readings.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.reading_value} {item.meter_type}</span><span className="text-sm text-muted-foreground">{new Date(row.reading_at).toISOString().slice(0, 10)}{row.notes ? ` · ${row.notes}` : ""}</span></li>)}</ul>
-        : <p className="text-sm text-muted-foreground">No meter readings recorded.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoMeterReadingsRecorded")}</p>}
     </Panel>
 
     <Panel title={t(locale, "pStatus")} description={t(locale, "pStatusRecorded")}>
       {canManage && <div className="mb-5 border-b border-border pb-5"><EquipmentStatusForm equipmentId={item.id} status={item.status} /></div>}
       {history.data?.length
         ? <ul className="divide-y divide-border">{history.data.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3"><span className="font-medium">{row.previous_status ? `${statusLabels[row.previous_status as keyof typeof statusLabels] ?? row.previous_status} → ` : ""}{statusLabels[row.new_status as keyof typeof statusLabels] ?? row.new_status}</span><span className="text-sm text-muted-foreground">{new Date(row.changed_at).toISOString().slice(0, 10)}{row.reason ? ` · ${row.reason}` : ""}</span></li>)}</ul>
-        : <p className="text-sm text-muted-foreground">No status changes recorded.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoStatusChangesRecorded")}</p>}
     </Panel>
 
     <Panel title={t(locale, "pAssignments")} description={t(locale, "pWhereAssetDeployed")}>
@@ -100,12 +100,12 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
               <span className="text-sm text-muted-foreground">{row.starts_on} → {row.ends_on || "ongoing"}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No assignments recorded.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoAssignmentsRecorded")}</p>}
     </Panel>
 
     {documentsEnabled() && <>
-      <DocumentPanel title="Documents" scope="equipment" documents={documents.data ?? []} />
-      {canManage && <Panel title="Attach document" description="Attach a private certificate, inspection report, or other asset record."><DocumentUploadForm scope="equipment" ownerId={item.id} /></Panel>}
+      <DocumentPanel title={t(locale, "uiDocuments")} scope="equipment" documents={documents.data ?? []} />
+      {canManage && <Panel title={t(locale, "uiAttachDocument")} description={t(locale, "uiAttachAPrivateCertificateInspectionReportOrOtherAssetRecord")}><DocumentUploadForm scope="equipment" ownerId={item.id} /></Panel>}
     </>}
   </div>;
 }

@@ -61,40 +61,40 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
     <p className="mt-2 text-muted-foreground">{t(locale, "productionDescription", { site: site.name })}</p>
 
     <div className="mt-6 grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Approved quantity</p><p className="mt-1 text-2xl font-bold">{figure(totals?.approvedQuantity)}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "uiApprovedQuantity")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.approvedQuantity)}</p></div>
       <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale,"awaitingApproval")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.submittedCount)}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Entries recorded</p><p className="mt-1 text-2xl font-bold">{entriesInfo.total}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "uiEntriesRecorded")}</p><p className="mt-1 text-2xl font-bold">{entriesInfo.total}</p></div>
     </div>
 
     {canCreate && <div className="mt-8"><ProductionEntryForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
 
     <section className="mt-8 rounded-xl border border-border bg-card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-lg font-bold">Ore, bagging & processing</h2><p className="mt-1 text-sm text-muted-foreground">Follow ore from mined tonnes and assay grade through bagging and dispatch to the processing plant.</p></div><p className="rounded-full bg-accent/15 px-3 py-1 text-sm font-semibold text-accent-foreground">1 PPM ≈ 1 g/t for gold</p></div>
+      <div className="flex flex-wrap items-start justify-between gap-4"><div><h2 className="text-lg font-bold">{t(locale, "uiOreBaggingProcessing")}</h2><p className="mt-1 text-sm text-muted-foreground">{t(locale, "uiFollowOreFromMinedTonnesAndAssayGradeThroughBagging")}</p></div><p className="rounded-full bg-accent/15 px-3 py-1 text-sm font-semibold text-accent-foreground">1 PPM ≈ 1 g/t for gold</p></div>
       <div className="mt-5 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Ready / in transit</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreReadyTonnes)} t</p></div>
-        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Weighted grade</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreWeightedGradePpm, { maximumFractionDigits: 4 })} PPM</p></div>
-        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">Lots recorded</p><p className="mt-1 text-2xl font-bold">{oreLots.length}</p></div>
+        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">{t(locale, "uiReadyInTransit")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreReadyTonnes)} t</p></div>
+        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">{t(locale, "uiWeightedGrade")}</p><p className="mt-1 text-2xl font-bold">{figure(totals?.oreWeightedGradePpm, { maximumFractionDigits: 4 })} PPM</p></div>
+        <div className="rounded-lg border border-border bg-background p-4"><p className="text-sm text-muted-foreground">{t(locale, "uiLotsRecorded")}</p><p className="mt-1 text-2xl font-bold">{oreLots.length}</p></div>
       </div>
       {canCreate && <div className="mt-5"><OreLotForm shifts={shiftOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
       {canUpdate && <div className="mt-5"><OreDispatchForm lots={dispatchableLotOptions} today={new Date().toISOString().slice(0, 10)} /></div>}
     </section>
 
     <section className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">Bagged ore lots</h2><p className="text-sm text-muted-foreground">Lot-level tonnes, PPM, and bag counts.</p></div>
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "uiBaggedOreLots")}</h2><p className="text-sm text-muted-foreground">{t(locale, "uiLotLevelTonnesPPMAndBagCounts")}</p></div>
       {oreLots.length ? <div className="divide-y divide-border">{oreLots.map((lot) => <article key={lot.id} className="grid gap-2 p-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center">
         <div><p className="font-semibold">{lot.lot_number}</p><p className="text-sm text-muted-foreground">{lot.produced_on}{lot.source_location ? ` · ${lot.source_location}` : ""}</p></div>
         <p className="text-sm text-muted-foreground">{Number(lot.ore_tonnes).toLocaleString()} t · {Number(lot.grade_ppm).toLocaleString()} PPM</p>
         <p className="text-sm text-muted-foreground">{lot.bag_count.toLocaleString()} bags · {Number(lot.bagged_weight_kg).toLocaleString()} kg</p>
         <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${lot.status === "dispatched" ? "bg-success/12 text-primary" : lot.status === "in_transit" ? "bg-warning/15 text-warning-foreground" : "bg-muted text-foreground"}`}>{lot.status === "in_transit" ? "Part-dispatched" : lot.status}</span>
-      </article>)}</div> : <p className="p-5 text-sm text-muted-foreground">No bagged ore lots recorded yet.</p>}
+      </article>)}</div> : <p className="p-5 text-sm text-muted-foreground">{t(locale, "uiNoBaggedOreLotsRecordedYet")}</p>}
     </section>
 
     <section className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">Processing plant dispatches</h2><p className="text-sm text-muted-foreground">Transport trail for bagged ore leaving the site.</p></div>
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "uiProcessingPlantDispatches")}</h2><p className="text-sm text-muted-foreground">{t(locale, "uiTransportTrailForBaggedOreLeavingTheSite")}</p></div>
       {dispatches.length ? <div className="divide-y divide-border">{dispatches.map((dispatch) => {
         const lot = Array.isArray(dispatch.lot) ? dispatch.lot[0] : dispatch.lot;
         return <article key={dispatch.id} className="grid gap-2 p-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center"><div><p className="font-semibold">{dispatch.processing_plant}</p><p className="text-sm text-muted-foreground">{lot?.lot_number ?? "Ore lot"}{lot?.grade_ppm === null || lot?.grade_ppm === undefined ? "" : ` · ${lot.grade_ppm} PPM`}</p></div><p className="text-sm text-muted-foreground">{dispatch.dispatched_on}</p><p className="text-sm text-muted-foreground">{Number(dispatch.dispatched_tonnes).toLocaleString()} t · {dispatch.dispatched_bags.toLocaleString()} bags</p><span className="justify-self-start rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-foreground">{dispatch.status === "in_transit" ? "In transit" : "Received"}</span></article>;
-      })}</div> : <p className="p-5 text-sm text-muted-foreground">No processing-plant dispatches recorded yet.</p>}
+      })}</div> : <p className="p-5 text-sm text-muted-foreground">{t(locale, "uiNoProcessingPlantDispatchesRecordedYet")}</p>}
     </section>
 
     <div className="mt-8 overflow-hidden rounded-xl border border-border bg-card">
@@ -106,7 +106,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
             <p className="text-sm text-muted-foreground">{entry.quantity} {entry.unit}{entry.grade === null ? "" : ` · grade ${entry.grade} PPM`}</p>
             <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[entry.status] ?? "bg-muted text-foreground"}`}>{productionStatusLabels[entry.status as keyof typeof productionStatusLabels] ?? entry.status}</span>
           </article>)}</div>
-        : <p className="p-5 text-sm text-muted-foreground">No production has been captured at this site yet.</p>}
+        : <p className="p-5 text-sm text-muted-foreground">{t(locale, "uiNoProductionHasBeenCapturedAtThisSiteYet")}</p>}
       <Pagination basePath="/production" info={entriesInfo} search="" />
     </div>
 
@@ -122,7 +122,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
                 <span className="text-sm text-muted-foreground">{row.minutes} min</span>
               </li>;
             })}</ul>
-          : <p className="text-sm text-muted-foreground">No downtime recorded.</p>}
+          : <p className="text-sm text-muted-foreground">{t(locale, "uiNoDowntimeRecorded")}</p>}
       </div>
     </div>
   </section>;

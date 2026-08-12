@@ -19,7 +19,7 @@ const source = readFileSync(join(root, "lib/i18n/messages.ts"), "utf8");
 const sectionKeys = (name) => {
   const start = source.indexOf(name);
   const body = source.slice(start, source.indexOf("\n};", start) < 0 ? source.indexOf("\n} as const;", start) : source.indexOf("\n};", start));
-  return new Set([...body.matchAll(/(?:^|[{,]\s*)([a-zA-Z][a-zA-Z0-9]*)\s*:\s*"/g)].map((m) => m[1]));
+  return new Set([...body.matchAll(/(?:^|[{,]\s*|\n\s*)([a-zA-Z][a-zA-Z0-9]*)\s*:\s*"/g)].map((m) => m[1]));
 };
 const english = sectionKeys("const english = {");
 const swahili = sectionKeys("const swahili:");
@@ -53,7 +53,7 @@ for (const file of files) {
   const text = readFileSync(file, "utf8");
   const lines = text.split("\n");
   lines.forEach((line, index) => {
-    if (line.includes("t(locale,") || line.trimStart().startsWith("//") || line.trimStart().startsWith("*")) return;
+    if (line.includes("t(locale,") || line.trimStart().startsWith("//") || line.trimStart().startsWith("*") || line.trimStart().startsWith("type ")) return;
     const between = [...line.matchAll(/>\s*([A-Z][a-zA-Z][^<>{}]{3,})</g)].map((m) => m[1].trim());
     // `description`, `hint` and `eyebrow` belong here as much as `label` does — they are the
     // sentences under a panel heading that say what a screen is for, and a reader who cannot read

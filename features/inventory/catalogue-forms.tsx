@@ -90,7 +90,7 @@ export function ItemRow({
           {categories.map((category) => <option key={category.id} value={category.id}>{category.label}</option>)}
         </select>
       </Field>
-      <Field label={tr("fReorderLevel")} hint="Leave blank for no reorder warning.">
+      <Field label={tr("fReorderLevel")} hint={tr("uiLeaveBlankForNoReorderWarning")}>
         <input name="reorderLevel" type="number" min="0" step="0.001" defaultValue={reorder} className={fieldClass} />
       </Field>
       <Field label={tr("fNotes")} className="md:col-span-3">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { useActionState, useState } from "react";
 import { Pencil, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +45,7 @@ export function CatalogueRow({
   retireLabel?: string;
   restoreLabel?: string;
 }) {
+  const tr = useT();
   const [editing, setEditing] = useState(false);
   const [updateState, submitUpdate, updatePending] = useActionState(updateAction, {} as State);
   const [statusState, submitStatus, statusPending] = useActionState(statusAction ?? noRetire, {} as State);
@@ -55,7 +58,7 @@ export function CatalogueRow({
           {detail && <p className="mt-0.5 truncate text-sm text-muted-foreground">{detail}</p>}
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {!isActive && <Badge variant="secondary">Retired</Badge>}
+          {!isActive && <Badge variant="secondary">{tr("uiRetired")}</Badge>}
           {canManage && (
             <>
               <Button
@@ -101,7 +104,7 @@ export function CatalogueRow({
           <div className="md:col-span-3"><ActionFeedback state={updateState} /></div>
           <div className="flex gap-2 md:col-span-3">
             <Button disabled={updatePending} size="sm">{updatePending ? "Saving…" : "Save changes"}</Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(false)}>{tr("cancel")}</Button>
           </div>
         </form>
       )}

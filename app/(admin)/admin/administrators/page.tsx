@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import { requirePlatformAdmin } from "@/lib/auth/platform";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +18,7 @@ type PlatformAdmin = {
 };
 
 export default async function AdministratorsPage() {
+  const locale = await getLocale();
   const { supabase, user } = await requirePlatformAdmin();
   const { data } = await supabase.rpc("platform_admin_list");
   const admins = (data ?? []) as PlatformAdmin[];
@@ -23,15 +26,15 @@ export default async function AdministratorsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Platform"
-        title="Administrators"
-        description="People who can administer Mantara itself."
+        eyebrow={t(locale, "uiPlatform")}
+        title={t(locale, "uiAdministrators")}
+        description={t(locale, "uiPeopleWhoCanAdministerMantaraItself")}
       />
 
       <Card>
         <CardHeader>
-          <CardTitle>Grant platform access</CardTitle>
-          <CardDescription>The person must already have a Mantara account.</CardDescription>
+          <CardTitle>{t(locale, "uiGrantPlatformAccess")}</CardTitle>
+          <CardDescription>{t(locale, "uiThePersonMustAlreadyHaveAMantaraAccount")}</CardDescription>
         </CardHeader>
         <CardContent><GrantAdminForm /></CardContent>
       </Card>
@@ -40,10 +43,10 @@ export default async function AdministratorsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Administrator</TableHead>
-              <TableHead>Granted</TableHead>
+              <TableHead>{t(locale, "uiAdministrator")}</TableHead>
+              <TableHead>{t(locale, "uiGranted")}</TableHead>
               <TableHead>By</TableHead>
-              <TableHead className="text-right">Action</TableHead>
+              <TableHead className="text-right">{t(locale, "auditAction")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

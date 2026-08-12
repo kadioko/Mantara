@@ -55,7 +55,7 @@ export default async function RolesPage() {
                 <div>
                   <p className="font-semibold">
                     {roleLabels[role.role_code] ?? role.role_name}
-                    {role.is_system && <Badge variant="secondary" className="ml-2">Standard</Badge>}
+                    {role.is_system && <Badge variant="secondary" className="ml-2">{t(locale, "uiStandard")}</Badge>}
                   </p>
                   <p className="mt-0.5 text-sm text-muted-foreground">
                     {role.member_count} member{role.member_count === 1 ? "" : "s"} ·{" "}
@@ -82,7 +82,7 @@ export default async function RolesPage() {
                   {role.permission_codes.length ? (
                     role.permission_codes.map((code) => <Badge key={code} variant="outline">{code}</Badge>)
                   ) : (
-                    <p className="text-sm text-muted-foreground">No permissions granted; this role can sign in but see nothing.</p>
+                    <p className="text-sm text-muted-foreground">{t(locale, "uiNoPermissionsGrantedThisRoleCanSignInButSee")}</p>
                   )}
                 </div>
               )}

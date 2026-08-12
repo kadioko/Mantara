@@ -145,18 +145,18 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     </div>
 
     <div className="grid gap-4 sm:grid-cols-3">
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Catalogue items</p><p className="mt-1 text-2xl font-bold">{activeItems.length}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">Stores at this site</p><p className="mt-1 text-2xl font-bold">{activeStores.length}</p></div>
-      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">At or below reorder</p><p className="mt-1 text-2xl font-bold">{reorderResult.count ?? reorderRows.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "uiCatalogueItems")}</p><p className="mt-1 text-2xl font-bold">{activeItems.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "uiStoresAtThisSite")}</p><p className="mt-1 text-2xl font-bold">{activeStores.length}</p></div>
+      <div className="rounded-xl border border-border bg-card p-5"><p className="text-sm text-muted-foreground">{t(locale, "uiAtOrBelowReorder")}</p><p className="mt-1 text-2xl font-bold">{reorderResult.count ?? reorderRows.length}</p></div>
     </div>
 
     <section className="rounded-xl border border-border bg-card">
       <div className="flex flex-wrap items-end justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <h2 className="font-semibold">{t(locale, "stockOnHand")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Balances are maintained by the database on every movement.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t(locale, "uiBalancesAreMaintainedByTheDatabaseOnEveryMovement")}</p>
         </div>
-        <SearchField basePath="/inventory" search={paging.search} placeholder="Search item, SKU or store" />
+        <SearchField basePath="/inventory" search={paging.search} placeholder={t(locale, "uiSearchItemSKUOrStore")} />
       </div>
       {stock.length
         ? <ul className="divide-y divide-border px-5">{stock.map((row) => (
@@ -194,7 +194,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
     </>}
 
     {!canMove
-      ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">Add at least one catalogue item and one active store before recording stock movements.</p>
+      ? <p className="rounded-xl border border-dashed border-input bg-card p-6 text-sm text-muted-foreground">{t(locale, "uiAddAtLeastOneCatalogueItemAndOneActiveStore")}</p>
       : <>
           {canReceive && <Panel title={t(locale, "pReceiveStock")}><StockReceiptForm items={itemOptions} locations={locationOptions} suppliers={supplierOptions} today={today} /></Panel>}
           {canIssue && <Panel title={t(locale, "pIssueStock")} description={t(locale, "pIssueRejected")}>
@@ -220,7 +220,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
       </div>}
       {appliedCounts.length > 0 && <div className="mt-6 rounded-xl border border-border">
         <div className="border-b border-border px-5 py-3">
-          <h3 className="text-sm font-semibold text-muted-foreground">Recent counts</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{t(locale, "uiRecentCounts")}</h3>
         </div>
         {appliedCounts.map((count) => <AppliedStockCount key={count.id} count={count} />)}
       </div>}
@@ -236,7 +236,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
               </span>
             </li>
           ))}</ul>
-        : <p className="text-sm text-muted-foreground">Nothing is at its reorder level.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNothingIsAtItsReorderLevel")}</p>}
     </Panel>
   </div>;
 }

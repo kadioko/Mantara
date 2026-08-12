@@ -39,7 +39,7 @@ export default async function SitesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="Core workspace"
+        eyebrow={t(locale, "uiCoreWorkspace")}
         title={t(locale, "pMineSites")}
         description={`Every site belonging to ${organization.name}.`}
         actions={canCreate ? <CreateSiteForm defaultCountry={rows[0]?.country_code ?? "TZ"} /> : undefined}
@@ -57,7 +57,7 @@ export default async function SitesPage() {
                     <div>
                       <p className="font-semibold">
                         {site.name}
-                        {isActiveSite && <Badge variant="secondary" className="ml-2">Your active site</Badge>}
+                        {isActiveSite && <Badge variant="secondary" className="ml-2">{t(locale, "uiYourActiveSite")}</Badge>}
                       </p>
                       <p className="mt-0.5 text-sm text-muted-foreground">
                         {place || "No region recorded"} · {site.country_code}
@@ -81,7 +81,7 @@ export default async function SitesPage() {
           <CardContent>
             <EmptyState
               icon={<MapPin className="size-6" aria-hidden />}
-              title="No mine sites"
+              title={t(locale, "uiNoMineSites")}
               description={t(locale, "pEverySiteNeeded")}
             />
           </CardContent>

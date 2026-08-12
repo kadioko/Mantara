@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ShieldCheck, UserMinus, UserPlus } from "lucide-react";
@@ -13,6 +15,7 @@ import {
 } from "./actions";
 
 export function SuspendOrganizationForm({ organizationId, organizationName, suspended }: { organizationId: string; organizationName: string; suspended: boolean }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(setOrganizationSuspended, {} as PlatformState);
   const [open, setOpen] = useState(false);
 
@@ -26,7 +29,7 @@ export function SuspendOrganizationForm({ organizationId, organizationName, susp
   }
 
   if (!open) {
-    return <Button size="sm" variant="outline" onClick={() => setOpen(true)}><ShieldAlert aria-hidden />Suspend</Button>;
+    return <Button size="sm" variant="outline" onClick={() => setOpen(true)}><ShieldAlert aria-hidden />{tr("uiSuspend")}</Button>;
   }
 
   return <form action={action} className="flex flex-col gap-2">
@@ -35,25 +38,26 @@ export function SuspendOrganizationForm({ organizationId, organizationName, susp
     <Label htmlFor={`reason-${organizationId}`} className="text-xs">
       Reason for suspending {organizationName}
     </Label>
-    <Input id={`reason-${organizationId}`} name="reason" maxLength={300} required placeholder="Non-payment, pending review…" className="h-9" />
+    <Input id={`reason-${organizationId}`} name="reason" maxLength={300} required placeholder={tr("uiNonPaymentPendingReview")} className="h-9" />
     <div className="flex gap-2">
       <Button disabled={pending} size="sm" variant="destructive">{pending ? "Suspending…" : "Confirm"}</Button>
-      <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+      <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
     <ActionFeedback state={state} />
   </form>;
 }
 
 export function GrantAdminForm() {
+  const tr = useT();
   const [state, action, pending] = useActionState(grantPlatformAdmin, {} as PlatformState);
   return <form action={action} className="grid gap-3 sm:grid-cols-[2fr_2fr_auto] sm:items-end">
     <div>
-      <Label htmlFor="admin-email">Email address</Label>
-      <Input id="admin-email" name="email" type="email" required placeholder="colleague@mantara.io" className="mt-1" />
+      <Label htmlFor="admin-email">{tr("fEmailAddress")}</Label>
+      <Input id="admin-email" name="email" type="email" required placeholder={tr("uiColleagueMantaraIo")} className="mt-1" />
     </div>
     <div>
       <Label htmlFor="admin-note">Note</Label>
-      <Input id="admin-note" name="note" maxLength={200} placeholder="Support engineer" className="mt-1" />
+      <Input id="admin-note" name="note" maxLength={200} placeholder={tr("uiSupportEngineer")} className="mt-1" />
     </div>
     <Button disabled={pending}><UserPlus aria-hidden />{pending ? "Granting…" : "Grant access"}</Button>
     <div className="sm:col-span-3"><ActionFeedback state={state} /></div>

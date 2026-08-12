@@ -61,11 +61,11 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       />
 
       <Card>
-        <CardHeader><CardTitle>Choose a report</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t(locale, "uiChooseAReport")}</CardTitle></CardHeader>
         <CardContent>
           <form method="get" className="grid gap-3 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
             <div>
-              <Label htmlFor="kind">Report</Label>
+              <Label htmlFor="kind">{t(locale, "uiReport")}</Label>
               <select id="kind" name="kind" defaultValue={kind} className="mt-1 flex h-10 w-full rounded-md border border-input bg-card px-3 text-sm shadow-sm">
                 {permitted.map((option) => <option key={option} value={option}>{reportLabels[option]}</option>)}
               </select>
@@ -103,7 +103,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
             <CardContent>
               <EmptyState
                 icon={<FileBarChart className="size-6" aria-hidden />}
-                title="Nothing in this period"
+                title={t(locale, "uiNothingInThisPeriod")}
                 description={t(locale, "pWidenRange")}
               />
             </CardContent>

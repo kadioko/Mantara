@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
@@ -6,6 +8,7 @@ import { ReviewForm, SubmitEntryForm } from "@/features/production/production-fo
 import { productionStatusLabels } from "@/features/production/schemas";
 
 export default async function ProductionEntryPage({ params }: { params: Promise<{ entryId: string }> }) {
+  const locale = await getLocale();
   const { entryId } = await params;
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
@@ -49,7 +52,7 @@ export default async function ProductionEntryPage({ params }: { params: Promise<
     </div>
 
     <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">Entry</h2></div>
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "uiEntry")}</h2></div>
       <div className="p-5">
         <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {details.map(([label, value]) => <div key={label}><dt className="text-sm text-muted-foreground">{label}</dt><dd className="font-medium">{value}</dd></div>)}
@@ -59,28 +62,28 @@ export default async function ProductionEntryPage({ params }: { params: Promise<
     </section>
 
     {(entry.status === "draft" || entry.status === "rejected") && canUpdate && <section className="rounded-xl border border-border bg-card p-5">
-      <h2 className="font-bold">Submit</h2>
-      <p className="mb-4 mt-1 text-sm text-muted-foreground">Send this entry for approval. Figures are frozen once approved.</p>
+      <h2 className="font-bold">{t(locale, "actSubmit")}</h2>
+      <p className="mb-4 mt-1 text-sm text-muted-foreground">{t(locale, "uiSendThisEntryForApprovalFiguresAreFrozenOnceApproved")}</p>
       <SubmitEntryForm entryId={entry.id} />
     </section>}
 
     {entry.status === "submitted" && canApprove && <section className="rounded-xl border border-border bg-card p-5">
-      <h2 className="font-bold">Review</h2>
-      <p className="mb-4 mt-1 text-sm text-muted-foreground">Approve or reject this submitted entry.</p>
+      <h2 className="font-bold">{t(locale, "pReview")}</h2>
+      <p className="mb-4 mt-1 text-sm text-muted-foreground">{t(locale, "uiApproveOrRejectThisSubmittedEntry")}</p>
       <ReviewForm entryId={entry.id} />
     </section>}
 
-    {entry.status === "submitted" && !canApprove && <p className="rounded-xl border border-warning/40 bg-warning/15 p-5 text-sm text-warning-foreground">This entry is awaiting approval by someone with approval permission.</p>}
+    {entry.status === "submitted" && !canApprove && <p className="rounded-xl border border-warning/40 bg-warning/15 p-5 text-sm text-warning-foreground">{t(locale, "uiThisEntryIsAwaitingApprovalBySomeoneWithApprovalPermission")}</p>}
 
     <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">Approval history</h2></div>
+      <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "pApprovalHistory")}</h2></div>
       <div className="p-5">
         {approvals?.length
           ? <ul className="divide-y divide-border">{approvals.map((row) => <li key={row.id} className="flex flex-wrap justify-between gap-2 py-3">
               <span className="font-medium capitalize">{row.decision}</span>
               <span className="text-sm text-muted-foreground">{new Date(row.decided_at).toISOString().slice(0, 10)}{row.notes ? ` · ${row.notes}` : ""}</span>
             </li>)}</ul>
-          : <p className="text-sm text-muted-foreground">No decision has been recorded yet.</p>}
+          : <p className="text-sm text-muted-foreground">{t(locale, "uiNoDecisionHasBeenRecordedYet")}</p>}
       </div>
     </section>
   </div>;

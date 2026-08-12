@@ -106,7 +106,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
               <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[expense.status] ?? "bg-muted text-foreground"}`}>{expenseStatusLabels[expense.status as keyof typeof expenseStatusLabels] ?? expense.status}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No expenses recorded at this site yet.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoExpensesRecordedAtThisSiteYet")}</p>}
       <Pagination basePath="/expenses" info={expensesInfo} search="" />
     </Panel>
 
@@ -130,7 +130,7 @@ export default async function ExpensesPage({ searchParams }: { searchParams: Pro
               <p className="mt-1 text-xs text-muted-foreground">{budget.starts_on} → {budget.ends_on}</p>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No budgets set.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoBudgetsSet")}</p>}
     </Panel>
 
     {canUpdate && <CatalogueList title={t(locale, "pCategories")} description={t(locale, "pRetiringCategory")}>

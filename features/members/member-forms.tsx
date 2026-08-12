@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
+
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { selectClass } from "@/components/ui/form";
@@ -29,11 +31,12 @@ export const roleLabels: Record<string, string> = {
 };
 
 export function InviteMemberForm() {
+  const tr = useT();
   const [state, action, pending] = useActionState(inviteMember, {} as MemberState);
   return <form action={action} className="grid gap-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
     <div>
-      <Label htmlFor="invite-email">Email address</Label>
-      <Input id="invite-email" name="email" type="email" required placeholder="colleague@example.com" className="mt-1" />
+      <Label htmlFor="invite-email">{tr("fEmailAddress")}</Label>
+      <Input id="invite-email" name="email" type="email" required placeholder={tr("uiColleagueExampleCom")} className="mt-1" />
     </div>
     <div>
       <Label htmlFor="invite-role">Role</Label>
@@ -110,6 +113,7 @@ export function MemberSitesForm({
   selected: string[];
   isSelf: boolean;
 }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(changeMemberSites, {} as MemberState);
   const [open, setOpen] = useState(false);
 
@@ -137,7 +141,7 @@ export function MemberSitesForm({
       <input name="userId" type="hidden" value={userId} />
       <fieldset>
         <legend className="text-sm font-medium">Mine sites {memberName} may reach</legend>
-        <p className="mt-0.5 text-xs text-muted-foreground">Tick none to allow every site, including sites added later.</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{tr("uiTickNoneToAllowEverySiteIncludingSitesAddedLater")}</p>
         <div className="mt-2 space-y-1.5">
           {sites.map((site) => (
             <label key={site.id} className="flex items-center gap-2 text-sm">
@@ -150,7 +154,7 @@ export function MemberSitesForm({
       <ActionFeedback state={state} />
       <div className="flex gap-2">
         <Button disabled={pending} size="sm">{pending ? "Saving…" : "Save"}</Button>
-        <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>Cancel</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
       </div>
     </form>
   );

@@ -39,7 +39,7 @@ export function InventoryItemForm({ categories }: { categories: Option[] }) {
   const tr = useT();
   const [state, action, pending] = useActionState(createInventoryItem, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">{tr("fItem")} *<input required name="name" maxLength={160} placeholder="Hydraulic hose 3/4in" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fItem")} *<input required name="name" maxLength={160} placeholder={tr("uiHydraulicHose34in")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fSku")}<input name="sku" maxLength={80} className={fieldClass} /></label>
     <Select name="categoryId" label={tr("fCategory")} options={categories} placeholder={tr("optUncategorised")} />
     <label className="text-sm font-semibold">{tr("fUnit")} *<input required name="unit" maxLength={20} defaultValue="each" className={fieldClass} /></label>
@@ -53,7 +53,7 @@ export function InventoryCategoryForm() {
   const tr = useT();
   const [state, action, pending] = useActionState(createInventoryCategory, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">{tr("fCategory")} *<input required name="name" maxLength={120} placeholder="Consumables" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fCategory")} *<input required name="name" maxLength={120} placeholder={tr("uiConsumables")} className={fieldClass} /></label>
     <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add category"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
@@ -63,7 +63,7 @@ export function InventoryLocationForm() {
   const tr = useT();
   const [state, action, pending] = useActionState(createInventoryLocation, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
-    <label className="text-sm font-semibold md:col-span-2">{tr("fStore")} *<input required name="name" maxLength={120} placeholder="Main store" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fStore")} *<input required name="name" maxLength={120} placeholder={tr("uiMainStore")} className={fieldClass} /></label>
     <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add store"}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
@@ -92,7 +92,7 @@ export function StockReceiptForm({ items, locations, suppliers, today }: { items
     <Select name="supplierId" label={tr("fSupplier")} options={suppliers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fReceivedOn")} *<input required name="receivedOn" type="date" defaultValue={today} className={fieldClass} /></label>
-    <label className="text-sm font-semibold md:col-span-2">{tr("fReference")}<input name="reference" maxLength={120} placeholder="Delivery note" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fReference")}<input name="reference" maxLength={120} placeholder={tr("uiDeliveryNote")} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Receive stock"}</Button></div>
   </form>;
@@ -110,7 +110,7 @@ export function StockIssueForm({ items, locations, workOrders, equipment, worker
     </label>
     <Select name="workOrderId" label={tr("fWorkOrder")} options={workOrders} placeholder={tr("optNotForWorkOrder")} />
     <Select name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
-    <Select name="workerId" label="Collected by" options={workers} placeholder={tr("optNotRecorded")} />
+    <Select name="workerId" label={tr("uiCollectedBy")} options={workers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">{tr("fIssuedOn")} *<input required name="issuedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
@@ -123,10 +123,10 @@ export function StockTransferForm({ items, locations, today }: { items: Option[]
   const [state, action, pending] = useActionState(recordStockTransfer, {} as InventoryState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <Select name="itemId" label={tr("fItem")} options={items} required defaultValue={items[0]?.id} />
-    <Select name="fromLocationId" label="From store" options={locations} required defaultValue={locations[0]?.id} />
-    <Select name="toLocationId" label="To store" options={locations} required defaultValue={locations[1]?.id ?? locations[0]?.id} />
+    <Select name="fromLocationId" label={tr("uiFromStore")} options={locations} required defaultValue={locations[0]?.id} />
+    <Select name="toLocationId" label={tr("uiToStore")} options={locations} required defaultValue={locations[1]?.id ?? locations[0]?.id} />
     <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Transferred on *<input required name="transferredOn" type="date" defaultValue={today} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("uiTransferredOn")}<input required name="transferredOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Transfer stock"}</Button></div>
@@ -139,11 +139,11 @@ export function StockAdjustmentForm({ items, locations, today }: { items: Option
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <Select name="itemId" label={tr("fItem")} options={items} required defaultValue={items[0]?.id} />
     <Select name="locationId" label={tr("fStore")} options={locations} required defaultValue={locations[0]?.id} />
-    <label className="text-sm font-semibold">Quantity (+/−) *<input required name="quantityDelta" type="number" step="0.001" placeholder="-2" className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("uiQuantityPlus")}<input required name="quantityDelta" type="number" step="0.001" placeholder="-2" className={fieldClass} /></label>
     <label className="text-sm font-semibold">Reason *
       <select required name="reason" defaultValue="correction" className={selectClass}>{adjustmentReasons.map((value) => <option key={value} value={value}>{reasonLabels[value]}</option>)}</select>
     </label>
-    <label className="text-sm font-semibold md:col-span-2">Explanation *<input required name="explanation" maxLength={200} placeholder={tr("fStockTakeVariance")} className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("uiExplanation")}<input required name="explanation" maxLength={200} placeholder={tr("fStockTakeVariance")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fAdjustedOn")} *<input required name="adjustedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Adjust stock"}</Button></div>

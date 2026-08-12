@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -38,9 +39,10 @@ const icons: Record<string, LucideIcon> = {
 };
 
 export function NavigationLinks({ items, mobile = false, compact = false }: { items: NavItem[]; mobile?: boolean; compact?: boolean }) {
+  const tr = useT();
   const pathname = usePathname();
   return (
-    <nav aria-label="Main navigation" className={mobile ? "grid grid-cols-2 gap-2" : "space-y-1"}>
+    <nav aria-label={tr("uiMainNavigation")} className={mobile ? "grid grid-cols-2 gap-2" : "space-y-1"}>
       {items.map((item) => {
         const Icon = icons[item.href] ?? Boxes;
         const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));

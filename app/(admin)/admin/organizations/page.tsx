@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import { Building2 } from "lucide-react";
 import { requirePlatformAdmin } from "@/lib/auth/platform";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +22,7 @@ type PlatformOrganization = {
 };
 
 export default async function AdminOrganizationsPage() {
+  const locale = await getLocale();
   const { supabase } = await requirePlatformAdmin();
   const { data } = await supabase.rpc("platform_organizations");
   const organizations = (data ?? []) as PlatformOrganization[];
@@ -27,9 +30,9 @@ export default async function AdminOrganizationsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Platform"
-        title="Organizations"
-        description="Metadata and counts for every tenant. Operational records are not shown and are not accessible from here."
+        eyebrow={t(locale, "uiPlatform")}
+        title={t(locale, "uiOrganizations")}
+        description={t(locale, "uiMetadataAndCountsForEveryTenantOperationalRecordsAreNot")}
       />
 
       <Card>
@@ -37,12 +40,12 @@ export default async function AdminOrganizationsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Organization</TableHead>
-                <TableHead>Members</TableHead>
-                <TableHead>Sites</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Action</TableHead>
+                <TableHead>{t(locale, "organization")}</TableHead>
+                <TableHead>{t(locale, "uiMembers")}</TableHead>
+                <TableHead>{t(locale, "uiSites")}</TableHead>
+                <TableHead>{t(locale, "uiJoined")}</TableHead>
+                <TableHead>{t(locale, "attendanceStatus")}</TableHead>
+                <TableHead className="text-right">{t(locale, "auditAction")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -60,13 +63,13 @@ export default async function AdminOrganizationsPage() {
                     <TableCell>
                       {suspended ? (
                         <div>
-                          <Badge variant="destructive">Suspended</Badge>
+                          <Badge variant="destructive">{t(locale, "uiSuspended")}</Badge>
                           {organization.suspension_reason && (
                             <p className="mt-1 max-w-56 text-xs text-muted-foreground">{organization.suspension_reason}</p>
                           )}
                         </div>
                       ) : (
-                        <Badge variant="success">Active</Badge>
+                        <Badge variant="success">{t(locale, "uiActive")}</Badge>
                       )}
                     </TableCell>
                     <TableCell>
@@ -87,8 +90,8 @@ export default async function AdminOrganizationsPage() {
           <div className="p-5">
             <EmptyState
               icon={<Building2 className="size-6" aria-hidden />}
-              title="No organizations yet"
-              description="Organizations appear here once a customer completes onboarding."
+              title={t(locale, "uiNoOrganizationsYet")}
+              description={t(locale, "uiOrganizationsAppearHereOnceACustomerCompletesOnboarding")}
             />
           </div>
         )}

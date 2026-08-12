@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { hasPermission } from "@/lib/auth/permissions";
@@ -14,6 +16,7 @@ import {
 import { categoryLabels, severityLabels, statusLabels } from "@/features/safety/schemas";
 
 export default async function IncidentDetailPage({ params }: { params: Promise<{ incidentId: string }> }) {
+  const locale = await getLocale();
   const { incidentId } = await params;
   const workspace = await getActiveWorkspace();
   const organization = workspace.activeOrganization;
@@ -76,7 +79,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Incident</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t(locale, "uiIncident")}</CardTitle></CardHeader>
         <CardContent>
           <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {details.map(([label, value]) => (
@@ -93,8 +96,8 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
 
       <Card>
         <CardHeader>
-          <CardTitle>Sensitive details</CardTitle>
-          <CardDescription>Personal and medical information, restricted and logged on every access.</CardDescription>
+          <CardTitle>{t(locale, "uiSensitiveDetails")}</CardTitle>
+          <CardDescription>{t(locale, "uiPersonalAndMedicalInformationRestrictedAndLoggedOnEveryAccess")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <SensitiveDetailsPanel incidentId={incident.id} hasDetails={hasDetails === true} canRead={canReadSensitive} />
@@ -107,7 +110,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Corrective actions</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t(locale, "correctiveActions")}</CardTitle></CardHeader>
         <CardContent>
           {actionsResult.data?.length ? (
             <ul className="divide-y">
@@ -119,7 +122,7 @@ export default async function IncidentDetailPage({ params }: { params: Promise<{
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No corrective actions raised for this incident.</p>
+            <p className="text-sm text-muted-foreground">{t(locale, "uiNoCorrectiveActionsRaisedForThisIncident")}</p>
           )}
         </CardContent>
       </Card>

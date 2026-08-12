@@ -34,7 +34,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | 100% paired English/Kiswahili catalogue. Safety and production forms are fully lifted; the static report still identifies 268 older UI phrases in other screens. |
+| Localization | 809 paired English/Kiswahili catalogue keys with 100% coverage; the static report finds zero uncatalogued UI phrases. Specialist mining terms still need field-speaker review. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -199,7 +199,7 @@ pages are read by head office.
 - **The panel titles and descriptions on every module page are translated.** Those are the sentences
   somebody reads to work out what a screen is for, and they matter more to a supervisor navigating
   the product than any single field label does.
-- 268 older phrases remain after lifting 125 of the reported 393, including all phrases in the safety and production forms. `npm run i18n:report` ranks the remaining work by file.
+- On 12 August, the remaining 268 UI occurrences across 51 files were lifted into the catalogue. `npm run i18n:report` now reports 809 English keys, 809 Kiswahili translations, and zero uncatalogued phrases. These translations are complete mechanically, not linguistically signed off: a Tanzanian mining-language reviewer must still approve specialist vocabulary.
 - **The report itself was understating the gap.** It never counted `description`, `hint` or
   `eyebrow`, which are exactly the explanatory sentences under a heading — the text a reader who is
   lost most needs. Fixed, so today's number is honest and slightly higher than a naive comparison
@@ -353,4 +353,4 @@ read. Nobody should describe this product as having a CSP until that has happene
 
 ## Recommended next task
 
-Finish the 268 remaining localization findings, then run the screen-reader, recovery and multi-user load sessions required for pilot signoff.
+Run the Kiswahili mining-vocabulary review, screen-reader session, recovery drill, and multi-user load session required for pilot sign-off. Configure production email delivery and complete the invitation lifecycle as part of the Auth sign-off.

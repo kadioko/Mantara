@@ -86,7 +86,7 @@ export default async function CompliancePage() {
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "licences")}</CardTitle>
-          <CardDescription>Permits and licences held, with their recorded expiry.</CardDescription>
+          <CardDescription>{t(locale, "uiPermitsAndLicencesHeldWithTheirRecordedExpiry")}</CardDescription>
         </CardHeader>
         {licences.length ? (
           <Table>
@@ -94,8 +94,8 @@ export default async function CompliancePage() {
               <TableRow>
                 <TableHead>{t(locale,"fLicence")}</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Authority</TableHead>
-                <TableHead>Expires</TableHead>
+                <TableHead>{t(locale, "uiAuthority")}</TableHead>
+                <TableHead>{t(locale, "uiExpires")}</TableHead>
                 <TableHead>{t(locale,"attendanceStatus")}</TableHead>
               </TableRow>
             </TableHeader>
@@ -137,7 +137,7 @@ export default async function CompliancePage() {
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "obligations")}</CardTitle>
-          <CardDescription>Recurring duties your organization has defined for itself.</CardDescription>
+          <CardDescription>{t(locale, "uiRecurringDutiesYourOrganizationHasDefinedForItself")}</CardDescription>
         </CardHeader>
         {requirements.length ? (
           <div className="border-t">
@@ -146,7 +146,7 @@ export default async function CompliancePage() {
             ))}
           </div>
         ) : (
-          <CardContent><p className="text-sm text-muted-foreground">No requirements defined yet.</p></CardContent>
+          <CardContent><p className="text-sm text-muted-foreground">{t(locale, "uiNoRequirementsDefinedYet")}</p></CardContent>
         )}
         {canCreate && <CardContent className="border-t"><RequirementForm /></CardContent>}
       </Card>
@@ -154,7 +154,7 @@ export default async function CompliancePage() {
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "tasksAndDeadlines")}</CardTitle>
-          <CardDescription>Completing a recurring task schedules the next one automatically.</CardDescription>
+          <CardDescription>{t(locale, "uiCompletingARecurringTaskSchedulesTheNextOneAutomatically")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {tasks.length ? (
@@ -188,7 +188,7 @@ export default async function CompliancePage() {
               })}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No compliance tasks scheduled.</p>
+            <p className="text-sm text-muted-foreground">{t(locale, "uiNoComplianceTasksScheduled")}</p>
           )}
           {canCreate && (
             <div className="border-t pt-4">

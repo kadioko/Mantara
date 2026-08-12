@@ -54,7 +54,7 @@ export default async function EquipmentPage({ searchParams }: { searchParams: Pr
           <h2 className="font-bold">{t(locale, "equipmentRegister")}</h2>
           <p className="text-sm text-muted-foreground">{info.total} asset{info.total === 1 ? "" : "s"}</p>
         </div>
-        <SearchField basePath="/equipment" search={paging.search} placeholder="Name, asset code, or serial" />
+        <SearchField basePath="/equipment" search={paging.search} placeholder={t(locale, "uiNameAssetCodeOrSerial")} />
       </div>
       {equipment?.length
         ? <div className="divide-y divide-border">{equipment.map((item) => <article key={item.id} className="grid gap-2 p-5 md:grid-cols-[2fr_1fr_1fr_auto] md:items-center">

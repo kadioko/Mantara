@@ -87,13 +87,13 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "incidents")}</CardTitle>
-          <CardDescription>Personal and medical information is held separately, behind a restricted and logged view.</CardDescription>
+          <CardDescription>{t(locale, "uiPersonalAndMedicalInformationIsHeldSeparatelyBehindARestricted")}</CardDescription>
         </CardHeader>
         {incidents.length ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Incident</TableHead>
+                <TableHead>{t(locale, "uiIncident")}</TableHead>
                 <TableHead>{t(locale,"fCategory")}</TableHead>
                 <TableHead>When</TableHead>
                 <TableHead>{t(locale,"fSeverity")}</TableHead>
@@ -125,7 +125,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "inspections")}</CardTitle>
-          <CardDescription>Planned and ad-hoc safety inspections.</CardDescription>
+          <CardDescription>{t(locale, "uiPlannedAndAdHocSafetyInspections")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {inspections.length ? (
@@ -143,7 +143,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No inspections recorded.</p>
+            <p className="text-sm text-muted-foreground">{t(locale, "uiNoInspectionsRecorded")}</p>
           )}
           {canCreate && <div className="border-t pt-4"><InspectionForm workers={workerOptions} today={today} /></div>}
         </CardContent>
@@ -152,7 +152,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
       <Card>
         <CardHeader>
           <CardTitle>{t(locale, "correctiveActions")}</CardTitle>
-          <CardDescription>What is being done in response, and by when.</CardDescription>
+          <CardDescription>{t(locale, "uiWhatIsBeingDoneInResponseAndByWhen")}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {actions.length ? (
@@ -182,7 +182,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
               })}
             </ul>
           ) : (
-            <p className="text-sm text-muted-foreground">No corrective actions raised.</p>
+            <p className="text-sm text-muted-foreground">{t(locale, "uiNoCorrectiveActionsRaised")}</p>
           )}
           {canUpdate && (
             <div className="border-t pt-4">

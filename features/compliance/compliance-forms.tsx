@@ -33,8 +33,8 @@ export function LicenceForm() {
   const tr = useT();
   const [state, action, pending] = useActionState(createLicence, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
-    <div><Label htmlFor="licenceNumber">Licence number *</Label><Input id="licenceNumber" name="licenceNumber" required maxLength={120} className="mt-1" /></div>
-    <div><Label htmlFor="licenceType">Licence type *</Label><Input id="licenceType" name="licenceType" required maxLength={120} placeholder="Primary mining licence" className="mt-1" /></div>
+    <div><Label htmlFor="licenceNumber">{tr("uiLicenceNumber")}</Label><Input id="licenceNumber" name="licenceNumber" required maxLength={120} className="mt-1" /></div>
+    <div><Label htmlFor="licenceType">{tr("uiLicenceType")}</Label><Input id="licenceType" name="licenceType" required maxLength={120} placeholder={tr("uiPrimaryMiningLicence")} className="mt-1" /></div>
     <Select name="status" label={tr("fStatus")} required defaultValue="active" options={licenceStatuses.map((value) => ({ id: value, label: licenceStatusLabels[value] }))} />
     <div><Label htmlFor="issuingAuthority">{tr("fIssuingAuthority")}</Label><Input id="issuingAuthority" name="issuingAuthority" maxLength={160} className="mt-1" /></div>
     <div><Label htmlFor="holderName">{tr("fHolder")}</Label><Input id="holderName" name="holderName" maxLength={160} className="mt-1" /></div>
@@ -55,9 +55,9 @@ export function RequirementForm() {
   const tr = useT();
   const [state, action, pending] = useActionState(createRequirement, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
-    <div className="md:col-span-2"><Label htmlFor="name">Requirement *</Label><Input id="name" name="name" required maxLength={160} placeholder="Quarterly environmental return" className="mt-1" /></div>
+    <div className="md:col-span-2"><Label htmlFor="name">{tr("uiRequirement")}</Label><Input id="name" name="name" required maxLength={160} placeholder={tr("uiQuarterlyEnvironmentalReturn")} className="mt-1" /></div>
     <Select name="recurrence" label={tr("fRecurrence")} required defaultValue="none" options={recurrenceIntervals.map((value) => ({ id: value, label: recurrenceLabels[value] }))} />
-    <div><Label htmlFor="category">{tr("fCategory")}</Label><Input id="category" name="category" maxLength={120} placeholder="Environmental" className="mt-1" /></div>
+    <div><Label htmlFor="category">{tr("fCategory")}</Label><Input id="category" name="category" maxLength={120} placeholder={tr("uiEnvironmental")} className="mt-1" /></div>
     <div className="md:col-span-2"><Label htmlFor="description">{tr("description")}</Label><Input id="description" name="description" maxLength={2000} className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
     <div><Button disabled={pending}>{pending ? "Saving…" : "Add requirement"}</Button></div>
@@ -68,8 +68,8 @@ export function ComplianceTaskForm({ requirements, licences, workers, today }: {
   const tr = useT();
   const [state, action, pending] = useActionState(createComplianceTask, {} as ComplianceState);
   return <form action={action} className="grid gap-4 md:grid-cols-3">
-    <div className="md:col-span-2"><Label htmlFor="title">Task *</Label><Input id="title" name="title" required maxLength={160} placeholder="Submit quarterly return" className="mt-1" /></div>
-    <div><Label htmlFor="dueOn">Due on *</Label><Input id="dueOn" name="dueOn" type="date" required defaultValue={today} className="mt-1" /></div>
+    <div className="md:col-span-2"><Label htmlFor="title">{tr("uiTask")}</Label><Input id="title" name="title" required maxLength={160} placeholder={tr("uiSubmitQuarterlyReturn")} className="mt-1" /></div>
+    <div><Label htmlFor="dueOn">{tr("uiDueOn")}</Label><Input id="dueOn" name="dueOn" type="date" required defaultValue={today} className="mt-1" /></div>
     <Select name="requirementId" label={tr("fRequirement")} options={requirements} placeholder={tr("optNotLinked")} />
     <Select name="licenceId" label={tr("fLicence")} options={licences} placeholder={tr("optNotLinked")} />
     <Select name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />

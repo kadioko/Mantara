@@ -44,7 +44,7 @@ export default async function WorkersPage({ searchParams }: { searchParams: Prom
           <h2 className="font-bold">{t(locale, "workerRegister")}</h2>
           <p className="text-sm text-muted-foreground">{info.total} {t(locale, "activeRecords")}</p>
         </div>
-        <SearchField basePath="/workers" search={paging.search} placeholder="Name, number, or job title" />
+        <SearchField basePath="/workers" search={paging.search} placeholder={t(locale, "uiNameNumberOrJobTitle")} />
       </div>
       {workers?.length
         ? <div className="divide-y divide-border">{workers.map((worker) => <article key={worker.id} className="grid gap-1 p-5 md:grid-cols-[2fr_1fr_1fr]">

@@ -85,7 +85,7 @@ export default async function UsersPage() {
       {canInvite && (
         <Card>
           <CardHeader>
-            <CardTitle>Invite someone</CardTitle>
+            <CardTitle>{t(locale, "uiInviteSomeone")}</CardTitle>
             <CardDescription>
               They join the moment they next sign in with this address. If they have no account yet, they can register
               with it first.
@@ -96,16 +96,16 @@ export default async function UsersPage() {
       )}
 
       <Card>
-        <CardHeader><CardTitle>Members</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t(locale, "uiMembers")}</CardTitle></CardHeader>
         {members.length ? (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Person</TableHead>
+                <TableHead>{t(locale, "uiPerson")}</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>{t(locale,"attendanceStatus")}</TableHead>
                 <TableHead>{t(locale,"mineSites")}</TableHead>
-                <TableHead className="text-right">Access</TableHead>
+                <TableHead className="text-right">{t(locale, "uiAccess")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,22 +150,22 @@ export default async function UsersPage() {
             </TableBody>
           </Table>
         ) : (
-          <CardContent><EmptyState icon={<Users className="size-6" aria-hidden />} title="No members yet" /></CardContent>
+          <CardContent><EmptyState icon={<Users className="size-6" aria-hidden />} title={t(locale, "uiNoMembersYet")} /></CardContent>
         )}
       </Card>
 
       {invitations.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Pending invitations</CardTitle>
-            <CardDescription>These expire automatically if they are not accepted.</CardDescription>
+            <CardTitle>{t(locale, "uiPendingInvitations")}</CardTitle>
+            <CardDescription>{t(locale, "uiTheseExpireAutomaticallyIfTheyAreNotAccepted")}</CardDescription>
           </CardHeader>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t(locale,"email")}</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Expires</TableHead>
+                <TableHead>{t(locale, "uiExpires")}</TableHead>
                 <TableHead className="text-right">{t(locale,"auditAction")}</TableHead>
               </TableRow>
             </TableHeader>

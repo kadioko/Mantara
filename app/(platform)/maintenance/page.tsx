@@ -97,7 +97,7 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
               <span className={`justify-self-start rounded-full px-3 py-1 text-xs font-semibold ${statusTone[order.status] ?? "bg-muted text-foreground"}`}>{workOrderStatusLabels[order.status as keyof typeof workOrderStatusLabels] ?? order.status}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No work orders have been created at this site yet.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoWorkOrdersHaveBeenCreatedAtThisSiteYet")}</p>}
       <Pagination basePath="/maintenance" info={ordersInfo} search="" />
     </Panel>
 
@@ -112,7 +112,7 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
               <span className="justify-self-start text-sm text-muted-foreground">{requestStatusLabels[request.status as keyof typeof requestStatusLabels] ?? request.status} · {request.reported_on}</span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No maintenance requests raised.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoMaintenanceRequestsRaised")}</p>}
     </Panel>
 
     <Panel title={t(locale, "pServiceSchedules")} description={t(locale, "pCompletingRollsForward")}>
@@ -130,7 +130,7 @@ export default async function MaintenancePage({ searchParams }: { searchParams: 
               </span>
             </li>;
           })}</ul>
-        : <p className="text-sm text-muted-foreground">No active service schedules.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoActiveServiceSchedules")}</p>}
     </Panel>
   </div>;
 }

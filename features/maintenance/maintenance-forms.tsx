@@ -49,11 +49,11 @@ export function MaintenanceRequestForm({ equipment, workers, today }: { equipmen
   const formRef = useRef<HTMLFormElement>(null);
   const draftStatus = useEncryptedDraft(formRef, "maintenance-request", Boolean(state.success));
   return <form ref={formRef} action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
-    <div className="md:col-span-3"><h2 className="text-lg font-bold">Raise a request</h2><p className="mt-1 text-sm text-muted-foreground">Report a fault or a job that needs planning.</p></div>
-    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder="Hydraulic leak on boom" className={fieldClass} /></label>
+    <div className="md:col-span-3"><h2 className="text-lg font-bold">{tr("uiRaiseARequest")}</h2><p className="mt-1 text-sm text-muted-foreground">{tr("uiReportAFaultOrAJobThatNeedsPlanning")}</p></div>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder={tr("uiHydraulicLeakOnBoom")} className={fieldClass} /></label>
     <PrioritySelect />
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
-    <OptionSelect name="reportedByWorkerId" label="Reported by" options={workers} placeholder={tr("optNotRecorded")} />
+    <OptionSelect name="reportedByWorkerId" label={tr("reportedBy")} options={workers} placeholder={tr("optNotRecorded")} />
     <label className="text-sm font-semibold">{tr("fReportedOn")} *<input required name="reportedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fDescription")}<textarea name="description" maxLength={2000} rows={2} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} />{draftStatus !== "idle" && <p role="status" className="mt-2 text-xs text-muted-foreground">{tr(draftStatus === "restored" ? "offlineDraftRestored" : "offlineDraftSaved")}</p>}</div>
@@ -65,13 +65,13 @@ export function WorkOrderForm({ equipment, workers, requests }: { equipment: Opt
   const tr = useT();
   const [state, action, pending] = useActionState(createWorkOrder, {} as MaintenanceState);
   return <form action={action} className="grid gap-4 rounded-xl border border-border bg-card p-5 md:grid-cols-3">
-    <div className="md:col-span-3"><h2 className="text-lg font-bold">Create a work order</h2><p className="mt-1 text-sm text-muted-foreground">Work orders start as planned and move through the lifecycle.</p></div>
-    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder="500 hour service" className={fieldClass} /></label>
+    <div className="md:col-span-3"><h2 className="text-lg font-bold">{tr("uiCreateAWorkOrder")}</h2><p className="mt-1 text-sm text-muted-foreground">{tr("uiWorkOrdersStartAsPlannedAndMoveThroughTheLifecycle")}</p></div>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fTitle")} *<input required name="title" maxLength={160} placeholder={tr("ui500HourService")} className={fieldClass} /></label>
     <PrioritySelect />
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
     <OptionSelect name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
     <label className="text-sm font-semibold">{tr("fScheduledFor")}<input name="scheduledFor" type="date" className={fieldClass} /></label>
-    <OptionSelect name="requestId" label="From request" options={requests} placeholder="Not from a request" />
+    <OptionSelect name="requestId" label={tr("uiFromRequest")} options={requests} placeholder={tr("uiNotFromARequest")} />
     <label className="text-sm font-semibold md:col-span-2">{tr("fDescription")}<input name="description" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
     <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Create work order"}</Button></div>
@@ -110,7 +110,7 @@ export function MaintenancePartForm({ workOrderId }: { workOrderId: string }) {
   const [state, action, pending] = useActionState(addMaintenancePart, {} as MaintenanceState);
   return <form action={action} className="grid gap-3 md:grid-cols-4">
     <input name="workOrderId" type="hidden" value={workOrderId} />
-    <label className="text-sm font-semibold md:col-span-2">{tr("fPart")} *<input required name="partName" maxLength={160} placeholder="Hydraulic hose" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fPart")} *<input required name="partName" maxLength={160} placeholder={tr("uiHydraulicHose")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
@@ -139,7 +139,7 @@ export function MaintenanceScheduleForm({ equipment }: { equipment: Option[] }) 
   const [state, action, pending] = useActionState(createMaintenanceSchedule, {} as MaintenanceState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optSelectEquipment")} required />
-    <label className="text-sm font-semibold md:col-span-2">{tr("fScheduleName")} *<input required name="name" maxLength={160} placeholder="250 hour service" className={fieldClass} /></label>
+    <label className="text-sm font-semibold md:col-span-2">{tr("fScheduleName")} *<input required name="name" maxLength={160} placeholder={tr("ui250HourService")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fEveryMeter")}<input name="intervalMeter" type="number" min="0" step="0.01" placeholder="250" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fEveryDays")}<input name="intervalDays" type="number" min="1" step="1" placeholder="90" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNextDueOn")}<input name="nextDueOn" type="date" className={fieldClass} /></label>

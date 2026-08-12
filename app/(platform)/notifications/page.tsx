@@ -44,7 +44,7 @@ export default async function NotificationsPage() {
         description={unread.length ? `${unread.length} waiting for you.` : "Nothing needs your attention."}
         actions={unread.length > 0 ? (
           <form action={markAllNotificationsRead}>
-            <Button variant="outline" size="sm"><CheckCheck aria-hidden />Mark all read</Button>
+            <Button variant="outline" size="sm"><CheckCheck aria-hidden />{t(locale, "uiMarkAllRead")}</Button>
           </form>
         ) : undefined}
       />
@@ -70,7 +70,7 @@ export default async function NotificationsPage() {
                   {isUnread && (
                     <form action={markNotificationRead}>
                       <input name="notificationId" type="hidden" value={notification.id} />
-                      <Button variant="ghost" size="sm">Mark read</Button>
+                      <Button variant="ghost" size="sm">{t(locale, "uiMarkRead")}</Button>
                     </form>
                   )}
                 </li>
@@ -81,7 +81,7 @@ export default async function NotificationsPage() {
           <div className="p-5">
             <EmptyState
               icon={<BellOff className="size-6" aria-hidden />}
-              title="No notifications"
+              title={t(locale, "uiNoNotifications")}
               description={t(locale, "pToldHere")}
             />
           </div>

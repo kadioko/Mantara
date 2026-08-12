@@ -1,3 +1,5 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Building2, ScrollText, ShieldCheck, LayoutDashboard, ArrowLeft } from "lucide-react";
@@ -14,6 +16,7 @@ const navItems = [
 ];
 
 export default async function AdminLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
   const { isAdmin } = await requirePlatformAdmin();
   // Everything under /admin is gated here as well as inside each database function, so a non-admin
   // reaching a URL directly never renders platform content.
@@ -22,9 +25,9 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
   return (
     <div className="min-h-screen md:grid md:grid-cols-[17rem_1fr]">
       <aside className="hidden border-r bg-card p-6 md:block">
-        <p className="text-lg font-bold tracking-tight">Mantara</p>
-        <p className="mt-0.5 text-sm text-muted-foreground">Platform administration</p>
-        <nav aria-label="Platform navigation" className="mt-8 space-y-1">
+        <p className="text-lg font-bold tracking-tight">{t(locale, "uiMantara")}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">{t(locale, "uiPlatformAdministration")}</p>
+        <nav aria-label={t(locale, "uiPlatformNavigation")} className="mt-8 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -47,15 +50,15 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
       <div>
         <header className="flex items-center justify-between gap-4 border-b bg-card px-5 py-3">
           <div>
-            <p className="font-semibold">Platform administration</p>
-            <p className="text-xs text-muted-foreground">Support and operations for Mantara itself</p>
+            <p className="font-semibold">{t(locale, "uiPlatformAdministration")}</p>
+            <p className="text-xs text-muted-foreground">{t(locale, "uiSupportAndOperationsForMantaraItself")}</p>
           </div>
           <form action={signOut}>
-            <Button variant="outline" size="sm">Sign out</Button>
+            <Button variant="outline" size="sm">{t(locale, "signOut")}</Button>
           </form>
         </header>
 
-        <nav aria-label="Platform navigation" className="flex gap-2 overflow-x-auto border-b bg-card px-4 py-2 md:hidden">
+        <nav aria-label={t(locale, "uiPlatformNavigation")} className="flex gap-2 overflow-x-auto border-b bg-card px-4 py-2 md:hidden">
           {navItems.map((item) => (
             <Link key={item.href} href={item.href} className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "shrink-0")}>
               {item.label}

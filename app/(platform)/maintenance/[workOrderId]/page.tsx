@@ -85,7 +85,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
             <span className="font-medium">{row.part_name} × {row.quantity}</span>
             <span className="text-sm text-muted-foreground">{row.unit_cost === null ? "No unit cost" : `${row.unit_cost} each`}</span>
           </li>)}</ul>
-        : <p className="text-sm text-muted-foreground">No parts recorded.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoPartsRecorded")}</p>}
     </Panel>
 
     <Panel title={t(locale, "pCosts")} description={`Total recorded: ${totalCost.toLocaleString()}`}>
@@ -95,7 +95,7 @@ export default async function WorkOrderPage({ params }: { params: Promise<{ work
             <span className="font-medium">{costTypeLabels[row.cost_type as keyof typeof costTypeLabels] ?? row.cost_type}{row.description ? ` · ${row.description}` : ""}</span>
             <span className="text-sm text-muted-foreground">{Number(row.amount).toLocaleString()} · {row.incurred_on}</span>
           </li>)}</ul>
-        : <p className="text-sm text-muted-foreground">No costs recorded.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoCostsRecorded")}</p>}
     </Panel>
   </div>;
 }

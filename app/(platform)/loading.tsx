@@ -1,7 +1,10 @@
+import { t } from "@/lib/i18n/messages";
+import { getLocale } from "@/lib/i18n/locale";
 /** Skeleton shown while a module page's server queries resolve. */
-export default function PlatformLoading() {
+export default async function PlatformLoading() {
+  const locale = await getLocale();
   return (
-    <div className="animate-pulse space-y-6" role="status" aria-label="Loading">
+    <div className="animate-pulse space-y-6" role="status" aria-label={t(locale, "uiLoading")}>
       <div className="space-y-2">
         <div className="h-3 w-24 rounded bg-muted" />
         <div className="h-8 w-64 rounded bg-muted" />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useT } from "@/lib/i18n/client";
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { fieldClass } from "@/components/ui/form";
@@ -10,6 +11,7 @@ const MAX_FILE_BYTES = 15 * 1024 * 1024;
 const DOCUMENT_BUCKET = "documents";
 
 export function DocumentUploadForm({ scope, ownerId }: { scope: DocumentScope; ownerId: string }) {
+  const tr = useT();
   const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -35,11 +37,11 @@ export function DocumentUploadForm({ scope, ownerId }: { scope: DocumentScope; o
 
   return <form ref={formRef} onSubmit={upload} className="grid gap-3 sm:grid-cols-2">
     <input type="hidden" name="scope" value={scope} /><input type="hidden" name="ownerId" value={ownerId} />
-    <label className="text-sm font-semibold">Document name *<input required name="documentName" maxLength={160} placeholder="Insurance certificate" className={fieldClass} /></label>
-    <label className="text-sm font-semibold">Expiry date<input name="expiresOn" type="date" className={fieldClass} /></label>
-    <label className="text-sm font-semibold sm:col-span-2">File *<input required name="file" type="file" className={fieldClass} onChange={(event)=>{const selected=event.currentTarget.files?.[0];setError(selected&&selected.size>MAX_FILE_BYTES?"Files must be 15 MB or smaller.":null)}} /></label>
+    <label className="text-sm font-semibold">{tr("uiDocumentName")}<input required name="documentName" maxLength={160} placeholder={tr("uiInsuranceCertificate")} className={fieldClass} /></label>
+    <label className="text-sm font-semibold">{tr("uiExpiryDate")}<input name="expiresOn" type="date" className={fieldClass} /></label>
+    <label className="text-sm font-semibold sm:col-span-2">{tr("uiFile")}<input required name="file" type="file" className={fieldClass} onChange={(event)=>{const selected=event.currentTarget.files?.[0];setError(selected&&selected.size>MAX_FILE_BYTES?"Files must be 15 MB or smaller.":null)}} /></label>
     <input type="hidden" name="fileName" />
-    <p className="text-xs text-muted-foreground sm:col-span-2">Private file; maximum size 15 MB. Upload only records you are allowed to share with this organization.</p>
+    <p className="text-xs text-muted-foreground sm:col-span-2">{tr("uiPrivateFileMaximumSize15MBUploadOnlyRecordsYou")}</p>
     {error&&<p role="alert" className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive sm:col-span-2">{error}</p>}
     {message&&<p role="status" className="rounded-lg bg-success/10 p-3 text-sm text-primary sm:col-span-2">{message}</p>}
     <div><Button disabled={uploading||Boolean(error)}>{uploading?"Uploading…":"Attach document"}</Button></div>

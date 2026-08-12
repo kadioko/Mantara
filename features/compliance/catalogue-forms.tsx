@@ -68,7 +68,7 @@ export function LicenceRow({ licence, canManage }: { licence: CatalogueLicence; 
       <Field label={tr("fIssuedOn")}>
         <input name="issuedOn" type="date" defaultValue={licence.issued_on ?? ""} className={fieldClass} />
       </Field>
-      <Field label={tr("fExpiresOn")} hint="This date drives the expiry warning, so it is worth getting right.">
+      <Field label={tr("fExpiresOn")} hint={tr("uiThisDateDrivesTheExpiryWarningSoItIsWorth")}>
         <input name="expiresOn" type="date" defaultValue={licence.expires_on ?? ""} className={fieldClass} />
       </Field>
       <Field label={tr("fNotes")} className="md:col-span-2">
@@ -104,7 +104,7 @@ export function RequirementRow({
       <Field label={tr("fRequirement")} required className="md:col-span-2">
         <input name="name" required maxLength={160} defaultValue={requirement.name} className={fieldClass} />
       </Field>
-      <Field label={tr("fRecurrence")} required hint="Completing a task schedules the next one this far ahead.">
+      <Field label={tr("fRecurrence")} required hint={tr("uiCompletingATaskSchedulesTheNextOneThisFarAhead")}>
         <select name="recurrence" required defaultValue={requirement.recurrence} className={selectClass}>
           {recurrenceIntervals.map((value) => <option key={value} value={value}>{recurrenceLabels[value]}</option>)}
         </select>

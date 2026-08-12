@@ -78,7 +78,7 @@ export default async function ExpenseDetailPage({ params }: { params: Promise<{ 
       <ExpenseReviewForm expenseId={expense.id} />
     </Panel>}
 
-    {expense.status === "submitted" && !canApprove && <p className="rounded-xl border border-warning/40 bg-warning/15 p-5 text-sm text-warning-foreground">This expense is awaiting approval by someone with approval permission.</p>}
+    {expense.status === "submitted" && !canApprove && <p className="rounded-xl border border-warning/40 bg-warning/15 p-5 text-sm text-warning-foreground">{t(locale, "uiThisExpenseIsAwaitingApprovalBySomeoneWithApprovalPermission")}</p>}
 
     <Panel title={t(locale, "pApprovalHistory")}>
       {approvals?.length
@@ -86,7 +86,7 @@ export default async function ExpenseDetailPage({ params }: { params: Promise<{ 
             <span className="font-medium capitalize">{row.decision}</span>
             <span className="text-sm text-muted-foreground">{new Date(row.decided_at).toISOString().slice(0, 10)}{row.notes ? ` · ${row.notes}` : ""}</span>
           </li>)}</ul>
-        : <p className="text-sm text-muted-foreground">No decision has been recorded yet.</p>}
+        : <p className="text-sm text-muted-foreground">{t(locale, "uiNoDecisionHasBeenRecordedYet")}</p>}
     </Panel>
   </div>;
 }

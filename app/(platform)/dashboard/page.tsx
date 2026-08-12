@@ -148,7 +148,7 @@ export default async function DashboardPage() {
     <div className="relative overflow-hidden rounded-3xl border border-emerald-900/15 bg-[linear-gradient(120deg,rgba(236,253,245,0.9),rgba(255,255,255,0.96))] px-6 py-7 shadow-sm md:px-8">
       <div aria-hidden className="absolute -right-10 -top-16 size-48 rounded-full bg-emerald-200/40 blur-2xl" />
       <div className="relative">
-        <p className="text-sm font-semibold tracking-wider text-accent-foreground">MANTARA OS</p>
+        <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "uiMANTARAOS")}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{organization.name}</h1>
         <p className="mt-2 max-w-2xl text-muted-foreground">{t(locale, "overviewDescription", { site: site.name })}</p>
       </div>
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
 
     {comparisons.length > 0 && (
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Last 30 days</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">{t(locale, "uiLast30Days")}</h2>
         <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {comparisons.map((comparison) => (
             <TrendCard key={comparison.measure} comparison={comparison} periodLabel="the 30 before" />

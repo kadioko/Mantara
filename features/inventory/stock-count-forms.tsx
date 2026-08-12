@@ -39,7 +39,7 @@ export function StartStockCountForm({ stores, today }: { stores: Option[]; today
           {stores.map((store) => <option key={store.id} value={store.id}>{store.label}</option>)}
         </select>
       </Field>
-      <Field label={tr("fReference")} hint="Optional — a sheet number, or who counted.">
+      <Field label={tr("fReference")} hint={tr("uiOptionalASheetNumberOrWhoCounted")}>
         <input name="reference" maxLength={120} className={fieldClass} />
       </Field>
       <Field label={tr("fDate")} required>
@@ -88,11 +88,11 @@ export function OpenStockCount({ count, items }: { count: StockCount; items: Opt
         <input type="hidden" name="stockCountId" value={count.id} />
         <Field label={tr("fItem")} required className="md:col-span-2">
           <select required name="itemId" defaultValue="" className={selectClass}>
-            <option value="" disabled>Choose an item</option>
+            <option value="" disabled>{tr("uiChooseAnItem")}</option>
             {items.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
           </select>
         </Field>
-        <Field label="Counted quantity" required>
+        <Field label={tr("uiCountedQuantity")} required>
           <input required name="countedQuantity" type="number" min="0" step="0.001" className={fieldClass} />
         </Field>
         <div className="flex items-end">
@@ -124,6 +124,7 @@ export function OpenStockCount({ count, items }: { count: StockCount; items: Opt
 
 /** A count that has been applied: what it found, which is the part worth keeping on screen. */
 export function AppliedStockCount({ count }: { count: StockCount }) {
+  const tr = useT();
   const location = one(count.location);
   const findings = count.lines.filter((line) => Number(line.variance_quantity ?? 0) !== 0);
 
@@ -137,7 +138,7 @@ export function AppliedStockCount({ count }: { count: StockCount }) {
           </span>
         </span>
         {findings.length === 0
-          ? <Badge variant="success">All matched</Badge>
+          ? <Badge variant="success">{tr("uiAllMatched")}</Badge>
           : <Badge variant="destructive">{findings.length} discrepanc{findings.length === 1 ? "y" : "ies"}</Badge>}
       </div>
 
