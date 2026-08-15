@@ -620,6 +620,12 @@ remain deliberately unchecked below.
       a file that says complete but covers one pit of three.
 - [ ] **As a member without expense permission**, `expenses` is listed as withheld rather than
       missing, and `manifest.complete` is false.
+
+  Both of the two items above are now proven in code by `tests/unit/export-run.test.ts`, which also
+  checks that a withheld table is **never queried** and that one unreadable table does not cost the
+  other 62. They stay on this list because a passing test proves the logic, not the deployment: only
+  a real restricted account against the live database proves the policies are attached to the rows
+  this reader actually gets. Treat these as confirmations now, not discoveries.
 - [ ] `/settings/audit-logs` shows an `organization.exported` entry for each download, naming the
       person and the row count — and **containing none of the exported data itself**. On 12 August
       the screen showed the action and actor, while the database metadata held `row_count: 243`,

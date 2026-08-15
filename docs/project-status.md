@@ -49,7 +49,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 711 tests pass (1 skipped). |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 725 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -299,6 +299,25 @@ tables and 243 rows, and the deployed audit-log screen showed `organization.expo
 Company Owner. Browser automation did not retain the attachment, so filename, manifest inspection,
 manual table reconciliation, restricted-member exports, and re-import usability remain on the QA
 checklist rather than being inferred from the successful request.
+
+**What a restricted reader receives is now proven in code.** `tests/unit/export-run.test.ts` covers
+the piece between the pure manifest builder and the database policies — the code that decides
+*withheld* versus *failed* versus *truncated*. That distinction is the whole point: to a client, a
+table they are not allowed to see and a table we failed to read both arrive absent, and only the
+label tells them whether to talk to their owner or report a bug. Conflating the two sends people to
+the wrong place. The tests assert that a module without read permission is listed rather than
+omitted, that it is **never queried** — no point reading rows already decided against, in this
+process's memory or any query log — that one unreadable table does not cost the other 62, and that a
+table hitting the ceiling is named. Each was confirmed to fail when the behaviour it guards is
+removed.
+
+That closes the code-level half. The live half stays open: a passing test proves the logic, not the
+deployment, and only a real restricted account against the live database proves the policies are
+attached to the rows that reader actually gets.
+
+The line 63 is worth recording because it is a genuine cross-check rather than a coincidence: the
+catalogue holds exactly 63 exported tables plus `safety_incident_details` excluded, and the live run
+reported 63. The full catalogue executed and nothing was silently dropped.
 
 ### Accessibility
 
