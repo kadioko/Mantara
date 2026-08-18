@@ -126,6 +126,17 @@ which is precisely backwards for an operator at a mine site.
 `npm run i18n:report` shows two numbers. Catalogue coverage is the easy one. The number that matters
 is text written directly into components, which no translator can reach at all.
 
+**It has twice reported a smaller gap than exists**, and the second time it reported none. It read
+text nodes and a fixed list of props, so it never saw a string inside a JSX ternary
+(`{saving ? "Saving..." : "Attach document"}`), a message passed to `setError`, or the
+`{ error: "..." }` / `{ success: "..." }` a server action hands back. It now reads all of those, and
+scans `.ts` as well as `.tsx`, which moved the count from **0 to 404**.
+
+The last category is the one that matters. An action result is the sentence an operator reads *after
+doing something* — did my shift entry save, why was it refused. The chrome around a form being
+bilingual while the answer to "did that work?" stays English is precisely backwards for a supervisor
+at a mine site. **209 of the 404 are action results.**
+
 Example placeholders stay in English on purpose — "CAT 320 excavator", "EXC-001" — because they are
 format hints rather than instructions, and a product code translated is less useful than the
 original.
@@ -190,6 +201,20 @@ larger volumes when you need to see how something scales rather than whether it 
   have been confirmed against a real bucket.
 - `prune_rate_limit_events()` is safe to run from a scheduled job; without it `rate_limit_events`
   grows without bound.
+
+### Offline drafts
+
+Half-filled shift plans, attendance rosters, maintenance requests and safety inspections are saved
+to the device so a lost connection at a mine site does not cost an afternoon. They are encrypted
+with a non-extractable AES-GCM key held in IndexedDB, scoped per user, organization and site, and
+password fields are never captured.
+
+They are cleared on sign-out by `components/shell/sign-out-button.tsx`. **That component exists
+because `signOut` is a server action and a server action cannot reach IndexedDB** — so while the
+sign-out control posted straight to it, nothing could ever remove a draft or its key. They stayed on
+the machine indefinitely, and a mine-site computer is usually shared. Converting that button back to
+a server component would silently reopen the gap; `tests/unit/offline-drafts.test.ts` fails if
+either sign-out surface stops using it.
 
 ### Taking your data with you
 

@@ -665,3 +665,34 @@ restricted to the first through Settings → People.
 - [ ] As the company owner, likewise — owners are never restricted.
 - [ ] An organization that uses no site restriction at all sees no change whatsoever. This is the
       common case and must be completely unaffected.
+
+## Offline drafts do not outlive the session
+
+A mine-site computer is usually shared. These are about what is left on the machine afterwards.
+
+- [ ] Start a shift plan, an attendance roster and a safety inspection, filling several fields each,
+      and do **not** submit them. Reload the page: each form comes back filled in.
+- [ ] Sign out. Sign back in as the same person. The drafts are gone.
+- [ ] In DevTools → Application → IndexedDB, confirm the `mantara-offline` database is **absent**
+      after sign-out — not merely empty. The encryption key must go with the drafts.
+- [ ] Sign in as a **different** person on the same machine and confirm no trace of the first
+      person's drafts appears in any form.
+- [ ] With the browser blocking storage (private mode, or storage disabled), signing out still works
+      and still redirects to the login screen.
+- [ ] Open two tabs, sign out in one, and confirm the other does not leave the database behind.
+- [ ] A draft is never written for a password field. Check IndexedDB after typing into any form that
+      has one.
+- [ ] Submitting a form clears its own draft immediately, without a sign-out.
+
+## Action messages in Kiswahili
+
+`npm run i18n:report` counts 404 English-only phrases, 209 of them the messages a server action
+returns. Until those are lifted, these will fail — they are listed so the gap is visible rather than
+discovered by an operator.
+
+- [ ] With the language set to Kiswahili, record a production entry. **The confirmation message is
+      in Kiswahili.**
+- [ ] Trigger a validation failure (duplicate site name, negative quantity). The refusal is in
+      Kiswahili and says what to do.
+- [ ] Attach a document with the language set to Kiswahili: the button, the size error and the
+      success message are all in Kiswahili. *(This one should pass — it was fixed as the exemplar.)*

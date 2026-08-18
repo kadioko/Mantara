@@ -34,7 +34,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | 811 paired English/Kiswahili catalogue keys with 100% coverage; the static report finds zero uncatalogued UI phrases. Specialist mining terms still need field-speaker review. |
+| Localization | 818 paired English/Kiswahili catalogue keys with 100% coverage. **The static report previously read zero and was wrong**; corrected, it finds 404 English-only phrases, 209 of them the messages a server action returns. Specialist mining terms still need field-speaker review. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -49,7 +49,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 761 tests pass (1 skipped). |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 772 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -318,6 +318,34 @@ attached to the rows that reader actually gets.
 The line 63 is worth recording because it is a genuine cross-check rather than a coincidence: the
 catalogue holds exactly 63 exported tables plus `safety_incident_details` excluded, and the live run
 reported 63. The full catalogue executed and nothing was silently dropped.
+
+### Offline drafts and documents reviewed — 19 August
+
+The two areas no review had reached. Both are sound in construction; each had one real gap.
+
+**Nothing ever cleared an offline draft.** Half-filled shift plans, attendance rosters and safety
+inspections are encrypted with a non-extractable AES-GCM key and held in IndexedDB, scoped per user
+and site, with password fields excluded — the construction is right. But `signOut` is a server
+action, and a server action cannot reach IndexedDB, so no code path could remove a draft or its key.
+They stayed on the device indefinitely, and a mine-site machine is usually shared. This was not a
+forgotten line: the architecture made it unreachable. `components/shell/sign-out-button.tsx` does
+the browser half first, and drafts now also expire after seven days for the case where a session
+ends without anyone signing out — which at a site with patchy signal is the common case.
+
+**The localization report was reading zero while 404 phrases were English-only.** It scanned text
+nodes and a fixed list of props, so it never saw a string inside a JSX ternary, one passed to
+`setError`, or the `{ error: ... }` / `{ success: ... }` a server action returns. Corrected, and it
+now scans `.ts` as well as `.tsx`.
+
+**209 of those 404 are action results**, and that is the category that matters: the sentence an
+operator reads *after* acting — did my shift entry save, why was it refused. A product whose chrome
+is fully bilingual while the answer to "did that work?" stays English is backwards for the person it
+was built for. The document upload form is fixed as the exemplar; the remaining lift is mechanical
+and is the largest single piece of work left in the codebase.
+
+This is the second time this report has understated itself. The first was `description`/`hint`/
+`eyebrow`. **A measurement that flatters the work is worse than no measurement**, and both times the
+gap was found by reading a screen rather than by trusting the number.
 
 ### Site restriction was not reaching the reporting functions — found 12 August
 

@@ -43,7 +43,7 @@ const walk = (dir) => {
     if (skip.has(entry)) continue;
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) walk(full);
-    else if (entry.endsWith(".tsx")) files.push(full);
+    else if (entry.endsWith(".tsx") || entry.endsWith(".ts")) files.push(full);
   }
 };
 walk(root);
@@ -59,6 +59,20 @@ for (const file of files) {
     // sentences under a panel heading that say what a screen is for, and a reader who cannot read
     // those is worse off than one missing a field label. Leaving them out understated this count.
     const props = [...line.matchAll(/\b(placeholder|aria-label|title|label|alt|description|hint|eyebrow)="([^"]{3,})"/g)].map((m) => m[2]);
+
+    /*
+      Three positions the scan used to miss entirely, which is how it came to report zero while 290
+      user-facing strings were English-only.
+
+      The last matters most. `{ error: "..." }` and `{ success: "..." }` are what a server action
+      hands back, and they are the sentence an operator reads *after doing something* — did my shift
+      entry save, why was it refused. Chrome that is bilingual while the answer to "did that work?"
+      stays English is precisely backwards for a supervisor at a mine site, and the old count called
+      it perfect.
+    */
+    const ternary = [...line.matchAll(/\?\s*"([A-Z][^"]{3,})"\s*:\s*"([A-Z][^"]{3,})"/g)].flatMap((m) => [m[1], m[2]]);
+    const setters = [...line.matchAll(/\b(?:setError|setMessage|setStatus|setFeedback)\(\s*"([A-Z][^"]{3,})"/g)].map((m) => m[1]);
+    const outcomes = [...line.matchAll(/\b(?:error|success)\s*:\s*"([A-Z][^"]{3,})"/g)].map((m) => m[1]);
     for (const phrase of between) {
       if (/^[A-Z0-9_.-]+$/.test(phrase)) continue; // constants and codes, not prose
       findings.push({ file: relative(root, file), line: index + 1, phrase, kind: "text" });
@@ -66,6 +80,12 @@ for (const file of files) {
     for (const phrase of props) {
       if (/^[A-Z0-9_.-]+$/.test(phrase)) continue;
       findings.push({ file: relative(root, file), line: index + 1, phrase, kind: "attribute" });
+    }
+    for (const [kind, found] of [["ternary", ternary], ["setter", setters], ["outcome", outcomes]]) {
+      for (const phrase of found) {
+        if (/^[A-Z0-9_.-]+$/.test(phrase)) continue;
+        findings.push({ file: relative(root, file), line: index + 1, phrase, kind });
+      }
     }
   });
 }
@@ -85,7 +105,12 @@ if (process.argv.includes("--phrases")) {
 
 console.log(`\nUncatalogued UI text: ${findings.length} phrases across ${byFile.size} files.`);
 console.log(`Unique uncatalogued phrases: ${new Set(findings.map((finding) => finding.phrase)).size}.`);
-console.log(`Text nodes: ${findings.filter((finding) => finding.kind === "text").length}; attributes: ${findings.filter((finding) => finding.kind === "attribute").length}.`);
+const byKind = (kind) => findings.filter((finding) => finding.kind === kind).length;
+// Broken out because the kinds need different work and carry different weight. An
+// "action result" is the sentence an operator reads after acting — did it save, why was it
+// refused — and it is the worst of these to leave in English.
+console.log(`  text nodes ${byKind("text")}, attributes ${byKind("attribute")}, button labels ${byKind("ternary")}, `
+  + `inline messages ${byKind("setter")}, action results ${byKind("outcome")}.`);
 console.log("Worst first — lifting these into lib/i18n/messages.ts is what unblocks translation:");
 for (const [file, count] of ranked.slice(0, 20)) console.log(`  ${String(count).padStart(4)}  ${file}`);
 if (ranked.length > 20) console.log(`  ...and ${ranked.length - 20} more files.`);

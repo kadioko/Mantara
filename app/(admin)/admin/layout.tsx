@@ -3,7 +3,7 @@ import { getLocale } from "@/lib/i18n/locale";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Building2, ScrollText, ShieldCheck, LayoutDashboard, ArrowLeft } from "lucide-react";
-import { signOut } from "@/features/auth/actions";
+import { SignOutButton } from "@/components/shell/sign-out-button";
 import { requirePlatformAdmin } from "@/lib/auth/platform";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -53,9 +53,9 @@ export default async function AdminLayout({ children }: Readonly<{ children: Rea
             <p className="font-semibold">{t(locale, "uiPlatformAdministration")}</p>
             <p className="text-xs text-muted-foreground">{t(locale, "uiSupportAndOperationsForMantaraItself")}</p>
           </div>
-          <form action={signOut}>
+          <SignOutButton label={t(locale, "signOut")}>
             <Button variant="outline" size="sm">{t(locale, "signOut")}</Button>
-          </form>
+          </SignOutButton>
         </header>
 
         <nav aria-label={t(locale, "uiPlatformNavigation")} className="flex gap-2 overflow-x-auto border-b bg-card px-4 py-2 md:hidden">

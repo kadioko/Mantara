@@ -1,5 +1,5 @@
 import { MantaraLogo } from "@/components/brand/mantara-logo";
-import { signOut } from "@/features/auth/actions";
+import { SignOutButton } from "@/components/shell/sign-out-button";
 import { t, type Locale } from "@/lib/i18n/messages";
 import { CollapsibleWorkspaceFrame } from "./collapsible-workspace-frame";
 import { LanguageSwitcher } from "./language-switcher";
@@ -25,7 +25,7 @@ export function AppShell({ organizations, activeOrganization, sites, activeSite,
   </div>;
   const actions = <div className="flex shrink-0 items-center gap-2">
     <LanguageSwitcher locale={locale} returnTo="/dashboard" />
-    <form action={signOut}><button className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold transition hover:bg-secondary">{t(locale, "signOut")}</button></form>
+    <SignOutButton label={t(locale, "signOut")} className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold transition hover:bg-secondary" />
   </div>;
   const mobileNavigation = <details className="border-b border-border bg-card p-4 md:hidden">
     <summary className="cursor-pointer font-semibold">{t(locale, "switchWorkspace")}</summary>

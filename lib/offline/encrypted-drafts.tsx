@@ -9,8 +9,64 @@ export function OfflineDraftProvider({ scope, children }: { scope: DraftScope; c
   return <DraftScopeContext.Provider value={scope}>{children}</DraftScopeContext.Provider>;
 }
 
+const DATABASE_NAME = "mantara-offline";
+
+/** How long a draft is worth keeping. Long enough to survive a weekend, short enough to expire. */
+export const DRAFT_TTL_DAYS = 7;
+
+/**
+ * Which stored drafts are past keeping.
+ *
+ * Pure, and separated from the storage so it can be tested — IndexedDB does not exist in the test
+ * environment, and the decision of what to throw away is the part worth being sure about.
+ */
+export function staleDraftIds(
+  rows: Array<{ id: string; updatedAt?: string }>,
+  now = new Date(),
+  ttlDays = DRAFT_TTL_DAYS,
+): string[] {
+  const cutoff = now.getTime() - ttlDays * 24 * 60 * 60 * 1000;
+  return rows
+    .filter((row) => {
+      const at = Date.parse(row.updatedAt ?? "");
+      // A row with no readable timestamp predates this field or was written by something else.
+      // Dropping it is right: it can never be shown to expire, so keeping it means keeping it forever.
+      return Number.isNaN(at) || at < cutoff;
+    })
+    .map((row) => row.id);
+}
+
+/**
+ * Removes every offline draft and the key that decrypts them.
+ *
+ * Called on sign-out. Until this existed nothing ever removed either, so a shift plan, an attendance
+ * roster and a safety inspection stayed on the device indefinitely — and a mine-site machine is
+ * usually shared. The drafts are encrypted and keyed per user, so the next person could not read
+ * them; that is not a reason to leave a previous user's work sitting on a shared computer.
+ *
+ * The whole database goes rather than the rows, which takes the key with it. Ciphertext without its
+ * key is not recoverable, so this holds even if a stray row survived somewhere.
+ *
+ * Never throws. Sign-out must complete whatever the browser does about storage.
+ */
+export async function clearOfflineDrafts(): Promise<void> {
+  try {
+    if (typeof indexedDB === "undefined") return;
+    await new Promise<void>((resolve) => {
+      const request = indexedDB.deleteDatabase(DATABASE_NAME);
+      request.onsuccess = () => resolve();
+      request.onerror = () => resolve();
+      // Fires when another tab still holds the database open. Sign-out cannot wait on that tab, and
+      // the delete completes once it closes.
+      request.onblocked = () => resolve();
+    });
+  } catch {
+    // Storage being unavailable is not a reason to keep somebody signed in.
+  }
+}
+
 function request<T>(value: IDBRequest<T>) { return new Promise<T>((resolve, reject) => { value.onsuccess=()=>resolve(value.result); value.onerror=()=>reject(value.error); }); }
-async function database(){const opened=indexedDB.open("mantara-offline",1);opened.onupgradeneeded=()=>{const db=opened.result;if(!db.objectStoreNames.contains("drafts"))db.createObjectStore("drafts");if(!db.objectStoreNames.contains("keys"))db.createObjectStore("keys")};return request(opened)}
+async function database(){const opened=indexedDB.open(DATABASE_NAME,1);opened.onupgradeneeded=()=>{const db=opened.result;if(!db.objectStoreNames.contains("drafts"))db.createObjectStore("drafts");if(!db.objectStoreNames.contains("keys"))db.createObjectStore("keys")};return request(opened)}
 async function keyFor(db:IDBDatabase,userId:string){const old=await request(db.transaction("keys").objectStore("keys").get(userId)) as CryptoKey|undefined;if(old)return old;const key=await crypto.subtle.generateKey({name:"AES-GCM",length:256},false,["encrypt","decrypt"]);await new Promise<void>((resolve,reject)=>{const tx=db.transaction("keys","readwrite");tx.objectStore("keys").put(key,userId);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)});return key}
 const encoder=new TextEncoder(),decoder=new TextDecoder();
 async function save(id:string,userId:string,values:Record<string,string>){const db=await database();const key=await keyFor(db,userId);const iv=crypto.getRandomValues(new Uint8Array(12));const cipher=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,encoder.encode(JSON.stringify(values)));await new Promise<void>((resolve,reject)=>{const tx=db.transaction("drafts","readwrite");tx.objectStore("drafts").put({iv:[...iv],cipher,updatedAt:new Date().toISOString()},id);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error)});db.close()}
