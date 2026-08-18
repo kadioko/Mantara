@@ -26,7 +26,9 @@ type DailySummary = {
   date:string; production?:{approvedTonnes:number;entries:number}; attendance?:{presentOrLate:number;recorded:number};
   expenses?:Array<{currency:string;amount:number}>; safety?:{incidents:number;inspections:number}; evidence:string[];
 };
-const fmt=(value:number|string|null,digits=2)=>value===null?"—":Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});
+const fmt=(value:number|string|null|undefined,digits=2)=>value===null||value===undefined?"—":Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});
+/** A unit belongs to a number, not to a dash. Without this an unknown utilization read "—%". */
+const withUnit=(value:number|string|null|undefined,unit:string,digits=2)=>value===null||value===undefined?"—":`${fmt(value,digits)}${unit}`;
 
 export default async function IntelligencePage({searchParams}:{searchParams:Promise<{from?:string;to?:string}>}){
   const [workspace,locale,query]=await Promise.all([getActiveWorkspace(),getLocale(),searchParams]);
@@ -41,6 +43,13 @@ export default async function IntelligencePage({searchParams}:{searchParams:Prom
     workspace.supabase.rpc("site_daily_summary",{requested_site_id:site.id,requested_date:to}),
     Promise.all([hasPermission(organization.id,"production.update"),hasPermission(organization.id,"expense.update")]).then(x=>x.every(Boolean)),
   ]);
+  /*
+    An error and an empty site are different facts, and this screen used to render them identically:
+    a failed RPC became an empty array and the reader was told "no intelligence yet" for a site with
+    a year of production in it. lib/totals.ts already takes the other line — "zero is a claim, and it
+    is the wrong claim when the truth is that we could not find out" — and this now follows it.
+  */
+  const failed=[intelligenceResult.error,forecastResult.error,summaryResult.error].filter(Boolean).length>0;
   const rows=(intelligenceResult.error?[]:intelligenceResult.data??[]) as IntelligenceRow[];
   const forecasts=(forecastResult.error?[]:forecastResult.data??[]) as ForecastRow[];
   const summary=(summaryResult.error?null:summaryResult.data) as DailySummary|null;
@@ -53,16 +62,17 @@ export default async function IntelligencePage({searchParams}:{searchParams:Prom
       <div className="flex items-end"><Button>{t(locale,"applyPeriod")}</Button></div>
     </form></Panel>
     <Alert variant="info"><strong>{t(locale,"intelligenceMethod")}:</strong> {t(locale,"intelligenceMethodDescription")}</Alert>
+    {failed&&<Alert variant="destructive">{t(locale,"figuresUnavailable")}</Alert>}
     {!base?<EmptyState title={t(locale,"noIntelligence")}/>:<>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label={t(locale,"productionTonnes")} value={fmt(base.production_tonnes,3)}/>
         <StatCard label={t(locale,"containedGold")} value={`${fmt(base.contained_grams,3)} g · ${fmt(base.contained_ounces,3)} oz`}/>
         <StatCard label={t(locale,"workerProductivity")} value={fmt(base.tonnes_per_worker_day,3)}/>
-        <StatCard label={t(locale,"equipmentUtilization")} value={`${fmt(base.equipment_utilization_percent,1)}%`}/>
+        <StatCard label={t(locale,"equipmentUtilization")} value={withUnit(base.equipment_utilization_percent,"%",1)}/>
       </div>
       {rows.map(row=><Panel key={row.currency_code} title={row.currency_code} description={`${from} — ${to}`}><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label={t(locale,"approvedSpendLabel")} value={`${row.currency_code} ${fmt(row.approved_spend)}`}/>
-        <StatCard label={t(locale,"budgetUsed")} value={row.budget_used_percent===null?"—":`${fmt(row.budget_used_percent,1)}%`}/>
+        <StatCard label={t(locale,"budgetUsed")} value={withUnit(row.budget_used_percent,"%",1)}/>
         <StatCard label={t(locale,"budgetRemaining")} value={`${row.currency_code} ${fmt(row.budget_variance)}`} tone={Number(row.budget_variance)<0?"destructive":"default"}/>
         <StatCard label={t(locale,"costPerTonne")} value={`${row.currency_code} ${fmt(row.cost_per_tonne)}`}/>
         <StatCard label={t(locale,"costPerGram")} value={`${row.currency_code} ${fmt(row.cost_per_gram)}`}/>

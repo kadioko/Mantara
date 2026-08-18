@@ -139,6 +139,8 @@ const english = {
   rateLimitedMinutes: "That has been done too many times in the last {minutes} minutes. Please wait a little and try again.",
   // Taking your data with you. The wording matters commercially: this is the answer a company wants
   // before it trusts the product, so it says plainly that the data is theirs and stays theirs.
+  noAssays: "No assay results recorded yet.",
+  figuresUnavailable: "Some figures could not be worked out just now, so parts of this screen may be missing. This is a fault on our side, not a sign that nothing was recorded. Please try again shortly.",
   pYourData: "Your data",
   pYourDataDescription: "Download every record this organization holds, as one file. It is yours, and you can take it with you at any time.",
   downloadYourData: "Download all data",
@@ -517,6 +519,8 @@ const swahili: Partial<Record<MessageKey, string>> = {
   offlineDraftSaved: "Rasimu iliyosimbwa imehifadhiwa kwenye kifaa hiki.", offlineDraftRestored: "Rasimu iliyosimbwa imerejeshwa kwa akaunti, shirika na eneo hili la mgodi.",
   rateLimited: "Jambo hilo limefanyika mara nyingi mno hivi karibuni. Tafadhali subiri kidogo kisha ujaribu tena.", noPermission: "Huna ruhusa ya kufanya hivyo.", checkTheForm: "Tafadhali angalia sehemu zilizoangaziwa kisha ujaribu tena.",
   rateLimitedMinutes: "Jambo hilo limefanyika mara nyingi mno katika dakika {minutes} zilizopita. Tafadhali subiri kidogo kisha ujaribu tena.",
+  noAssays: "Hakuna matokeo ya uchunguzi yaliyorekodiwa bado.",
+  figuresUnavailable: "Baadhi ya takwimu hazikuweza kupatikana kwa sasa, hivyo sehemu za skrini hii huenda zikakosekana. Hili ni hitilafu upande wetu, si dalili kwamba hakuna kilichorekodiwa. Tafadhali jaribu tena baada ya muda mfupi.",
   pYourData: "Taarifa zako",
   pYourDataDescription: "Pakua kila kumbukumbu ambayo shirika hili linamiliki, katika faili moja. Ni zako, na unaweza kuzichukua wakati wowote.",
   downloadYourData: "Pakua taarifa zote",
