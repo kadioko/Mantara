@@ -145,8 +145,12 @@ export default async function DashboardPage() {
   const comparisons = (comparisonRows ?? []) as Comparison[];
 
   return <section className="space-y-8">
-    <div className="relative overflow-hidden rounded-3xl border border-emerald-900/15 bg-[linear-gradient(120deg,rgba(236,253,245,0.9),rgba(255,255,255,0.96))] px-6 py-7 shadow-sm md:px-8">
-      <div aria-hidden className="absolute -right-10 -top-16 size-48 rounded-full bg-emerald-200/40 blur-2xl" />
+    {/* The hero was a hardcoded near-white gradient with a fixed emerald wash. In dark mode it stayed
+        white while the heading inside it took the light foreground colour — the organization's own
+        name, on the first screen after sign-in, close to invisible. Built from tokens now so it
+        follows the theme, and the contrast audit governs it like everything else. */}
+    <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-success/10 via-card to-card px-6 py-7 shadow-sm md:px-8">
+      <div aria-hidden className="absolute -right-10 -top-16 size-48 rounded-full bg-primary/10 blur-2xl" />
       <div className="relative">
         <p className="text-sm font-semibold tracking-wider text-accent-foreground">{t(locale, "uiMANTARAOS")}</p>
         <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{organization.name}</h1>

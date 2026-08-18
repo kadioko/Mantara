@@ -17,11 +17,10 @@ administration.
 
 Plus geology, forecasting and daily intelligence, and an organization data export.
 
-**Every migration through `0037` is applied. `0038_export_audit.sql` is new and pending** — until it
-is applied the data export refuses rather than producing an unaudited copy, which is the intended
-failure. `npm run deploy:check` confirms what PostgREST can see using only the publishable key and
-reading no tenant data; migrations that create only triggers, indexes or policies cannot be described
-that way, so run `supabase/verify-deployment.sql` in the SQL editor to settle those.
+**Every migration through `0038` is applied**, and `supabase/verify-deployment.sql` has confirmed the
+objects PostgREST cannot describe — triggers, policies, the storage bucket, caller-security on the
+stock view, and the scheduled alert job. `npm run deploy:check` re-checks the API-visible half using
+only the publishable key and reading no tenant data.
 
 **[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
 locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards
@@ -100,7 +99,13 @@ editable reference data, `Pagination` and `SearchField` for list controls, and
 
 **Colours come from the tokens, not the stock palette** — `bg-card`, `text-muted-foreground`,
 `border-border` — so the brand changes in one file and dark mode works everywhere. The one deliberate
-exception is the workspace sidebar, which carries the Mantara brand colour directly.
+exception is the workspace sidebar and brand mark, which carry the Mantara colour directly.
+
+`tests/unit/design-tokens.test.ts` enforces this, because **`npm run contrast` structurally cannot**:
+it checks token pairs, and a raw `bg-orange-50` is not a token. The audit passed while the
+maintenance board rendered an "on hold" chip as a near-white block on a dark card, and the dashboard
+hero kept a hardcoded white gradient in dark mode with the organization's own name in light text on
+top of it — the first screen after sign-in.
 
 Forms use enclosing `<label>` elements rather than `id`/`htmlFor`. Lists render one editor per row,
 and repeated ids would point every label at the first row's control.

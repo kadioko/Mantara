@@ -21,7 +21,10 @@ export const metadata = { title: "Maintenance" };
 const statusTone: Record<string, string> = {
   planned: "bg-muted text-foreground",
   in_progress: "bg-warning/15 text-warning-foreground",
-  on_hold: "bg-orange-50 text-orange-800",
+  // Tokens, like every other row here. This one was bg-orange-50/text-orange-800: a fixed light
+  // palette that renders as a near-white chip on a dark card, and that npm run contrast cannot see
+  // because it checks design tokens rather than raw Tailwind classes.
+  on_hold: "bg-warning/25 text-warning-foreground",
   completed: "bg-success/12 text-primary",
   cancelled: "bg-muted text-muted-foreground",
 };

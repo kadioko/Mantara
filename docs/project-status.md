@@ -34,7 +34,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | 809 paired English/Kiswahili catalogue keys with 100% coverage; the static report finds zero uncatalogued UI phrases. Specialist mining terms still need field-speaker review. |
+| Localization | 811 paired English/Kiswahili catalogue keys with 100% coverage; the static report finds zero uncatalogued UI phrases. Specialist mining terms still need field-speaker review. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -49,7 +49,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 725 tests pass (1 skipped). |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 741 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -318,6 +318,38 @@ attached to the rows that reader actually gets.
 The line 63 is worth recording because it is a genuine cross-check rather than a coincidence: the
 catalogue holds exactly 63 exported tables plus `safety_incident_details` excluded, and the live run
 reported 63. The full catalogue executed and nothing was silently dropped.
+
+### Screens reviewed for wrong figures — 12 August
+
+A review of the modules built in other sessions found five defects on the geology and intelligence
+screens, all with one cause: the arithmetic lived inside JSX, where no test could reach it. A wrong
+number on a mining screen looks exactly like a right one.
+
+- A drill hole with no intervals showed **"-Infinity PPM"** in its map tooltip. `Math.max()` of an
+  empty list is `-Infinity`, and `-Infinity` is truthy, so the `|| null` guard never fired — which
+  is most holes while drilling is still in progress.
+- The sample table showed the **oldest** assay for each sample, not the newest. The page reads
+  assays newest-first and built a Map from that order; a Map keeps the last value written. For a
+  sample re-tested after a disputed result, the screen showed the figure that had been superseded.
+- Four stat cards **counted a capped page**: 100 samples, 250 intervals. A site with 5,000 samples
+  read "100". Every other module page already counts with `count: "exact"`; geology was the one that
+  did not. A failed count now shows a dash — "0 samples" is a claim about the site, a failed count
+  is a claim about us.
+- "Highest grade" was computed from that same capped page while being presented as the highest on
+  site. It now reports how many readings it looked at.
+- On the intelligence screen a failed RPC rendered as **"no intelligence yet"** for a site with a
+  year of production in it, and an unknown utilization rendered as `—%`.
+
+The derivations moved to `features/geology/derive.ts` with 13 tests. Writing them caught a sixth
+defect in the first attempt at the fix: `Number(null)` is `0`, so a blank grade counted as a reading
+of zero — a measurement never taken, presented as a result.
+
+Two dark-mode faults were found in the same pass and are worth recording because of *why* they
+survived: `npm run contrast` checks design **tokens**, and a raw `bg-orange-50` is not a token. The
+maintenance board rendered its "on hold" chip as a near-white block on a dark card, and the
+dashboard hero kept a hardcoded white gradient with the organization's name in light text on it —
+the first screen after sign-in. `tests/unit/design-tokens.test.ts` now closes what the audit cannot
+see, and was confirmed to fail on a planted `bg-red-100`.
 
 ### Accessibility
 
