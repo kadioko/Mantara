@@ -27,6 +27,23 @@ const publicPaths = new Set([
   "/api/health", "/api/csp-report", "/manifest.webmanifest",
 ]);
 
+/**
+ * A request for a file rather than a screen.
+ *
+ * Everything in `public/` is served through the proxy, and a signed-out visitor was redirected to
+ * /login for each one. On the login page — the one screen where being signed out is the whole point
+ * — that made the Mantara logo a broken image: the browser asked for a PNG and was handed an HTML
+ * login page with a 307 in front of it.
+ *
+ * Matched by extension rather than by listing each file, because the next asset somebody adds would
+ * otherwise break in exactly the same way. No application route has a file extension, and
+ * `tests/unit/security-headers.test.ts` fails if one ever does.
+ *
+ * These still pass through the proxy and still receive every security header. They simply do not
+ * need a session, which was never true of an image in the first place.
+ */
+const isPublicAsset = (pathname: string) => /\.[a-z0-9]+$/i.test(pathname);
+
 export async function proxy(request: NextRequest) {
   const nonce = createNonce();
   const options = {
@@ -53,7 +70,7 @@ export async function proxy(request: NextRequest) {
   };
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !publicPaths.has(request.nextUrl.pathname)) {
+  if (!user && !publicPaths.has(request.nextUrl.pathname) && !isPublicAsset(request.nextUrl.pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", request.nextUrl.pathname);

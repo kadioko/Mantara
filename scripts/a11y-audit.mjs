@@ -27,6 +27,22 @@ const walk = (dir) => {
 };
 walk(root);
 
+/**
+ * The full text of a JSX tag starting at `lines[startLine]` from `column`, however many lines its
+ * props run over. Stops at the tag's own `>` so it cannot swallow what follows.
+ */
+function wholeTag(lines, startLine, column) {
+  let text = "";
+  for (let index = startLine; index < Math.min(lines.length, startLine + 30); index += 1) {
+    const part = index === startLine ? lines[index].slice(column) : lines[index];
+    const end = part.indexOf(">");
+    if (end >= 0) return `${text}${part.slice(0, end + 1)}`;
+    text += `${part}
+`;
+  }
+  return text;
+}
+
 const findings = [];
 const report = (file, line, rule, detail) =>
   findings.push({ file: relative(root, file), line, rule, detail });
@@ -77,9 +93,17 @@ for (const file of files) {
     const at = index + 1;
     if (line.startsWith("//") || line.startsWith("*")) return;
 
-    // An image needs alt text; decorative images need an explicit empty alt.
-    for (const match of raw.matchAll(/<(img|Image)\b([^>]*)/g)) {
-      if (!/\balt=/.test(match[2])) report(file, at, "image-without-alt", match[1]);
+    /*
+      An image needs alt text; decorative images need an explicit empty alt.
+
+      Read from the whole tag rather than the one line it starts on. A tag whose props run over
+      several lines carried its alt on line two and was reported as missing it — a false positive,
+      which is the one thing an audit must not produce. People stop reading a rule that cries wolf,
+      and then it catches nothing.
+    */
+    for (const match of raw.matchAll(/<(img|Image)\b/g)) {
+      const tag = wholeTag(lines, index, match.index ?? 0);
+      if (!/\balt=/.test(tag)) report(file, at, "image-without-alt", match[1]);
     }
 
     // A button or link whose only child is an icon has no accessible name.
