@@ -12,7 +12,7 @@ answer still proves a table is there. It cannot see triggers, indexes, policies 
 so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
 settles them in the SQL editor.
 
-As of 9 August 2026: **`0001`–`0037` are applied.** The latest live QA also exercised authenticated PostgREST/RLS, concurrent writes and a private signed Storage download.
+As of 12 August 2026: **`0001`–`0038` are applied. `0039` is written and pending** — it closes a site-restriction bypass in the reporting functions and should not wait. The latest live QA also exercised authenticated PostgREST/RLS, concurrent writes and a private signed Storage download.
 
 ## The original position
 
@@ -65,6 +65,7 @@ Apply in filename order. Several depend on earlier ones — `0029` needs the vie
 | `0036` | Forecasting and daily intelligence | Adds `site_forecast_assumptions` |
 | `0037` | Site restriction and geology audit alignment | Renames one policy so the invariant test can see it; adds two triggers |
 | `0038` | Organization export audit | One function. **Until it is applied the data export refuses**, rather than producing a copy of everything with no record that it was taken — which is the intended failure, not a bug |
+| `0039` | Site reach in reporting functions | **Security fix.** Eleven SECURITY DEFINER functions answered for a site the caller was restricted from. Functions only; no table or column changes, and inert for organizations not using site restriction |
 
 ## Locks
 

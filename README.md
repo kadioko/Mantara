@@ -17,7 +17,7 @@ administration.
 
 Plus geology, forecasting and daily intelligence, and an organization data export.
 
-**Every migration through `0038` is applied**, and `supabase/verify-deployment.sql` has confirmed the
+**Every migration through `0038` is applied. `0039_site_reach_in_reporting_functions.sql` is new and pending — it closes a site-restriction bypass and should be applied promptly**, and `supabase/verify-deployment.sql` has confirmed the
 objects PostgREST cannot describe — triggers, policies, the storage bucket, caller-security on the
 stock view, and the scheduled alert job. `npm run deploy:check` re-checks the API-visible half using
 only the publishable key and reading no tenant data.
@@ -33,7 +33,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0038_export_audit.sql`, using the Supabase CLI or the SQL editor. Migrations from
+   `0039_site_reach_in_reporting_functions.sql`, using the Supabase CLI or the SQL editor. Migrations from
    `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
    again rather than by hand.
 3. Run `npm run dev`.
@@ -65,6 +65,12 @@ Three consequences worth knowing before changing anything:
 - **A permission code that does not exist denies everyone silently.** `has_permission()` returns
   false for a code nobody holds, so a typo reads like a deliberate decision and nothing throws.
   `tests/unit/permission-codes.test.ts` checks every code the app asks for against the migrations.
+- **Permission is not the same question as reach.** Site restriction is enforced by RLS policies,
+  and `SECURITY DEFINER` bypasses RLS — so a function that dutifully checks `has_permission()` can
+  still answer for a site the caller is restricted from. Eleven reporting functions did exactly
+  that, and a member limited to one pit could ask `production_totals` for another pit's tonnage.
+  `0039` puts the reach check in `assert_site_readable`, the single gate they all call, and
+  `tests/unit/site-reach-guard.test.ts` fails when a new one forgets.
 
 ## Platform administration
 

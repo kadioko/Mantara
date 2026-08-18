@@ -1,6 +1,6 @@
 # Manual QA checklist
 
-Apply every migration `0001`–`0038` to the linked Supabase project before working through this. Track wider
+Apply every migration `0001`–`0039` to the linked Supabase project before working through this. Track wider
 progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
@@ -641,3 +641,27 @@ remain deliberately unchecked below.
 - [ ] **Re-import sanity**: hand the file to someone who has never seen the product and ask what the
       company mined last month. If they cannot answer, the export is not the portability promise it
       claims to be.
+
+## Site restriction reaches the figures, not only the rows
+
+Needs `0039_site_reach_in_reporting_functions.sql` applied. Before it, a member restricted to one
+mine site could not list another site's rows but **could ask for its totals and be told** — so these
+checks are about the numbers on a screen, not about lists.
+
+Set up once: an organization with two mine sites, production recorded at both, and a member
+restricted to the first through Settings → People.
+
+- [ ] As that restricted member, the dashboard shows figures for the permitted site only, and
+      switching the active site to the restricted one is either impossible or shows nothing.
+- [ ] `/intelligence` for the permitted site works normally.
+- [ ] Production, fuel, maintenance and expense stat cards match what the permitted site alone holds.
+      **Add a large production entry at the other site and confirm no headline figure moves.** This
+      is the check that would have caught the original defect.
+- [ ] Inventory shrinkage, fuel consumption per machine and the dashboard period comparison all
+      likewise ignore the other site.
+- [ ] The cash-flow forecast and the daily summary do the same.
+- [ ] **As an unrestricted member of the same organization, every figure still covers every site.**
+      A fix that over-narrows is an outage, and this is the half that catches it.
+- [ ] As the company owner, likewise — owners are never restricted.
+- [ ] An organization that uses no site restriction at all sees no change whatsoever. This is the
+      common case and must be completely unaffected.

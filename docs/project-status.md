@@ -1,7 +1,7 @@
 # Mantara OS — project status
 
 **Audited: 12 August 2026**
-**Database: every migration through `0038` is applied. `0038_export_audit.sql` records every organization export and refuses anonymous execution. The deployment verifier also confirmed all 22 expected objects from migrations `0019`–`0029`, caller-security on the stock view, complete site-restriction policy coverage, and the scheduled daily alert job.**
+**Database: every migration through `0038` is applied. `0039_site_reach_in_reporting_functions.sql` is new and pending, and closes a site-restriction bypass — apply it promptly. `0038_export_audit.sql` records every organization export and refuses anonymous execution. The deployment verifier also confirmed all 22 expected objects from migrations `0019`–`0029`, caller-security on the stock view, complete site-restriction policy coverage, and the scheduled daily alert job.**
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -49,7 +49,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 741 tests pass (1 skipped). |
+| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 761 tests pass (1 skipped). |
 
 ## What the tests actually prove
 
@@ -318,6 +318,39 @@ attached to the rows that reader actually gets.
 The line 63 is worth recording because it is a genuine cross-check rather than a coincidence: the
 catalogue holds exactly 63 exported tables plus `safety_incident_details` excluded, and the live run
 reported 63. The full catalogue executed and nothing was silently dropped.
+
+### Site restriction was not reaching the reporting functions — found 12 August
+
+The most serious defect found in this review, and the one furthest from where anyone would look.
+
+`0028` restricts a member to particular mine sites with one restrictive RLS policy per site-scoped
+table, and that works: a member restricted to Pit One reads no Pit Two rows. But **`SECURITY
+DEFINER` bypasses RLS by design**, and every headline figure in the product is computed inside such
+a function. `assert_site_readable` resolved the organization from the site id and checked
+organization-level permissions — `site.read` plus the module's own — and never asked whether that
+caller may reach *that* site.
+
+So a member explicitly restricted to Pit One could not list Pit Two's production rows, and could
+call `production_totals(pit_two)` and be handed its tonnage. For a mine that is the number that
+matters: not which rows exist, but how much came out of the ground.
+
+Eleven functions were affected: the four module totals, fuel consumption per machine, inventory
+shrinkage, the period comparison, operational intelligence, the cash-flow forecast, the daily
+summary, and the dashboard summary. Confirmed empirically in the harness — `production_totals` for a
+forbidden site returned its full 500 tonnes — not inferred from reading the source.
+
+The repository's own architecture note states the rule this broke: *"SECURITY DEFINER functions
+bypass RLS by design, so each one re-checks permission itself."* Each one did re-check permission.
+Permission was never what was missing. **Reach was.**
+
+`0039` fixes it in one place rather than eleven, by adding the check to `assert_site_readable`, the
+gate ten of them already call; `site_operational_summary` predated that helper and carried its own
+copy of the preamble, so it is re-pointed at the gate. `tests/integration/site-reach-in-reports.test.ts`
+asserts all eleven refuse a restricted member and still answer for everyone else — all eleven fail
+with `0039` removed. `tests/unit/site-reach-guard.test.ts` fails when a future function forgets.
+
+**This is a live gap until `0039` is applied.** It only affects organizations that use per-member
+site restriction; for everyone else `may_reach_site` is inert and nothing changes.
 
 ### Screens reviewed for wrong figures — 12 August
 
