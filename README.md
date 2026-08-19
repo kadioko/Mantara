@@ -304,6 +304,12 @@ Swapping provider means changing `deliver` in `lib/email/send.ts` and nothing el
 one endpoint and a bearer token is not worth a dependency on the path that handles addresses people
 typed in.
 
+**`EMAIL_FROM` must be at a domain verified in Resend.** Until one is, Resend accepts only
+`onboarding@resend.dev` as a sender and delivers only to the address that owns the Resend account.
+Every other recipient is refused by the provider, not by Mantara — so invitations would report "could
+not be sent" and be correct. That is enough to prove the path end to end and useless for inviting a
+crew: verify the domain before a pilot.
+
 ### Alerts
 
 `generate_alerts()` creates the notifications nobody would otherwise see in time — a licence
