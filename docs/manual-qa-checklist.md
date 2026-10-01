@@ -1,7 +1,10 @@
 # Manual QA checklist
 
-Apply every migration `0001`–`0039` to the linked Supabase project before working through this. Track wider
-progress in the [roadmap](roadmap.md) and the [project status](project-status.md).
+**Database reset notice (1 October 2026):** the former Supabase project was deleted. Previously checked
+items below are historical results against that project and must be re-run against the replacement.
+Do not begin live QA until migrations `0001`–`0039` are applied and verified on the new project.
+Track progress in the [roadmap](roadmap.md), [project status](project-status.md), and
+[technical audit](technical-audit-2026-10-01.md).
 
 > Many of the database rules below are now covered automatically by `tests/integration/`, which applies the real
 > migrations to a real PostgreSQL and asserts them. Run `npm run test` first; treat the items here as confirmation

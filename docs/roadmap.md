@@ -1,7 +1,11 @@
 # Mantara roadmap and journey
 
-**Current position: MVP modules plus the first intelligence/geology slice are built; migrations `0001`–`0037` are applied and verified**
-**Last updated: 9 August 2026**
+**Current position (1 October 2026): core MVP and first intelligence/geology slice are implemented in source; former Supabase project was deleted, replacement pending.**
+**Last updated: 1 October 2026**
+
+> All live deployment and QA evidence recorded below refers to the former Supabase project. Treat it as
+> historical until the replacement project is provisioned, migrations `0001`–`0039` are applied, and
+> live checks are repeated. See the [technical audit](technical-audit-2026-10-01.md).
 
 For the audited feature-by-feature state, including what is not implemented, see [project status](project-status.md).
 
@@ -9,7 +13,7 @@ Mantara is being built as the digital operating system for African mining: a tru
 
 ## Where we are today
 
-**Deployment: every migration from `0001` through `0037` is applied to Supabase.** Live authenticated QA also passed bidirectional tenant isolation, a rejected cross-tenant insert, same-record concurrent meter writes, forecast/daily-summary RPCs and a signed private download outside the automated browser.
+**Deployment: not currently verified.** The previous database was deleted. The repository contains migrations `0001`–`0039`; none should be assumed present on the replacement until verified.
 
 Every planned module exists:
 
@@ -78,14 +82,14 @@ writes need a real multi-connection database. The manual QA checklist still carr
 | Stage | Outcome | Status |
 | --- | --- | --- |
 | 0. Direction | Define Mantara OS as the first product; defer GeoAI, Vision, Brain, and Market | Complete |
-| 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Complete; deployed to Supabase |
-| 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Complete; deployed to Vercel |
-| 3. Workforce | Workers, assignments, attendance, training, PPE | Complete; deployed |
+| 1. Foundation | Authentication, multi-tenancy, RLS, roles, permissions, onboarding, mine sites | Source implemented; fresh Supabase deployment required |
+| 2. Workspace | Responsive shell, active organization/site context, protected navigation, English/Kiswahili | Source implemented; Vercel environment must be reconnected and verified |
+| 3. Workforce | Workers, assignments, attendance, training, PPE | Source implemented; live behavior must be revalidated |
 | 4. Equipment | Register, assignments, meter readings, statuses, documents | Complete; private upload/download UI is built but remains gated until live Storage QA passes |
-| 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Complete; deployed |
-| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Complete; catalogue editing and stock overview are live |
-| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Complete; audit coverage through `0033` is live |
-| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | In progress: Auth/PostgREST/RLS/Storage and a focused concurrent-write case pass live; remaining work is screen-reader QA, monitoring/log drain, recovery drill, wider load tests and pilot signoff |
+| 5. Production | Shifts, PPM grade capture, bagged ore lots, plant dispatches, approvals, summaries | Source implemented; live behavior must be revalidated |
+| 6. Controls | Fuel, maintenance, inventory, expenses, approvals | Source implemented; fresh schema and live behavior must be revalidated |
+| 7. Risk and insight | Compliance, safety, reports, notifications, audit-log UI | Source implemented; audit coverage through `0033` requires fresh deployment |
+| 8. Release readiness | Security testing, performance, mobile QA, pilot deployment | Reset required: repeat Auth/PostgREST/RLS/Storage and concurrent-write checks, then screen-reader QA, monitoring/log drain, recovery drill, load tests and pilot signoff |
 
 ## Platform administration: what the role can and cannot do
 
@@ -147,7 +151,7 @@ The current paid-pilot structure and provisional Starter, Growth, and Enterprise
 2. Preserve `scripts/live-tenant-qa.mjs` as the repeatable Auth/PostgREST/RLS/Storage/concurrency smoke suite and run it before pilot releases.
 3. Point an external monitor at `/api/health` and connect Vercel stdout to a chosen log destination. The application is instrumented; alert ownership and the vendor destination still need to be selected.
 4. Complete the screen-reader session, recovery drill, broader load test and pilot signoff. Phase-A offline drafts now cover shifts, maintenance requests, attendance and ordinary safety inspections.
-5. **Completed 12 August 2026:** all 268 remaining UI occurrences were lifted into `lib/i18n/messages.ts`. The catalogue now has 809 paired English/Kiswahili keys, and `npm run i18n:report` finds zero uncatalogued UI phrases. A Tanzanian Kiswahili mining-domain reviewer must still approve specialist terms before pilot sign-off.
+5. **Localization follow-up (1 October 2026):** the catalogue has 824 paired English/Kiswahili keys, but `npm run i18n:report` now finds 399 uncatalogued occurrences (280 unique) across 44 files. Prior “zero remaining” notes are stale. Lift these strings into the catalogue and have a Tanzanian mining-domain speaker review specialist vocabulary.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Beyond the MVP: build order, not promises

@@ -1,6 +1,19 @@
 # Deploying migrations
 
-**Check what is applied before doing anything:**
+## Current database status — 1 October 2026
+
+The former Supabase database was deleted by the project owner. A replacement account/project is
+pending. Therefore there is no current live migration state to inspect, and all previously recorded
+live QA, seeded demo data, Auth users, Storage objects, and verifier results refer to the former
+project only. They are historical evidence, not proof about a replacement.
+
+Do not point the app at the old project or treat a successful local static check as live readiness.
+When the replacement project is available, set its URL and publishable key in the new deployment
+environment, apply every file in `supabase/migrations/` from `0001` through `0039` in filename order,
+then follow the verification steps below. Recreate Auth users and demo data only after reviewing the
+seed scripts and confirming the replacement is non-production.
+
+**Check what is applied before doing anything on an existing project:**
 
 ```bash
 npm run deploy:check
@@ -12,7 +25,9 @@ answer still proves a table is there. It cannot see triggers, indexes, policies 
 so it reports those migrations as unknown rather than guessing; `supabase/verify-deployment.sql`
 settles them in the SQL editor.
 
-As of 12 August 2026: **`0001`–`0038` are applied. `0039` is written and pending** — it closes a site-restriction bypass in the reporting functions and should not wait. The latest live QA also exercised authenticated PostgREST/RLS, concurrent writes and a private signed Storage download.
+For the deleted project, historical notes below describe the former deployment. For the replacement,
+assume **no schema is installed** until checks prove otherwise. Migration `0039` closes a site-restriction
+bypass in reporting functions and must be included in the fresh setup.
 
 ## The original position
 

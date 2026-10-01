@@ -1,7 +1,11 @@
 # Mantara OS — project status
 
-**Audited: 12 August 2026**
-**Database: every migration through `0038` is applied. `0039_site_reach_in_reporting_functions.sql` is new and pending, and closes a site-restriction bypass — apply it promptly. `0038_export_audit.sql` records every organization export and refuses anonymous execution. The deployment verifier also confirmed all 22 expected objects from migrations `0019`–`0029`, caller-security on the stock view, complete site-restriction policy coverage, and the scheduled daily alert job.**
+**Audited locally: 1 October 2026**
+**Database: the former Supabase database was deleted; a replacement project is pending. No migration, Auth, Storage, RLS, seed-data, or live-QA status is currently verified. Source has migrations `0001`–`0039`; apply the full sequence and re-verify on the replacement.**
+
+> This document contains historical deployment evidence from the former Supabase project. It describes
+> implemented source capabilities, not current production availability. For current findings and
+> next actions, see the [1 October technical audit](technical-audit-2026-10-01.md).
 
 This is a statement of where the product actually is, not a changelog. Where something is unverified,
 it says so.
@@ -34,7 +38,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | 818 paired English/Kiswahili catalogue keys with 100% coverage. **The static report previously read zero and was wrong**; corrected, it finds 404 English-only phrases, 209 of them the messages a server action returns. Specialist mining terms still need field-speaker review. |
+| Localization | 824 paired English/Kiswahili catalogue keys with 100% catalogue coverage. Current static scan reports 399 uncatalogued UI phrase occurrences (280 unique) in 44 files; 209 action-result occurrences. Specialist mining terms still need field-speaker review. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -49,7 +53,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | `npm run typecheck`, `npm run lint`, `npm run build`, `npm run a11y`, `npm run contrast` and 772 tests pass (1 skipped). |
+| Quality | Local static checks on 1 October: `npm run typecheck`, `npm run lint`, `npm run a11y`, and `npm run contrast` pass. Live integration state is unavailable until Supabase is reprovisioned. |
 
 ## What the tests actually prove
 
@@ -88,7 +92,7 @@ until runtime. `tests/unit/schema-contract.test.ts` reads the real schema out of
 asserts every query matches it — the same shape as the permission-code check that caught
 `expense.manage`.
 
-The repository harness still stubs Auth/Storage/PostgREST, but the live QA harness covers them separately. On 9 August 2026 it passed authenticated owner access, bidirectional cross-tenant RLS, a rejected foreign-tenant write, real concurrent serialized meter writes, grounded forecast/daily-summary RPCs and an HTTP 200 signed private download outside the automated browser.
+The repository harness stubs Auth/Storage/PostgREST. The former project had live QA evidence dated 9–12 August 2026 for authenticated access, cross-tenant RLS, concurrent writes, RPCs, and signed downloads. These results are historical and must be repeated on the replacement project.
 
 ## Corrections made to figures that were wrong
 
@@ -115,7 +119,7 @@ claim when the truth is that we could not find out.
 
 ## Remaining work
 
-### Accountability — applied, needs live confirmation
+### Accountability — implemented in source; fresh deployment and confirmation required
 
 The audit log previously recorded member changes, role changes, ore dispatches and every read of a
 worker's medical detail. It recorded none of the actions that move value: a fuel adjustment taking
@@ -183,7 +187,7 @@ is only visible once the findings are kept as numbers.
 
 ### Documents — live upload and signed download verified
 
-The private bucket and its policies are applied. On 12 August, `Live upload QA 2026-08-12` was uploaded through the deployed Geology screen, appeared in the private list, and opened through a short-lived signed URL with its exact synthetic contents. An earlier signed URL was also fetched outside the automated browser (HTTP 200, non-empty body). `DOCUMENTS_ENABLED` remains a deployment switch; expiry and denial for every role still belong in pilot signoff.
+The private bucket and its policies were applied to the former project. On 12 August, `Live upload QA 2026-08-12` was uploaded through the deployed Geology screen, appeared in the private list, and opened through a short-lived signed URL with its exact synthetic contents. This is historical evidence only; rebuild and repeat on the replacement. `DOCUMENTS_ENABLED` must remain off until its new-project upload, download, expiry, and role-denial checks pass.
 
 ### Localization
 
@@ -377,8 +381,9 @@ copy of the preamble, so it is re-pointed at the gate. `tests/integration/site-r
 asserts all eleven refuse a restricted member and still answer for everyone else — all eleven fail
 with `0039` removed. `tests/unit/site-reach-guard.test.ts` fails when a future function forgets.
 
-**This is a live gap until `0039` is applied.** It only affects organizations that use per-member
-site restriction; for everyone else `may_reach_site` is inert and nothing changes.
+**This was a live gap on the former project until `0039` was applied.** Migration `0039` is now in
+source and must be included when the replacement is initialized. It only affects organizations that
+use per-member site restriction; for everyone else `may_reach_site` is inert and nothing changes.
 
 ### Screens reviewed for wrong figures — 12 August
 

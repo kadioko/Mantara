@@ -1,5 +1,11 @@
 # Backup and recovery runbook
 
+> **Current incident note (1 October 2026):** the previous Supabase database was deleted and a
+> replacement project is pending. This is a new-project rebuild, not a routine restore drill. First
+> determine whether Supabase support or an available backup can recover the former data; do not assume
+> it is recoverable or permanently lost without checking. Until then, keep the replacement isolated
+> from production traffic and do not reuse old-project credentials.
+
 ## Objective
 
 Protect tenant operational records with a documented, tested recovery path. This runbook does not replace the backup retention supplied by the selected Supabase plan.
@@ -21,7 +27,7 @@ Protect tenant operational records with a documented, tested recovery path. This
 
 1. Record the source backup timestamp and the expected organization/site counts.
 2. Restore into a new test project using the plan-supported procedure.
-3. Apply the same `0001`–`0033` migration history only when the restored backup requires it; never replay migrations blindly over a newer schema.
+3. For a restored backup, apply migrations only when the restored schema requires them; never replay migrations blindly over a newer schema. For a genuinely empty replacement project, apply the complete current history `0001`–`0039` in order.
 4. Point a temporary test deployment at the restored project and run `/api/health` plus the tenancy, dashboard, production, inventory, and audit-log smoke cases.
 5. Compare record counts and a sample of balances, ore lots, dispatches, audit rows and attached-document metadata. Do not copy private document objects into a less protected environment unless the drill is approved.
 6. Record elapsed time, gaps, corrective actions, and the next drill date.

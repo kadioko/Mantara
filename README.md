@@ -17,10 +17,11 @@ administration.
 
 Plus geology, forecasting and daily intelligence, and an organization data export.
 
-**Every migration through `0038` is applied. `0039_site_reach_in_reporting_functions.sql` is new and pending — it closes a site-restriction bypass and should be applied promptly**, and `supabase/verify-deployment.sql` has confirmed the
-objects PostgREST cannot describe — triggers, policies, the storage bucket, caller-security on the
-stock view, and the scheduled alert job. `npm run deploy:check` re-checks the API-visible half using
-only the publishable key and reading no tenant data.
+**The former Supabase database was deleted and a replacement project has not yet been connected.**
+No migration or live QA result should currently be treated as deployed. The source contains migrations
+`0001`–`0039`; apply all of them in filename order to the replacement project, then run
+`supabase/verify-deployment.sql` and `npm run deploy:check`. Migration `0039` contains an important
+site-restriction fix for reporting functions and is part of the required fresh setup.
 
 **[docs/deployment.md](docs/deployment.md) is the runbook for applying them**, including which take
 locks that matter once there is real data, and `supabase/verify-deployment.sql` reports afterwards
@@ -33,7 +34,7 @@ See the [project status](docs/project-status.md) for what is verified and what i
 
 1. Copy `.env.example` to `.env.local` and set the values from your Supabase project.
 2. Apply every migration in `supabase/migrations/` in filename order, `0001_foundation.sql` through
-   `0039_site_reach_in_reporting_functions.sql`, using the Supabase CLI or the SQL editor. Migrations from
+`0039_site_reach_in_reporting_functions.sql`, using the Supabase CLI or the SQL editor. Migrations from
    `0019` onwards can safely be run twice, so a half-finished apply is fixed by running the file
    again rather than by hand.
 3. Run `npm run dev`.
@@ -130,12 +131,12 @@ is text written directly into components, which no translator can reach at all.
 text nodes and a fixed list of props, so it never saw a string inside a JSX ternary
 (`{saving ? "Saving..." : "Attach document"}`), a message passed to `setError`, or the
 `{ error: "..." }` / `{ success: "..." }` a server action hands back. It now reads all of those, and
-scans `.ts` as well as `.tsx`, which moved the count from **0 to 404**.
+scans `.ts` as well as `.tsx`; the current audit finds **399 uncatalogued phrase occurrences**.
 
 The last category is the one that matters. An action result is the sentence an operator reads *after
 doing something* — did my shift entry save, why was it refused. The chrome around a form being
 bilingual while the answer to "did that work?" stays English is precisely backwards for a supervisor
-at a mine site. **209 of the 404 are action results.**
+at a mine site. **209 of the 399 occurrences are action results.**
 
 Example placeholders stay in English on purpose — "CAT 320 excavator", "EXC-001" — because they are
 format hints rather than instructions, and a product code translated is less useful than the
