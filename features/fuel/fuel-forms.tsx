@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useT } from "@/lib/i18n/client";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -18,8 +19,8 @@ import { fuelTypeLabels, fuelTypes } from "./schemas";
 export type Option = { id: string; label: string };
 
 function Feedback({ state }: { state: FuelState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>;
   return null;
 }
 
@@ -50,7 +51,7 @@ export function FuelLocationForm() {
     <label className="text-sm font-semibold">{tr("fCapacityLitres")}<input name="capacityLitres" type="number" min="0" step="0.001" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Add fuel store"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add fuel store")}</Button></div>
   </form>;
 }
 
@@ -66,7 +67,7 @@ export function FuelReceiptForm({ locations, today }: { locations: Option[]; tod
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record delivery"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record delivery")}</Button></div>
   </form>;
 }
 
@@ -82,7 +83,7 @@ export function FuelIssueForm({ locations, equipment, workers, today }: { locati
     <label className="text-sm font-semibold">{tr("uiEquipmentMeter")}<input name="equipmentMeter" type="number" min="0" step="0.01" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Issue fuel"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Issue fuel")}</Button></div>
   </form>;
 }
 
@@ -96,7 +97,7 @@ export function FuelAdjustmentForm({ locations, today }: { locations: Option[]; 
     <label className="text-sm font-semibold md:col-span-2">{tr("fReason")} *<input required name="reason" maxLength={200} placeholder={tr("fStockTakeVariance")} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record adjustment"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record adjustment")}</Button></div>
   </form>;
 }
 
@@ -126,6 +127,6 @@ export function FuelStockTakeForm({ locations, today }: { locations: Option[]; t
       <input name="notes" maxLength={500} placeholder={tr("uiMonthlyDipMeasuredByTheStorekeeper")} className={fieldClass} />
     </label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record stock take"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record stock take")}</Button></div>
   </form>;
 }

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useT } from "@/lib/i18n/client";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -18,8 +19,8 @@ import { budgetPeriodLabels, budgetPeriods } from "./schemas";
 export type Option = { id: string; label: string };
 
 function Feedback({ state }: { state: ExpenseState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>;
   return null;
 }
 
@@ -37,7 +38,7 @@ export function ExpenseCategoryForm() {
   const [state, action, pending] = useActionState(createExpenseCategory, {} as ExpenseState);
   return <form action={action} className="grid gap-3 md:grid-cols-3">
     <label className="text-sm font-semibold md:col-span-2">{tr("fCategory")} *<input required name="name" maxLength={120} placeholder={tr("uiFuelAndLubricants")} className={fieldClass} /></label>
-    <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add category"}</Button></div>
+    <div className="flex items-end"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add category")}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }
@@ -57,18 +58,19 @@ export function ExpenseForm({ categories, suppliers, workOrders, currency, today
     <label className="text-sm font-semibold">{tr("fReference")}<input name="reference" maxLength={120} placeholder={tr("uiInvoiceNumber")} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Save draft"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Save draft")}</Button></div>
   </form>;
 }
 
 export function ExpenseStatusForm({ expenseId, allowed, label }: { expenseId: string; allowed: string[]; label: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(updateExpenseStatus, {} as ExpenseState);
   if (!allowed.length) return null;
   return <form action={action} className="space-y-3">
     <input name="expenseId" type="hidden" value={expenseId} />
     <input name="status" type="hidden" value={allowed[0]} />
     <Feedback state={state} />
-    <Button disabled={pending}>{pending ? "Saving…" : label}</Button>
+    <Button disabled={pending}>{pending ? tr.text("Saving…") : label}</Button>
   </form>;
 }
 
@@ -85,7 +87,7 @@ export function ExpenseReviewForm({ expenseId }: { expenseId: string }) {
     </label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<input name="notes" maxLength={500} placeholder={tr("uiCheckedAgainstInvoice")} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record decision"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record decision")}</Button></div>
   </form>;
 }
 
@@ -107,6 +109,6 @@ export function BudgetForm({ categories, currency, today }: { categories: Option
       <span className="mb-2.5">{tr("uiThisMineSiteOnly")}</span>
     </label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Add budget"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add budget")}</Button></div>
   </form>;
 }

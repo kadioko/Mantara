@@ -71,7 +71,7 @@ export function CatalogueRow({
                 aria-label={editing ? `Stop editing ${name}` : `Edit ${name}`}
               >
                 {editing ? <X aria-hidden /> : <Pencil aria-hidden />}
-                {editing ? "Cancel" : "Edit"}
+                {editing ? tr.text("Cancel") : tr.text("Edit")}
               </Button>
               {statusAction && <form action={submitStatus}>
                 <input type="hidden" name="id" value={id} />
@@ -83,7 +83,7 @@ export function CatalogueRow({
                   aria-label={`${isActive ? retireLabel : restoreLabel} ${name}`}
                 >
                   {!isActive && <RotateCcw aria-hidden />}
-                  {statusPending ? "Saving…" : isActive ? retireLabel : restoreLabel}
+                  {statusPending ? tr.text("Saving…") : isActive ? retireLabel : restoreLabel}
                 </Button>
               </form>}
             </>
@@ -103,7 +103,7 @@ export function CatalogueRow({
           {children}
           <div className="md:col-span-3"><ActionFeedback state={updateState} /></div>
           <div className="flex gap-2 md:col-span-3">
-            <Button disabled={updatePending} size="sm">{updatePending ? "Saving…" : "Save changes"}</Button>
+            <Button disabled={updatePending} size="sm">{updatePending ? tr.text("Saving…") : tr.text("Save changes")}</Button>
             <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(false)}>{tr("cancel")}</Button>
           </div>
         </form>

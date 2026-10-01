@@ -23,6 +23,10 @@ const sectionKeys = (name) => {
 };
 const english = sectionKeys("const english = {");
 const swahili = sectionKeys("const swahili:");
+const englishSection = source.slice(source.indexOf("const english = {"), source.indexOf("const swahili:"));
+const translatedEnglishPhrases = new Set([...englishSection.matchAll(/:\s*"((?:\\.|[^"])*)"/g)].map((match) => match[1]));
+const actionPhraseSection = source.slice(source.indexOf("Object.assign(actionPhraseTranslations, {"), source.indexOf("const englishTextToKey ="));
+const actionPhrases = new Set([...actionPhraseSection.matchAll(/^\s*"((?:\\.|[^"])*)":/gm)].map((match) => match[1]));
 
 const missing = [...english].filter((key) => !swahili.has(key));
 const percent = Math.floor(((english.size - missing.length) / english.size) * 100);
@@ -75,6 +79,7 @@ for (const file of files) {
     const outcomes = [...line.matchAll(/\b(?:error|success)\s*:\s*"([A-Z][^"]{3,})"/g)].map((m) => m[1]);
     for (const phrase of between) {
       if (/^[A-Z0-9_.-]+$/.test(phrase)) continue; // constants and codes, not prose
+      if (phrase === "Promise") continue; // TypeScript generic syntax, not user-visible JSX copy
       findings.push({ file: relative(root, file), line: index + 1, phrase, kind: "text" });
     }
     for (const phrase of props) {
@@ -84,6 +89,9 @@ for (const file of files) {
     for (const [kind, found] of [["ternary", ternary], ["setter", setters], ["outcome", outcomes]]) {
       for (const phrase of found) {
         if (/^[A-Z0-9_.-]+$/.test(phrase)) continue;
+        // Legacy server actions return their English copy as strings. ActionFeedback translates
+        // these at the display boundary; the phrase must therefore exist in the paired phrase map.
+        if (["outcome", "ternary"].includes(kind) && (actionPhrases.has(phrase) || translatedEnglishPhrases.has(phrase))) continue;
         findings.push({ file: relative(root, file), line: index + 1, phrase, kind });
       }
     }

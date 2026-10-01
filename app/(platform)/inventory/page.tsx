@@ -5,7 +5,7 @@ import { Pagination, SearchField } from "@/components/ui/pagination";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
-import { t } from "@/lib/i18n/messages";
+import { t, translateUiText } from "@/lib/i18n/messages";
 import { likePattern, pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import {
   InventoryCategoryForm,
@@ -167,7 +167,7 @@ export default async function InventoryPage({ searchParams }: { searchParams: Pr
               </span>
             </li>
           ))}</ul>
-        : <p className="px-5 py-6 text-sm text-muted-foreground">{paging.search ? "No stock matches that search." : "No stock is held at this site yet."}</p>}
+        : <p className="px-5 py-6 text-sm text-muted-foreground">{paging.search ? translateUiText(locale, "No stock matches that search.") : translateUiText(locale, "No stock is held at this site yet.")}</p>}
       <Pagination basePath="/inventory" info={info} search={paging.search} />
     </section>
 

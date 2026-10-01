@@ -23,7 +23,7 @@ export function SuspendOrganizationForm({ organizationId, organizationName, susp
     return <form action={action} className="flex flex-col gap-2">
       <input name="organizationId" type="hidden" value={organizationId} />
       <input name="suspend" type="hidden" value="false" />
-      <Button disabled={pending} size="sm" variant="outline"><ShieldCheck aria-hidden />{pending ? "Restoring…" : "Restore"}</Button>
+      <Button disabled={pending} size="sm" variant="outline"><ShieldCheck aria-hidden />{pending ? tr.text("Restoring…") : tr.text("Restore")}</Button>
       <ActionFeedback state={state} />
     </form>;
   }
@@ -40,7 +40,7 @@ export function SuspendOrganizationForm({ organizationId, organizationName, susp
     </Label>
     <Input id={`reason-${organizationId}`} name="reason" maxLength={300} required placeholder={tr("uiNonPaymentPendingReview")} className="h-9" />
     <div className="flex gap-2">
-      <Button disabled={pending} size="sm" variant="destructive">{pending ? "Suspending…" : "Confirm"}</Button>
+      <Button disabled={pending} size="sm" variant="destructive">{pending ? tr.text("Suspending…") : tr.text("Confirm")}</Button>
       <Button type="button" size="sm" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
     <ActionFeedback state={state} />
@@ -59,17 +59,18 @@ export function GrantAdminForm() {
       <Label htmlFor="admin-note">Note</Label>
       <Input id="admin-note" name="note" maxLength={200} placeholder={tr("uiSupportEngineer")} className="mt-1" />
     </div>
-    <Button disabled={pending}><UserPlus aria-hidden />{pending ? "Granting…" : "Grant access"}</Button>
+    <Button disabled={pending}><UserPlus aria-hidden />{pending ? tr.text("Granting…") : tr.text("Grant access")}</Button>
     <div className="sm:col-span-3"><ActionFeedback state={state} /></div>
   </form>;
 }
 
 export function RevokeAdminForm({ userId, isSelf }: { userId: string; isSelf: boolean }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(revokePlatformAdmin, {} as PlatformState);
   return <form action={action} className="flex flex-col items-end gap-2">
     <input name="userId" type="hidden" value={userId} />
     <Button disabled={pending} size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10">
-      <UserMinus aria-hidden />{pending ? "Revoking…" : isSelf ? "Revoke my access" : "Revoke"}
+      <UserMinus aria-hidden />{pending ? tr.text("Revoking…") : isSelf ? tr.text("Revoke my access") : tr.text("Revoke")}
     </Button>
     <ActionFeedback state={state} />
   </form>;

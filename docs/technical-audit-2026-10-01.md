@@ -20,7 +20,7 @@ physical devices, or concurrent production writes.
 | Supabase | Former database deleted by owner; replacement not yet connected. No live status is claimed. |
 | Schema | 39 migration files exist, `0001`–`0039`; migration `0039` contains a security fix and is required on a fresh setup. |
 | Static quality | Typecheck, lint, mechanical a11y, and contrast checks pass. |
-| Localization | 824 English catalogue keys and 824 Kiswahili translations; no missing catalogue values. Static scan finds 399 uncatalogued phrase occurrences (280 unique) in 44 files. |
+| Localization at original audit | 824 English catalogue keys and 824 Kiswahili translations; no missing catalogue values. Static scan found 399 uncatalogued phrase occurrences (280 unique) in 44 files. |
 | UI quality | Static accessibility/contrast checks pass. A human visual/mobile/screen-reader review has not been performed in this audit. |
 | Live security and integrations | Auth, RLS/PostgREST, Storage, export audit, concurrent writes, email delivery, and health monitoring must be repeated against the replacement. |
 
@@ -39,14 +39,14 @@ physical devices, or concurrent production writes.
 5. Confirm Vercel points to the new project, then verify `/api/health`, logs, email configuration, and
    CSP reports. Old live-QA evidence applies only to the former project.
 
-### P1 — Localization completeness
+### P1 — Localization completeness (resolved in source after the original audit)
 
-`npm run i18n:report` reports 399 phrase occurrences (280 unique) outside the catalogue. The largest
-clusters are operational server actions: inventory (30), workers (24), safety (22), maintenance (21),
-production (20), and equipment (18). Action-result messages are especially important because
-operators need to know whether a record saved or why it was rejected. Add English/Kiswahili catalogue
-keys and replace the hard-coded strings, then require the report to reach zero. Have a Tanzania-based
-mining-domain speaker review technical vocabulary before pilot use.
+The original audit found 399 phrase occurrences (280 unique), including 209 action-result messages.
+After the audit, UI action feedback and legacy action outcomes were connected to bilingual message
+translations, and additional visible labels were catalogued. The current `npm run i18n:report` result
+is 851 English/Kiswahili pairs and zero uncovered UI phrases. A Tanzania-based mining-domain speaker
+must still review specialist vocabulary before pilot use; static parity does not certify translation
+quality.
 
 ### P1 — Human UX validation
 
@@ -77,7 +77,19 @@ maintenance, and expense capture.
 1. Provision new Supabase and deploy credentials; keep customer traffic and document access disabled.
 2. Apply and verify all 39 migrations, then establish a fresh non-production demo tenant.
 3. Run live security/integration smoke tests; repair any environment-dependent failures before UI work.
-4. Clear the 399 uncatalogued phrase occurrences and re-run `npm run audit:all`.
+4. Keep `npm run i18n:report` at zero uncovered phrases and arrange a specialist Kiswahili review.
 5. Conduct structured mobile, screen-reader, and pilot workflow QA; record findings in
    `docs/manual-qa-checklist.md`.
 6. Complete monitoring, recovery, and load-test sign-off before a commercial pilot.
+
+## Follow-up source work (1 October 2026)
+
+- Added bilingual presentation for save confirmations and failure messages across action-driven forms,
+  plus missing visible labels. The current report is 851 paired keys and zero uncovered phrases.
+- Intelligence now compares the selected 30-day operating period with the preceding 30 days using
+  existing RPC data; mixed-currency spend and heterogeneous stock variance are intentionally omitted.
+- Geology summaries now describe loaded sample evidence rather than implying site-wide completeness.
+  Invalid WGS84 map coordinates are excluded, and polygon holes retain their geometry in map display.
+- `npm run audit:all` passes (typecheck, ESLint, accessibility, contrast, and translation coverage);
+  `npm test` passes 56 files / 780 tests with 1 skipped. This source work does not establish live
+  Supabase, screen-reader, field-translation, or real-device QA.

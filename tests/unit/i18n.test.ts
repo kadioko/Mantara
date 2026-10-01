@@ -3,6 +3,7 @@ import {
   allMessageKeys,
   supportedLocales,
   t,
+  translateUiText,
   translationCoverage,
   translationGaps,
 } from "@/lib/i18n/messages";
@@ -82,5 +83,17 @@ describe("translation coverage", () => {
     // A ratchet, not a freeze: adding an English key ahead of its Swahili is allowed on purpose,
     // but this fails if the catalogue drifts far enough that the product reverts to English.
     expect(translationCoverage("sw").percent).toBeGreaterThanOrEqual(90);
+  });
+});
+
+describe("legacy UI text translation", () => {
+  it("translates catalogue labels and server action results into Kiswahili", () => {
+    expect(translateUiText("sw", "Saving…")).toBe("Inahifadhi…");
+    expect(translateUiText("sw", "Budget created.")).toBe("Bajeti imeundwa.");
+  });
+
+  it("preserves the source text for English and unknown legacy messages", () => {
+    expect(translateUiText("en", "Budget created.")).toBe("Budget created.");
+    expect(translateUiText("sw", "A future message not yet translated.")).toBe("A future message not yet translated.");
   });
 });

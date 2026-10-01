@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { useT } from "@/lib/i18n/client";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
 import {
@@ -15,8 +16,8 @@ import { categoryLabels, equipmentCategories, equipmentStatuses, meterTypes, sta
 
 
 function Feedback({ state }: { state: EquipmentState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>;
   return null;
 }
 
@@ -37,7 +38,7 @@ export function EquipmentForm() {
     <label className="text-sm font-semibold">{tr("fAcquiredOn")}<input name="acquiredOn" type="date" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<textarea name="notes" maxLength={2000} rows={3} className={fieldClass} /></label>
     <div className="md:col-span-2"><Feedback state={state} /></div>
-    <div className="md:col-span-2"><Button disabled={pending}>{pending ? "Saving…" : "Add equipment"}</Button></div>
+    <div className="md:col-span-2"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add equipment")}</Button></div>
   </form>;
 }
 
@@ -52,7 +53,7 @@ export function MeterReadingForm({ equipmentId, meterType, currentMeter, today }
     <label className="text-sm font-semibold">{tr("uiReadingDate")}<input name="readingOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record reading"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record reading")}</Button></div>
   </form>;
 }
 
@@ -66,7 +67,7 @@ export function EquipmentStatusForm({ equipmentId, status }: { equipmentId: stri
     </label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fReason")}<input name="reason" maxLength={500} placeholder={tr("uiHydraulicLeakReportedByOperator")} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Update status"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Update status")}</Button></div>
   </form>;
 }
 
@@ -84,7 +85,7 @@ export function EquipmentAssignmentForm({ equipmentId, workers, today }: { equip
     </label>
     <label className="text-sm font-semibold">{tr("fStartsOn")} *<input required name="startsOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fEndsOn")}<input name="endsOn" type="date" className={fieldClass} /></label>
-    <div className="flex items-end"><Button disabled={pending}>{pending ? "Saving…" : "Add assignment"}</Button></div>
+    <div className="flex items-end"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add assignment")}</Button></div>
     <div className="md:col-span-3"><Feedback state={state} /></div>
   </form>;
 }

@@ -137,7 +137,7 @@ export default async function SafetyPage({ searchParams }: { searchParams: Promi
                     {inspection.inspected_on}
                     {inspection.is_satisfactory === null
                       ? <Badge variant="secondary">{t(locale,"notAssessed")}</Badge>
-                      : <Badge variant={inspection.is_satisfactory ? "success" : "destructive"}>{inspection.is_satisfactory ? "Satisfactory" : "Not satisfactory"}</Badge>}
+                      : <Badge variant={inspection.is_satisfactory ? "success" : "destructive"}>{t(locale, inspection.is_satisfactory ? "satisfactory" : "notSatisfactory")}</Badge>}
                   </span>
                 </li>
               ))}

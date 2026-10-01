@@ -2,6 +2,7 @@
 
 import { useActionState, useRef } from "react";
 import { useT } from "@/lib/i18n/client";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { useEncryptedDraft } from "@/lib/offline/encrypted-drafts";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
@@ -20,8 +21,8 @@ import {
 export type Option = { id: string; label: string };
 
 function Feedback({ state }: { state: ProductionState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>;
   return null;
 }
 
@@ -48,7 +49,7 @@ export function ShiftForm({ supervisors, today }: { supervisors: Option[]; today
     <label className="text-sm font-semibold">{tr("fEndsAt")}<input name="endsAt" type="time" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} />{draftStatus !== "idle" && <p role="status" className="mt-2 text-xs text-muted-foreground">{tr(draftStatus === "restored" ? "offlineDraftRestored" : "offlineDraftSaved")}</p>}</div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Create shift"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Create shift")}</Button></div>
   </form>;
 }
 
@@ -66,7 +67,7 @@ export function ProductionEntryForm({ shifts, today }: { shifts: Option[]; today
     <label className="text-sm font-semibold">{tr("fLocation")}<input name="location" maxLength={120} placeholder={tr("pitExample")} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Save draft"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Save draft")}</Button></div>
   </form>;
 }
 
@@ -86,7 +87,7 @@ export function OreLotForm({ shifts, today }: { shifts: Option[]; today: string 
     <label className="text-sm font-semibold">{tr("fSourceLocation")}<input name="sourceLocation" maxLength={120} placeholder={tr("stockpileExample")} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fNotes")}<input name="notes" maxLength={2000} placeholder={tr("samplingReferenceExample")} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Savingâ€¦" : "Record bagged ore"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Savingâ€¦") : tr.text("Record bagged ore")}</Button></div>
   </form>;
 }
 
@@ -109,11 +110,12 @@ export function OreDispatchForm({ lots, today }: { lots: Option[]; today: string
 }
 
 export function SubmitEntryForm({ entryId }: { entryId: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(submitProductionEntry, {} as ProductionState);
   return <form action={action} className="space-y-3">
     <input name="entryId" type="hidden" value={entryId} />
     <Feedback state={state} />
-    <Button disabled={pending}>{pending ? "Submitting…" : "Submit for approval"}</Button>
+    <Button disabled={pending}>{pending ? tr.text("Submitting…") : tr.text("Submit for approval")}</Button>
   </form>;
 }
 
@@ -130,7 +132,7 @@ export function ReviewForm({ entryId }: { entryId: string }) {
     </label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fNotes")}<input name="notes" maxLength={500} placeholder={tr("weighbridgeCheckExample")} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record decision"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record decision")}</Button></div>
   </form>;
 }
 
@@ -144,6 +146,6 @@ export function DowntimeForm({ shifts, equipment }: { shifts: Option[]; equipmen
     <OptionSelect name="equipmentId" label={tr("fEquipment")} options={equipment} placeholder={tr("optNotEquipmentSpecific")} />
     <label className="text-sm font-semibold">{tr("fNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record downtime"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record downtime")}</Button></div>
   </form>;
 }

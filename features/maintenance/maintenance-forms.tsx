@@ -2,6 +2,7 @@
 
 import { useActionState, useRef } from "react";
 import { useT } from "@/lib/i18n/client";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { useEncryptedDraft } from "@/lib/offline/encrypted-drafts";
 import { Button } from "@/components/ui/button";
 import { fieldClass, selectClass } from "@/components/ui/form";
@@ -21,13 +22,14 @@ import { costTypeLabels, costTypes, maintenancePriorities, priorityLabels } from
 export type Option = { id: string; label: string };
 
 function Feedback({ state }: { state: MaintenanceState }) {
-  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>;
-  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>;
+  if (state.error) return <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>;
+  if (state.success) return <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>;
   return null;
 }
 
 function OptionSelect({ name, label, options, placeholder, required }: { name: string; label: string; options: Option[]; placeholder: string; required?: boolean }) {
-  return <label className="text-sm font-semibold">{label}{required ? " *" : ""}
+  const tr = useT();
+  return <label className="text-sm font-semibold">{label}{required ? tr.text(" *") : ""}
     <select required={required} name={name} defaultValue="" className={selectClass}>
       <option value="">{placeholder}</option>
       {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
@@ -57,7 +59,7 @@ export function MaintenanceRequestForm({ equipment, workers, today }: { equipmen
     <label className="text-sm font-semibold">{tr("fReportedOn")} *<input required name="reportedOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-3">{tr("fDescription")}<textarea name="description" maxLength={2000} rows={2} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} />{draftStatus !== "idle" && <p role="status" className="mt-2 text-xs text-muted-foreground">{tr(draftStatus === "restored" ? "offlineDraftRestored" : "offlineDraftSaved")}</p>}</div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Raise request"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Raise request")}</Button></div>
   </form>;
 }
 
@@ -74,11 +76,12 @@ export function WorkOrderForm({ equipment, workers, requests }: { equipment: Opt
     <OptionSelect name="requestId" label={tr("uiFromRequest")} options={requests} placeholder={tr("uiNotFromARequest")} />
     <label className="text-sm font-semibold md:col-span-2">{tr("fDescription")}<input name="description" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div className="md:col-span-3"><Button disabled={pending}>{pending ? "Saving…" : "Create work order"}</Button></div>
+    <div className="md:col-span-3"><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Create work order")}</Button></div>
   </form>;
 }
 
 export function WorkOrderStatusForm({ workOrderId, allowed }: { workOrderId: string; allowed: string[] }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(updateWorkOrderStatus, {} as MaintenanceState);
   if (!allowed.length) return null;
   return <form action={action} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
@@ -88,7 +91,7 @@ export function WorkOrderStatusForm({ workOrderId, allowed }: { workOrderId: str
         {allowed.map((value) => <option key={value} value={value}>{value.replace("_", " ")}</option>)}
       </select>
     </label>
-    <Button disabled={pending}>{pending ? "Saving…" : "Update status"}</Button>
+    <Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Update status")}</Button>
     <div className="sm:col-span-2"><Feedback state={state} /></div>
   </form>;
 }
@@ -101,7 +104,7 @@ export function CompleteWorkOrderForm({ workOrderId }: { workOrderId: string }) 
     <label className="text-sm font-semibold">{tr("fMeterAtService")}<input name="meterAtService" type="number" min="0" step="0.01" className={fieldClass} /></label>
     <label className="text-sm font-semibold md:col-span-2">{tr("fCompletionNotes")}<input name="notes" maxLength={2000} className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Completing…" : "Complete work order"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Completing…") : tr.text("Complete work order")}</Button></div>
   </form>;
 }
 
@@ -114,7 +117,7 @@ export function MaintenancePartForm({ workOrderId }: { workOrderId: string }) {
     <label className="text-sm font-semibold">{tr("fQuantity")} *<input required name="quantity" type="number" min="0.001" step="0.001" defaultValue="1" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fUnitCost")}<input name="unitCost" type="number" min="0" step="0.0001" className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Add part"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add part")}</Button></div>
   </form>;
 }
 
@@ -130,7 +133,7 @@ export function MaintenanceCostForm({ workOrderId, today }: { workOrderId: strin
     <label className="text-sm font-semibold">{tr("fIncurredOn")} *<input required name="incurredOn" type="date" defaultValue={today} className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fDescription")}<input name="description" maxLength={500} className={fieldClass} /></label>
     <div className="md:col-span-4"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Add cost"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add cost")}</Button></div>
   </form>;
 }
 
@@ -144,6 +147,6 @@ export function MaintenanceScheduleForm({ equipment }: { equipment: Option[] }) 
     <label className="text-sm font-semibold">{tr("fEveryDays")}<input name="intervalDays" type="number" min="1" step="1" placeholder="90" className={fieldClass} /></label>
     <label className="text-sm font-semibold">{tr("fNextDueOn")}<input name="nextDueOn" type="date" className={fieldClass} /></label>
     <div className="md:col-span-3"><Feedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Add schedule"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add schedule")}</Button></div>
   </form>;
 }

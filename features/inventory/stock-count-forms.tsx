@@ -46,7 +46,7 @@ export function StartStockCountForm({ stores, today }: { stores: Option[]; today
         <input required name="countedOn" type="date" defaultValue={today} className={fieldClass} />
       </Field>
       <div className="flex items-end">
-        <Button disabled={pending}><ClipboardCheck aria-hidden />{pending ? "Starting…" : "Start count"}</Button>
+        <Button disabled={pending}><ClipboardCheck aria-hidden />{pending ? tr.text("Starting…") : tr.text("Start count")}</Button>
       </div>
       <div className="md:col-span-4"><ActionFeedback state={state} /></div>
     </form>
@@ -71,15 +71,15 @@ export function OpenStockCount({ count, items }: { count: StockCount; items: Opt
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div>
           <h3 className="font-semibold">
-            {location?.name ?? "Store"}
+            {location?.name ?? tr.text("Store")}
             {count.reference && <span className="ml-2 text-sm font-normal text-muted-foreground">{count.reference}</span>}
           </h3>
-          <p className="mt-0.5 text-sm text-muted-foreground">Counted {count.counted_on} · {count.lines.length} item{count.lines.length === 1 ? "" : "s"} entered</p>
+          <p className="mt-0.5 text-sm text-muted-foreground">{tr("uiCountedOn")} {count.counted_on} · {count.lines.length} {count.lines.length === 1 ? tr("uiItemSingular") : tr("items")} {tr("uiEntered")}</p>
         </div>
         <form action={apply}>
           <input type="hidden" name="stockCountId" value={count.id} />
           <Button disabled={applying || count.lines.length === 0} variant="default">
-            {applying ? "Applying…" : "Apply count"}
+            {applying ? tr.text("Applying…") : tr.text("Apply count")}
           </Button>
         </form>
       </div>
@@ -96,7 +96,7 @@ export function OpenStockCount({ count, items }: { count: StockCount; items: Opt
           <input required name="countedQuantity" type="number" min="0" step="0.001" className={fieldClass} />
         </Field>
         <div className="flex items-end">
-          <Button disabled={addingLine} variant="outline">{addingLine ? "Saving…" : "Add"}</Button>
+          <Button disabled={addingLine} variant="outline">{addingLine ? tr.text("Saving…") : tr.text("Add")}</Button>
         </div>
         <div className="md:col-span-4"><ActionFeedback state={lineState} /></div>
       </form>
@@ -107,7 +107,7 @@ export function OpenStockCount({ count, items }: { count: StockCount; items: Opt
             const item = one(line.item);
             return (
               <li key={line.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm">
-                <span className="font-medium">{item?.name ?? "Unknown item"}</span>
+                <span className="font-medium">{item?.name ?? tr.text("Unknown item")}</span>
                 <span className="text-muted-foreground">{Number(line.counted_quantity).toLocaleString()} {item?.unit}</span>
               </li>
             );
@@ -132,14 +132,14 @@ export function AppliedStockCount({ count }: { count: StockCount }) {
     <div className="border-b border-border px-5 py-3 last:border-b-0">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-sm">
-          <span className="font-medium">{location?.name ?? "Store"}</span>
+          <span className="font-medium">{location?.name ?? tr.text("Store")}</span>
           <span className="ml-2 text-muted-foreground">
             {count.counted_on}{count.reference ? ` · ${count.reference}` : ""} · {count.lines.length} counted
           </span>
         </span>
         {findings.length === 0
           ? <Badge variant="success">{tr("uiAllMatched")}</Badge>
-          : <Badge variant="destructive">{findings.length} discrepanc{findings.length === 1 ? "y" : "ies"}</Badge>}
+          : <Badge variant="destructive">{findings.length} {tr("discrepancies")}</Badge>}
       </div>
 
       {findings.length > 0 && (
@@ -149,7 +149,7 @@ export function AppliedStockCount({ count }: { count: StockCount }) {
             const variance = Number(line.variance_quantity);
             return (
               <li key={line.id} className="flex flex-wrap justify-between gap-2 text-sm">
-                <span className="text-muted-foreground">{item?.name ?? "Unknown item"}</span>
+                <span className="text-muted-foreground">{item?.name ?? tr.text("Unknown item")}</span>
                 <span className={variance < 0 ? "font-semibold text-destructive" : "font-semibold text-warning-foreground"}>
                   {variance > 0 ? "+" : ""}{variance.toLocaleString()} {item?.unit}
                   <span className="ml-2 font-normal text-muted-foreground">

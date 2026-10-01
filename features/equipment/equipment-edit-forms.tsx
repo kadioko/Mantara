@@ -62,7 +62,7 @@ export function EditEquipmentForm({ equipment }: { equipment: EquipmentDetails }
     </p>
     <div className="md:col-span-2"><ActionFeedback state={state} /></div>
     <div className="flex gap-2 md:col-span-2">
-      <Button disabled={pending}>{pending ? "Saving…" : "Save changes"}</Button>
+      <Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Save changes")}</Button>
       <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
   </form>;
@@ -91,7 +91,7 @@ export function RemoveEquipmentForm({ equipmentId, equipmentName }: { equipmentI
     </div>
     <ActionFeedback state={state} />
     <div className="flex gap-2">
-      <Button disabled={pending} variant="destructive">{pending ? "Removing…" : "Remove equipment"}</Button>
+      <Button disabled={pending} variant="destructive">{pending ? tr.text("Removing…") : tr.text("Remove equipment")}</Button>
       <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
     </div>
   </form>;

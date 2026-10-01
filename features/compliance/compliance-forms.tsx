@@ -20,8 +20,9 @@ export type Option = { id: string; label: string };
 
 
 function Select({ name, label, options, placeholder, required, defaultValue }: { name: string; label: string; options: Option[]; placeholder?: string; required?: boolean; defaultValue?: string }) {
+  const tr = useT();
   return <div>
-    <Label htmlFor={name}>{label}{required ? " *" : ""}</Label>
+    <Label htmlFor={name}>{label}{required ? tr.text(" *") : ""}</Label>
     <select id={name} name={name} required={required} defaultValue={defaultValue ?? ""} className={selectClass}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
@@ -47,7 +48,7 @@ export function LicenceForm() {
     </label>
     <div className="md:col-span-3"><Label htmlFor="notes">{tr("notes")}</Label><Textarea id="notes" name="notes" maxLength={2000} rows={2} className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Record licence"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Record licence")}</Button></div>
   </form>;
 }
 
@@ -60,7 +61,7 @@ export function RequirementForm() {
     <div><Label htmlFor="category">{tr("fCategory")}</Label><Input id="category" name="category" maxLength={120} placeholder={tr("uiEnvironmental")} className="mt-1" /></div>
     <div className="md:col-span-2"><Label htmlFor="description">{tr("description")}</Label><Input id="description" name="description" maxLength={2000} className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Add requirement"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Add requirement")}</Button></div>
   </form>;
 }
 
@@ -79,7 +80,7 @@ export function ComplianceTaskForm({ requirements, licences, workers, today }: {
       This mine site only
     </label>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Schedule task"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Schedule task")}</Button></div>
   </form>;
 }
 
@@ -89,8 +90,8 @@ export function CompleteTaskForm({ taskId, today, recurring }: { taskId: string;
   return <form action={action} className="flex flex-wrap items-end gap-2">
     <input name="taskId" type="hidden" value={taskId} />
     <input name="completedOn" type="hidden" value={today} />
-    <Input name="notes" maxLength={500} aria-label={tr("fCompletionNotes")} placeholder={recurring ? "Notes — the next one is scheduled automatically" : "Completion notes"} className="h-9 w-full sm:w-72" />
-    <Button disabled={pending} size="sm" variant="outline"><CheckCircle2 aria-hidden />{pending ? "Saving…" : "Complete"}</Button>
+    <Input name="notes" maxLength={500} aria-label={tr("fCompletionNotes")} placeholder={recurring ? tr.text("Notes — the next one is scheduled automatically") : tr.text("Completion notes")} className="h-9 w-full sm:w-72" />
+    <Button disabled={pending} size="sm" variant="outline"><CheckCircle2 aria-hidden />{pending ? tr.text("Saving…") : tr.text("Complete")}</Button>
     <div className="w-full"><ActionFeedback state={state} /></div>
   </form>;
 }

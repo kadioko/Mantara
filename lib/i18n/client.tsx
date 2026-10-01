@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import { t, type Locale, type MessageKey } from "./messages";
+import { t, translateUiText, type Locale, type MessageKey } from "./messages";
 
 /**
  * Makes the active locale available to client components.
@@ -18,6 +18,12 @@ import { t, type Locale, type MessageKey } from "./messages";
  * this costs a single context read per component.
  */
 const LocaleContext = createContext<Locale>("en");
+type Translator = ((key: MessageKey, values?: Record<string, string>) => string) & { text: (text: string) => string };
+
+function bindTranslator(locale: Locale): Translator {
+  const translate = ((key: MessageKey, values?: Record<string, string>) => t(locale, key, values)) as Translator;
+  return Object.assign(translate, { text: (text: string) => translateUiText(locale, text) });
+}
 
 export function LocaleProvider({ locale, children }: { locale: Locale; children: React.ReactNode }) {
   return <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>;
@@ -31,10 +37,7 @@ export function LocaleProvider({ locale, children }: { locale: Locale; children:
  */
 export function useT() {
   const locale = useContext(LocaleContext);
-  return useMemo(
-    () => (key: MessageKey, values?: Record<string, string>) => t(locale, key, values),
-    [locale],
-  );
+  return useMemo(() => bindTranslator(locale), [locale]);
 }
 
 /** The active locale itself, for the rare component that needs it for formatting rather than text. */

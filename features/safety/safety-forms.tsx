@@ -34,8 +34,9 @@ export type Option = { id: string; label: string };
 
 
 function Select({ name, label, options, placeholder, required, defaultValue }: { name: string; label: string; options: Option[]; placeholder?: string; required?: boolean; defaultValue?: string }) {
+  const tr = useT();
   return <div>
-    <Label htmlFor={name}>{label}{required ? " *" : ""}</Label>
+    <Label htmlFor={name}>{label}{required ? tr.text(" *") : ""}</Label>
     <select id={name} name={name} required={required} defaultValue={defaultValue ?? ""} className={selectClass}>
       {placeholder !== undefined && <option value="">{placeholder}</option>}
       {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
@@ -67,7 +68,7 @@ export function IncidentForm({ workers, equipment, today }: { workers: Option[];
       </p>
     </div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Report incident"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Report incident")}</Button></div>
   </form>;
 }
 
@@ -77,7 +78,7 @@ export function IncidentStatusForm({ incidentId, status }: { incidentId: string;
   return <form action={action} className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
     <input name="incidentId" type="hidden" value={incidentId} />
     <Select name="status" label={tr("fStatus")} defaultValue={status} options={incidentStatuses.map((value) => ({ id: value, label: statusLabels[value] }))} />
-    <Button disabled={pending}>{pending ? "Saving…" : "Update"}</Button>
+    <Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Update")}</Button>
     <div className="sm:col-span-2"><ActionFeedback state={state} /></div>
   </form>;
 }
@@ -95,7 +96,7 @@ export function SensitiveDetailsPanel({ incidentId, hasDetails, canRead }: { inc
       <Lock className="mt-0.5 size-4 shrink-0" aria-hidden />
       <span>
         {hasDetails
-          ? "This incident has personal or medical details. Viewing them needs the sensitive safety permission."
+          ? tr.text("This incident has personal or medical details. Viewing them needs the sensitive safety permission.")
           : "No sensitive details have been recorded for this incident."}
       </span>
     </Alert>;
@@ -108,11 +109,11 @@ export function SensitiveDetailsPanel({ incidentId, hasDetails, canRead }: { inc
         <ShieldAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
         <span>
           {hasDetails
-            ? "Personal and medical information is held for this incident. Opening it is recorded in the audit log against your name."
+            ? tr.text("Personal and medical information is held for this incident. Opening it is recorded in the audit log against your name.")
             : "No sensitive details have been recorded yet."}
         </span>
       </Alert>
-      {hasDetails && <Button disabled={pending} variant="outline" size="sm"><Eye aria-hidden />{pending ? "Opening…" : "View sensitive details"}</Button>}
+      {hasDetails && <Button disabled={pending} variant="outline" size="sm"><Eye aria-hidden />{pending ? tr.text("Opening…") : tr.text("View sensitive details")}</Button>}
       <ActionFeedback state={state} />
     </form>;
   }
@@ -137,7 +138,7 @@ export function SensitiveDetailsForm({ incidentId, workers }: { incidentId: stri
     <div><Label htmlFor="medicalNotes">{tr("medicalNotes")}</Label><Textarea id="medicalNotes" name="medicalNotes" maxLength={2000} rows={2} className="mt-1" /></div>
     <div><Label htmlFor="personalDetails">{tr("personalDetails")}</Label><Textarea id="personalDetails" name="personalDetails" maxLength={2000} rows={2} className="mt-1" /></div>
     <div className="md:col-span-2"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Save sensitive details"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Save sensitive details")}</Button></div>
   </form>;
 }
 
@@ -168,18 +169,19 @@ export function CorrectiveActionForm({ incidents, inspections, workers }: { inci
     <Select name="assignedWorkerId" label={tr("fAssignedTo")} options={workers} placeholder={tr("optUnassigned")} />
     <div><Label htmlFor="dueOn">{tr("fDueOn")}</Label><Input id="dueOn" name="dueOn" type="date" className="mt-1" /></div>
     <div className="md:col-span-3"><ActionFeedback state={state} /></div>
-    <div><Button disabled={pending}>{pending ? "Saving…" : "Raise action"}</Button></div>
+    <div><Button disabled={pending}>{pending ? tr.text("Saving…") : tr.text("Raise action")}</Button></div>
   </form>;
 }
 
 export function CorrectiveActionStatusForm({ actionId, status, actionTitle }: { actionId: string; status: string; actionTitle: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(updateCorrectiveAction, {} as SafetyState);
   return <form action={action} className="flex flex-wrap items-end gap-2">
     <input name="actionId" type="hidden" value={actionId} />
     <select name="status" defaultValue={status} aria-label={`Status for ${actionTitle}`} className="h-9 rounded-md border border-input bg-card px-2 text-sm">
       {correctiveActionStatuses.map((value) => <option key={value} value={value}>{actionStatusLabels[value]}</option>)}
     </select>
-    <Button disabled={pending} size="sm" variant="outline">{pending ? "Saving…" : "Update"}</Button>
+    <Button disabled={pending} size="sm" variant="outline">{pending ? tr.text("Saving…") : tr.text("Update")}</Button>
     <div className="w-full"><ActionFeedback state={state} /></div>
   </form>;
 }

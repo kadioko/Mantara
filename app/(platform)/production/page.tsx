@@ -6,7 +6,7 @@ import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { pageInfo, readPaging, type PageParams } from "@/lib/paging";
 import { Pagination } from "@/components/ui/pagination";
 import { getLocale } from "@/lib/i18n/locale";
-import { t } from "@/lib/i18n/messages";
+import { t, translateUiText } from "@/lib/i18n/messages";
 import { DowntimeForm, OreDispatchForm, OreLotForm, ProductionEntryForm } from "@/features/production/production-forms";
 import { productionStatusLabels } from "@/features/production/schemas";
 
@@ -93,7 +93,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
       <div className="border-b border-border px-5 py-4"><h2 className="font-bold">{t(locale, "uiProcessingPlantDispatches")}</h2><p className="text-sm text-muted-foreground">{t(locale, "uiTransportTrailForBaggedOreLeavingTheSite")}</p></div>
       {dispatches.length ? <div className="divide-y divide-border">{dispatches.map((dispatch) => {
         const lot = Array.isArray(dispatch.lot) ? dispatch.lot[0] : dispatch.lot;
-        return <article key={dispatch.id} className="grid gap-2 p-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center"><div><p className="font-semibold">{dispatch.processing_plant}</p><p className="text-sm text-muted-foreground">{lot?.lot_number ?? "Ore lot"}{lot?.grade_ppm === null || lot?.grade_ppm === undefined ? "" : ` · ${lot.grade_ppm} PPM`}</p></div><p className="text-sm text-muted-foreground">{dispatch.dispatched_on}</p><p className="text-sm text-muted-foreground">{Number(dispatch.dispatched_tonnes).toLocaleString()} t · {dispatch.dispatched_bags.toLocaleString()} bags</p><span className="justify-self-start rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-foreground">{dispatch.status === "in_transit" ? "In transit" : "Received"}</span></article>;
+        return <article key={dispatch.id} className="grid gap-2 p-5 md:grid-cols-[1.4fr_1fr_1fr_auto] md:items-center"><div><p className="font-semibold">{dispatch.processing_plant}</p><p className="text-sm text-muted-foreground">{lot?.lot_number ?? translateUiText(locale, "Ore lot")}{lot?.grade_ppm === null || lot?.grade_ppm === undefined ? "" : ` · ${lot.grade_ppm} PPM`}</p></div><p className="text-sm text-muted-foreground">{dispatch.dispatched_on}</p><p className="text-sm text-muted-foreground">{Number(dispatch.dispatched_tonnes).toLocaleString()} t · {dispatch.dispatched_bags.toLocaleString()} bags</p><span className="justify-self-start rounded-full bg-warning/15 px-3 py-1 text-xs font-semibold text-warning-foreground">{translateUiText(locale, dispatch.status === "in_transit" ? "In transit" : "Received")}</span></article>;
       })}</div> : <p className="p-5 text-sm text-muted-foreground">{t(locale, "uiNoProcessingPlantDispatchesRecordedYet")}</p>}
     </section>
 

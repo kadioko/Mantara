@@ -3,6 +3,10 @@
 **Current position (1 October 2026): core MVP and first intelligence/geology slice are implemented in source; former Supabase project was deleted, replacement pending.**
 **Last updated: 1 October 2026**
 
+The latest source pass closes the static bilingual UI gap (851 paired catalogue keys; zero uncovered
+phrases) and adds period comparison plus more explicit evidence/coordinate handling in intelligence
+and geology. Human Kiswahili review and replacement-Supabase live validation remain open.
+
 > All live deployment and QA evidence recorded below refers to the former Supabase project. Treat it as
 > historical until the replacement project is provisioned, migrations `0001`–`0039` are applied, and
 > live checks are repeated. See the [technical audit](technical-audit-2026-10-01.md).
@@ -151,7 +155,7 @@ The current paid-pilot structure and provisional Starter, Growth, and Enterprise
 2. Preserve `scripts/live-tenant-qa.mjs` as the repeatable Auth/PostgREST/RLS/Storage/concurrency smoke suite and run it before pilot releases.
 3. Point an external monitor at `/api/health` and connect Vercel stdout to a chosen log destination. The application is instrumented; alert ownership and the vendor destination still need to be selected.
 4. Complete the screen-reader session, recovery drill, broader load test and pilot signoff. Phase-A offline drafts now cover shifts, maintenance requests, attendance and ordinary safety inspections.
-5. **Localization follow-up (1 October 2026):** the catalogue has 824 paired English/Kiswahili keys, but `npm run i18n:report` now finds 399 uncatalogued occurrences (280 unique) across 44 files. Prior “zero remaining” notes are stale. Lift these strings into the catalogue and have a Tanzanian mining-domain speaker review specialist vocabulary.
+5. **Localization follow-up (1 October 2026):** the earlier gap of 399 phrase occurrences, including 209 action results, has been covered in the bilingual catalogue/presentation layer. The current `npm run i18n:report` result is 851 paired English/Kiswahili keys and zero uncovered phrases. A Tanzanian mining-domain speaker review remains required for specialist vocabulary.
 6. Begin design-partner interviews now that production, fuel, maintenance, inventory, and expenses exist to demonstrate.
 
 ## Beyond the MVP: build order, not promises

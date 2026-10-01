@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useRef } from "react";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { useT } from "@/lib/i18n/client";
 import { useEncryptedDraft } from "@/lib/offline/encrypted-drafts";
 import { saveAttendance, type WorkerState } from "./actions";
@@ -24,8 +25,8 @@ export function AttendanceForm({date,workers}:{date:string;workers:AttendanceRow
       <label className="text-sm"><span className="sr-only">{tr("attendanceFor",{worker:worker.fullName})}</span><select name={`status_${worker.id}`} defaultValue={worker.status??""} className="w-full rounded-lg border border-input bg-card px-3 py-2"><option value="">{tr("optNotRecorded")}</option>{attendanceStatuses.map(value=><option key={value} value={value}>{statusLabels[value]}</option>)}</select></label>
     </div>)}</div>:<p className="p-5 text-sm text-muted-foreground">{tr("noWorkers")}</p>}
     {(state.error||state.success||workers.length>0)&&<div className="border-t border-border px-5 py-4">
-      {state.error&&<p role="alert" className="mb-3 rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>}
-      {state.success&&<p role="status" className="mb-3 rounded-lg bg-success/12 p-3 text-sm text-primary">{state.success}</p>}
+      {state.error&&<p role="alert" className="mb-3 rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>}
+      {state.success&&<p role="status" className="mb-3 rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.success} /></p>}
       {draftStatus!=="idle"&&<p role="status" className="mb-3 text-xs text-muted-foreground">{tr(draftStatus==="restored"?"offlineDraftRestored":"offlineDraftSaved")}</p>}
       {workers.length>0&&<button disabled={pending} className="rounded-lg bg-primary px-4 py-3 font-semibold text-white disabled:opacity-60">{pending?tr("saving"):tr("saveAttendance")}</button>}
     </div>}

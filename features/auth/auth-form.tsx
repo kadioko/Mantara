@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useActionState } from "react";
+import { LocalizedActionText } from "@/components/ui/feedback";
 import { t, type Locale } from "@/lib/i18n/messages";
 import { signIn, signUp, type AuthState } from "./actions";
 
@@ -41,8 +42,8 @@ export function AuthForm({ mode, locale }: { mode: "login" | "register"; locale:
         )}
       </label>
 
-      {state.error && <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive">{state.error}</p>}
-      {state.message && <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary">{state.message}</p>}
+      {state.error && <p role="alert" className="rounded-lg bg-destructive/12 p-3 text-sm text-destructive"><LocalizedActionText text={state.error} /></p>}
+      {state.message && <p role="status" className="rounded-lg bg-success/12 p-3 text-sm text-primary"><LocalizedActionText text={state.message} /></p>}
 
       <button disabled={pending} className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground disabled:opacity-60">
         {pending ? t(locale, "pleaseWait") : isLogin ? t(locale, "signIn") : t(locale, "createAccount")}

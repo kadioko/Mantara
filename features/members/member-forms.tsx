@@ -44,12 +44,13 @@ export function InviteMemberForm() {
         {systemRoleCodes.map((code) => <option key={code} value={code}>{roleLabels[code]}</option>)}
       </select>
     </div>
-    <Button disabled={pending}><UserPlus aria-hidden />{pending ? "Inviting…" : "Send invitation"}</Button>
+    <Button disabled={pending}><UserPlus aria-hidden />{pending ? tr.text("Inviting…") : tr.text("Send invitation")}</Button>
     <div className="sm:col-span-3"><ActionFeedback state={state} /></div>
   </form>;
 }
 
 export function MemberRoleForm({ userId, roleCode, isSelf, memberName }: { userId: string; roleCode: string; isSelf: boolean; memberName: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(changeMemberRole, {} as MemberState);
   if (isSelf) {
     // The database refuses a self role change; saying so is clearer than a control that always fails.
@@ -60,12 +61,13 @@ export function MemberRoleForm({ userId, roleCode, isSelf, memberName }: { userI
     <select name="roleCode" defaultValue={roleCode} aria-label={`Role for ${memberName}`} className={selectClass}>
       {systemRoleCodes.map((code) => <option key={code} value={code}>{roleLabels[code]}</option>)}
     </select>
-    <Button disabled={pending} size="sm" variant="outline">{pending ? "Saving…" : "Change"}</Button>
+    <Button disabled={pending} size="sm" variant="outline">{pending ? tr.text("Saving…") : tr.text("Change")}</Button>
     <div className="w-full"><ActionFeedback state={state} /></div>
   </form>;
 }
 
 export function MemberStatusForm({ userId, status, isSelf }: { userId: string; status: string; isSelf: boolean }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(changeMemberStatus, {} as MemberState);
   if (isSelf) return null;
   const suspending = status === "active";
@@ -74,18 +76,19 @@ export function MemberStatusForm({ userId, status, isSelf }: { userId: string; s
     <input name="status" type="hidden" value={suspending ? "suspended" : "active"} />
     <Button disabled={pending} size="sm" variant="ghost" className={suspending ? "text-destructive hover:bg-destructive/10" : ""}>
       {suspending ? <Ban aria-hidden /> : <RotateCcw aria-hidden />}
-      {pending ? "Saving…" : suspending ? "Suspend" : "Restore"}
+      {pending ? tr.text("Saving…") : suspending ? tr.text("Suspend") : tr.text("Restore")}
     </Button>
     <ActionFeedback state={state} />
   </form>;
 }
 
 export function RevokeInvitationForm({ invitationId }: { invitationId: string }) {
+  const tr = useT();
   const [state, action, pending] = useActionState(revokeInvitation, {} as MemberState);
   return <form action={action} className="flex flex-col items-end gap-2">
     <input name="invitationId" type="hidden" value={invitationId} />
     <Button disabled={pending} size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10">
-      <X aria-hidden />{pending ? "Revoking…" : "Revoke"}
+      <X aria-hidden />{pending ? tr.text("Revoking…") : tr.text("Revoke")}
     </Button>
     <ActionFeedback state={state} />
   </form>;
@@ -120,7 +123,7 @@ export function MemberSitesForm({
   if (sites.length < 2) return null; // Nothing to choose between at a single-site company.
 
   const summary = selected.length === 0
-    ? "All sites"
+    ? tr.text("All sites")
     : sites.filter((site) => selected.includes(site.id)).map((site) => site.name).join(", ");
 
   if (!open) {
@@ -153,7 +156,7 @@ export function MemberSitesForm({
       </fieldset>
       <ActionFeedback state={state} />
       <div className="flex gap-2">
-        <Button disabled={pending} size="sm">{pending ? "Saving…" : "Save"}</Button>
+        <Button disabled={pending} size="sm">{pending ? tr.text("Saving…") : tr.text("Save")}</Button>
         <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(false)}>{tr("cancel")}</Button>
       </div>
     </form>

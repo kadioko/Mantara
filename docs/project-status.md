@@ -12,6 +12,12 @@ it says so.
 
 ## Executive summary
 
+**Localization update (1 October 2026):** the former audit gap of 399 uncatalogued occurrences
+(209 action results) is now covered. `npm run i18n:report` reports 851 paired catalogue keys, no
+missing Kiswahili values, and zero uncovered UI phrases. Legacy action outcomes are translated at
+the presentation boundary; new screens should continue using typed message keys. Live Auth/database
+QA remains pending until the replacement Supabase project exists.
+
 Every planned module is built. Mantara has a multi-tenant foundation with isolation enforced in the
 database, working operational capture for Workforce, Equipment, Production and ore handling, Fuel,
 Maintenance, Inventory, Expenses, Compliance and Safety, an insight layer of dashboard figures,
@@ -38,7 +44,7 @@ of date.)*
 | Authorization | Organization roles, stable permission codes, defaults in `role_permission_defaults`, a role-editing screen, optional per-member mine-site restriction, and platform administration as a separate axis granting no tenant access. |
 | Workspace UI | Responsive shell, permission-driven navigation, brand mark, language switcher, offline banner, error/loading/not-found boundaries. |
 | Design system | One set of primitives in `components/ui/` and one token palette, verified against WCAG AA in both themes by `npm run contrast`. |
-| Localization | 824 paired English/Kiswahili catalogue keys with 100% catalogue coverage. Current static scan reports 399 uncatalogued UI phrase occurrences (280 unique) in 44 files; 209 action-result occurrences. Specialist mining terms still need field-speaker review. |
+| Localization | 851 paired English/Kiswahili catalogue keys with 100% catalogue coverage. Current static scan reports zero uncatalogued UI phrase occurrences, including action-result messages. Specialist mining terms still need field-speaker review. |
 | Workforce | Worker register and profile with editing and removal, assignments, training, PPE issues, daily attendance roster. |
 | Equipment | Register and detail with editing and retirement, meter readings that cannot move backwards, status history, operator assignments. |
 | Production | Shifts, PPM grade capture, database-enforced approval lifecycle, downtime, bagged ore lots, protected plant dispatches. |
@@ -53,7 +59,7 @@ of date.)*
 | User administration | Invitations by email, role changes and suspension, with the database refusing to leave an organization without an owner. Rate limited. |
 | Platform administration | `/admin` with organization metadata, suspension, administrator management, and an append-only platform audit log. |
 | Operations | `/api/health` proving database reachability, structured JSON logging with field redaction, a Postgres-backed rate limiter, and security headers on every response with a Content-Security-Policy reporting to `/api/csp-report`. |
-| Quality | Local static checks on 1 October: `npm run typecheck`, `npm run lint`, `npm run a11y`, and `npm run contrast` pass. Live integration state is unavailable until Supabase is reprovisioned. |
+| Quality | On 1 October, `npm run audit:all` passes (typecheck, lint, accessibility, contrast, and i18n); `npm test` passes 56 files / 780 tests with 1 skipped. Live integration state is unavailable until Supabase is reprovisioned. |
 
 ## What the tests actually prove
 

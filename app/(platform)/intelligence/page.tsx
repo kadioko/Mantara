@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { hasPermission } from "@/lib/auth/permissions";
 import { getActiveWorkspace } from "@/lib/auth/workspace";
 import { getLocale } from "@/lib/i18n/locale";
-import { t } from "@/lib/i18n/messages";
+import { t, type MessageKey } from "@/lib/i18n/messages";
 import { ForecastAssumptionForm } from "@/features/intelligence/forecast-assumption-form";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type IntelligenceRow = {
   currency_code:string; production_tonnes:number|string; contained_grams:number|string; contained_ounces:number|string;
@@ -26,6 +27,7 @@ type DailySummary = {
   date:string; production?:{approvedTonnes:number;entries:number}; attendance?:{presentOrLate:number;recorded:number};
   expenses?:Array<{currency:string;amount:number}>; safety?:{incidents:number;inspections:number}; evidence:string[];
 };
+type PeriodComparison = { measure: string; unit: string; current_value: number | string; previous_value: number | string; higher_is_better: boolean | null };
 const fmt=(value:number|string|null|undefined,digits=2)=>value===null||value===undefined?"—":Number(value).toLocaleString(undefined,{maximumFractionDigits:digits});
 /** A unit belongs to a number, not to a dash. Without this an unknown utilization read "—%". */
 const withUnit=(value:number|string|null|undefined,unit:string,digits=2)=>value===null||value===undefined?"—":`${fmt(value,digits)}${unit}`;
@@ -37,10 +39,11 @@ export default async function IntelligencePage({searchParams}:{searchParams:Prom
   const today=new Date().toISOString().slice(0,10),first=`${today.slice(0,7)}-01`;
   const from=/^\d{4}-\d{2}-\d{2}$/.test(query.from??"")?query.from!:first;
   const to=/^\d{4}-\d{2}-\d{2}$/.test(query.to??"")?query.to!:today;
-  const [intelligenceResult,forecastResult,summaryResult,canManage]=await Promise.all([
+  const [intelligenceResult,forecastResult,summaryResult,comparisonResult,canManage]=await Promise.all([
     workspace.supabase.rpc("site_operational_intelligence",{requested_site_id:site.id,requested_from:from,requested_to:to}),
     workspace.supabase.rpc("site_cashflow_forecast",{requested_site_id:site.id,history_from:from,history_to:to}),
     workspace.supabase.rpc("site_daily_summary",{requested_site_id:site.id,requested_date:to}),
+    workspace.supabase.rpc("site_period_comparison",{requested_site_id:site.id,window_days:30}),
     Promise.all([hasPermission(organization.id,"production.update"),hasPermission(organization.id,"expense.update")]).then(x=>x.every(Boolean)),
   ]);
   /*
@@ -53,6 +56,7 @@ export default async function IntelligencePage({searchParams}:{searchParams:Prom
   const rows=(intelligenceResult.error?[]:intelligenceResult.data??[]) as IntelligenceRow[];
   const forecasts=(forecastResult.error?[]:forecastResult.data??[]) as ForecastRow[];
   const summary=(summaryResult.error?null:summaryResult.data) as DailySummary|null;
+  const comparisons=(comparisonResult.error?[]:comparisonResult.data??[]) as PeriodComparison[];
   const base=rows[0];
   return <div className="space-y-6">
     <PageHeader eyebrow={t(locale,"riskAndInsight")} title={t(locale,"intelligenceTitle")} description={t(locale,"intelligenceDescription",{site:site.name})}/>
@@ -95,6 +99,22 @@ export default async function IntelligencePage({searchParams}:{searchParams:Prom
       <StatCard label={t(locale,"dailyIncidents")} value={summary.safety?.incidents??0}/>
       <StatCard label={t(locale,"dailyInspections")} value={summary.safety?.inspections??0}/>
     </div>:<EmptyState title={t(locale,"noDailySummary")}/>}</Panel>
+    <Panel title={t(locale,"periodComparison")} description={t(locale,"periodComparisonDescription")}>
+      {comparisonResult.error?<Alert variant="warning">{t(locale,"comparisonUnavailable")}</Alert>:comparisons.length?<>
+        <div className="overflow-x-auto"><Table>
+          <TableHeader><TableRow><TableHead>{t(locale,"comparisonMeasure")}</TableHead><TableHead>{t(locale,"comparisonCurrent")}</TableHead><TableHead>{t(locale,"comparisonPrevious")}</TableHead><TableHead>{t(locale,"comparisonChange")}</TableHead></TableRow></TableHeader>
+          <TableBody>{comparisons.filter((row)=>row.measure!=="Approved spend"&&row.measure!=="Stock variance").map((row)=>{
+            const current=Number(row.current_value),previous=Number(row.previous_value),change=current-previous;
+            const measureKey:Record<string,MessageKey>={"Approved production":"compareProduction",Downtime:"compareDowntime","Fuel issued":"compareFuelIssued","Fuel variance":"compareFuelVariance","Stock variance":"compareStockVariance","Safety incidents":"compareSafetyIncidents"};
+            const label=measureKey[row.measure]?t(locale,measureKey[row.measure]):row.measure;
+            const unit=row.unit==="tonnes"?"t":row.unit==="litres"?"L":row.unit==="hours"?"h":row.unit==="incidents"?"":row.unit;
+            const amount=(value:number)=>`${fmt(value,3)}${unit?` ${unit}`:""}`;
+            return <TableRow key={row.measure}><TableCell className="font-medium">{label}</TableCell><TableCell className="tabular-nums">{amount(current)}</TableCell><TableCell className="tabular-nums">{amount(previous)}</TableCell><TableCell className="tabular-nums">{change>0?"+":""}{amount(change)}</TableCell></TableRow>;
+          })}</TableBody>
+        </Table></div>
+        <p className="mt-3 text-xs text-muted-foreground">{t(locale,"comparisonNeutral")} {t(locale,"comparisonMoneyExcluded")}</p>
+      </>:<EmptyState title={t(locale,"noIntelligence")}/>}
+    </Panel>
     <Panel title={t(locale,"mantaraBrain")} description={t(locale,"mantaraBrainDescription")}>
       <Alert variant="info"><strong>{t(locale,"evidenceBounded")}:</strong> {forecasts.length?t(locale,"brainForecastFinding",{count:String(forecasts.length)}):t(locale,"brainMissingAssumptions")}</Alert>
       <p className="mt-3 text-xs text-muted-foreground">{t(locale,"brainSources")}: {summary?.evidence?.join(", ")??"site_forecast_assumptions, production_entries, expenses"}</p>

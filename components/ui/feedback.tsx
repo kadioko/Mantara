@@ -1,5 +1,9 @@
+"use client";
+
 import { cva, type VariantProps } from "class-variance-authority";
 import { ArrowUpRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/client";
+import { translateUiText } from "@/lib/i18n/messages";
 import { cn } from "@/lib/utils";
 
 export const alertVariants = cva("rounded-lg border px-4 py-3 text-sm", {
@@ -23,9 +27,15 @@ export function Alert({ className, variant, ...props }: AlertProps) {
 
 /** Renders a server action's result, using the roles assistive technology expects for each outcome. */
 export function ActionFeedback({ state }: { state: { error?: string; success?: string } }) {
-  if (state.error) return <Alert role="alert" variant="destructive">{state.error}</Alert>;
-  if (state.success) return <Alert role="status" variant="success">{state.success}</Alert>;
+  if (state.error) return <Alert role="alert" variant="destructive"><LocalizedActionText text={state.error} /></Alert>;
+  if (state.success) return <Alert role="status" variant="success"><LocalizedActionText text={state.success} /></Alert>;
   return null;
+}
+
+/** Translate a server action's legacy English message using the active workspace language. */
+export function LocalizedActionText({ text }: { text: string }) {
+  const locale = useLocale();
+  return translateUiText(locale, text);
 }
 
 export function EmptyState({ title, description, icon }: { title: string; description?: string; icon?: React.ReactNode }) {

@@ -124,19 +124,12 @@ hook exists because `getLocale()` reads a cookie, which only a server component 
 every data-entry form in the product was stuck in English while the pages around them were bilingual,
 which is precisely backwards for an operator at a mine site.
 
-`npm run i18n:report` shows two numbers. Catalogue coverage is the easy one. The number that matters
-is text written directly into components, which no translator can reach at all.
-
-**It has twice reported a smaller gap than exists**, and the second time it reported none. It read
-text nodes and a fixed list of props, so it never saw a string inside a JSX ternary
-(`{saving ? "Saving..." : "Attach document"}`), a message passed to `setError`, or the
-`{ error: "..." }` / `{ success: "..." }` a server action hands back. It now reads all of those, and
-scans `.ts` as well as `.tsx`; the current audit finds **399 uncatalogued phrase occurrences**.
-
-The last category is the one that matters. An action result is the sentence an operator reads *after
-doing something* — did my shift entry save, why was it refused. The chrome around a form being
-bilingual while the answer to "did that work?" stays English is precisely backwards for a supervisor
-at a mine site. **209 of the 399 occurrences are action results.**
+`npm run i18n:report` checks catalogue parity and source UI strings, including conditional labels and
+action results. As of 1 October 2026, the catalogue has **851 paired English/Kiswahili keys** and the
+scanner finds **zero uncatalogued UI phrases**. Legacy action-result strings are translated where
+they are presented so operators see save confirmations and failures in their selected language. The
+earlier audit found 399 uncovered occurrences (209 action results); those occurrences are now
+covered. A Tanzanian mining-domain speaker still needs to review specialist vocabulary before pilot.
 
 Example placeholders stay in English on purpose — "CAT 320 excavator", "EXC-001" — because they are
 format hints rather than instructions, and a product code translated is less useful than the
